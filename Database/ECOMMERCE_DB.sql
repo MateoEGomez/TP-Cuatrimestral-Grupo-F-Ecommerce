@@ -117,6 +117,35 @@ CREATE TABLE [dbo].[OBSERVACIONES_PEDIDO](
 )
 GO
 
+CREATE TABLE [dbo].[EXPANSIONES](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Descripcion] [varchar](100) NOT NULL,
+	[Activo] [bit] NOT NULL DEFAULT 1,
+ CONSTRAINT [PK_EXPANSIONES] PRIMARY KEY CLUSTERED ([Id] ASC)
+)
+GO
+
+CREATE TABLE [dbo].[RAREZAS](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Descripcion] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_RAREZAS] PRIMARY KEY CLUSTERED ([Id] ASC)
+)
+GO
+
+CREATE TABLE [dbo].[CONDICIONES](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Descripcion] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_CONDICIONES] PRIMARY KEY CLUSTERED ([Id] ASC)
+)
+GO
+
+CREATE TABLE [dbo].[IDIOMAS](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Descripcion] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_IDIOMAS] PRIMARY KEY CLUSTERED ([Id] ASC)
+)
+GO
+
 ALTER TABLE [dbo].[PRODUCTOS] WITH CHECK ADD CONSTRAINT [FK_PRODUCTOS_CATEGORIAS] FOREIGN KEY([IdCategoria])
 REFERENCES [dbo].[CATEGORIAS] ([Id])
 GO
@@ -206,6 +235,30 @@ insert into ESTADOS_PEDIDO values ('En preparación')
 insert into ESTADOS_PEDIDO values ('Enviado')
 insert into ESTADOS_PEDIDO values ('Entregado')
 insert into ESTADOS_PEDIDO values ('Cancelado')
+
+insert into EXPANSIONES (Descripcion) values ('Escarlata y Púrpura')
+insert into EXPANSIONES (Descripcion) values ('Escarlata y Púrpura 151')
+insert into EXPANSIONES (Descripcion) values ('Destinos de Paldea')
+insert into EXPANSIONES (Descripcion) values ('Fuerzas Temporales')
+insert into EXPANSIONES (Descripcion) values ('Corona Astral')
+
+insert into RAREZAS values ('Común')
+insert into RAREZAS values ('Poco común')
+insert into RAREZAS values ('Rara')
+insert into RAREZAS values ('Rara holo')
+insert into RAREZAS values ('Ultra rara')
+insert into RAREZAS values ('Rara ilustración')
+insert into RAREZAS values ('Rara secreta')
+
+insert into CONDICIONES values ('Mint')
+insert into CONDICIONES values ('Near Mint')
+insert into CONDICIONES values ('Excelente')
+insert into CONDICIONES values ('Jugada')
+insert into CONDICIONES values ('Dañada')
+
+insert into IDIOMAS values ('Español')
+insert into IDIOMAS values ('Inglés')
+insert into IDIOMAS values ('Japonés')
 
 insert into PEDIDOS (IdUsuario, Fecha, Total, IdFormaPago, IdFormaEntrega, IdDireccion, IdEstado) values (3, '2026-10-20 18:30', 134998.00, 2, 2, 1, 2)
 insert into DETALLE_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) values (1, 6, 1, 79999.00)
