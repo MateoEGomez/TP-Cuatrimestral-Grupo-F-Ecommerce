@@ -12,7 +12,7 @@ namespace ecommerce_web
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack) // Muy importante en Web Forms para que no recargue en bucle
+            if (!IsPostBack)
             {
                 try
                 {

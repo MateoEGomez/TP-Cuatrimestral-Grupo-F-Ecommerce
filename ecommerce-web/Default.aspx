@@ -10,21 +10,23 @@
             <p class="lead">Encontrá los mejores productos de tecnología en un solo lugar.</p>
         </div>
 
-        <div class="row">
-            <asp:Repeater ID="repeaterProductos" runat="server">
-                <ItemTemplate>
-                    <div class="col-md-4 mb-3">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title"><%# Eval("Nombre") %></h5>
-                                <p class="card-text"><%# Eval("Descripcion") %></p>
-                                <p class="card-text text-success"><strong>$<%# Eval("Precio") %></strong></p>
-                                <a href="#" class="btn btn-primary">Ver detalle</a>
-                            </div>
+  <div class="row">
+        <asp:Repeater ID="repeaterProductos" runat="server">
+            <ItemTemplate>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm">
+                        <!-- IMAGEN DE LA CARTA -->
+                        <img src='<%# Eval("UrlImagen") %>' class="card-img-top p-3" alt='<%# Eval("Nombre") %>' style="height: 280px; object-fit: contain;" />
+                        
+                        <div class="card-body">
+                            <h5 class="card-title"><%# Eval("Nombre") %></h5>
+                            <p class="card-text"><%# Eval("Descripcion") %></p>
+                            <p class="card-text text-success"><strong>$<%# Eval("Precio") %></strong></p>
+                            <a href="#" class="btn btn-primary">Ver detalle</a>
                         </div>
                     </div>
-                </ItemTemplate>
-            </asp:Repeater>
-        </div>
+                </div>
+            </ItemTemplate>
+        </asp:Repeater>
     </div>
 </asp:Content>
