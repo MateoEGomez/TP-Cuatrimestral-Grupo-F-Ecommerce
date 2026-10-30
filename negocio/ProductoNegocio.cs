@@ -119,12 +119,15 @@ namespace negocio
         // 3. Método para importar cartas desde la API de Pokémon TCG
         public void importarCartasDesdeAPI()
         {
-            string url = "https://api.pokemontcg.io/v2/cards?pageSize=24";
+            string url = "https://api.pokemontcg.io/v2/cards?pageSize=60";
 
             using (HttpClient client = new HttpClient())
             {
                 try
                 {
+                    // OBLIGATORIO: La API de Pokémon TCG rechaza peticiones sin un User-Agent válido
+                    client.DefaultRequestHeaders.Add("User-Agent", "EcommerceTCG-App");
+
                     HttpResponseMessage response = client.GetAsync(url).Result;
                     if (response.IsSuccessStatusCode)
                     {
@@ -158,7 +161,8 @@ namespace negocio
                             AccesoDatos datos = new AccesoDatos();
                             try
                             {
-                                datos.setearConsulta("INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdVendedor, IdEstadoPublicacion, Activo) VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, 1, 2, 1)");
+                                // Insertamos solo las columnas que sabemos que existen en la tabla PRODUCTOS
+                                datos.setearConsulta("INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria)");
                                 datos.setearParametro("@nombre", nombre);
                                 datos.setearParametro("@descripcion", descripcion);
                                 datos.setearParametro("@precio", precio);
@@ -177,6 +181,11 @@ namespace negocio
                                 datos.cerrarConexion();
                             }
                         }
+                    }
+                    else
+                    {
+                        // Si la API sigue rechazando, lanzamos excepción para ver el código HTTP exacto
+                        throw new Exception("Error al conectar con la API TCG. Código HTTP: " + response.StatusCode);
                     }
                 }
                 catch (Exception ex)

@@ -71,13 +71,28 @@ namespace ecommerce_web
         {
             if (string.IsNullOrEmpty(descripcion)) return "glow-comun";
 
-            if (descripcion.Contains("Ultra") || descripcion.Contains("Secret") || descripcion.Contains("Secreta"))
+            // Extraemos únicamente el texto que está después de "Rareza:" para evitar falsos positivos
+            string rarezaTexto = descripcion;
+            int index = descripcion.IndexOf("Rareza:");
+            if (index != -1)
+            {
+                rarezaTexto = descripcion.Substring(index + 7).Trim();
+            }
+
+            // 1. Ultra Raras / GX / V / Secret (Dorado / Amarillo furioso)
+            if (rarezaTexto.Contains("GX") || rarezaTexto.Contains("V") || rarezaTexto.Contains("Secret") || rarezaTexto.Contains("Ultra") || rarezaTexto.Contains("VMAX") || rarezaTexto.Contains("VSTAR"))
                 return "glow-ultra";
-            if (descripcion.Contains("Rare") || descripcion.Contains("Holo"))
+
+            // 2. Raras / Holo / Radiantes (Violeta / Púrpura intenso)
+            if (rarezaTexto.Contains("Rare") || rarezaTexto.Contains("Holo") || rarezaTexto.Contains("Radiant"))
                 return "glow-rara";
-            if (descripcion.Contains("Poco común") || descripcion.Contains("Uncommon"))
+
+            // 3. Poco Comunes (Azul)
+            if (rarezaTexto.Contains("Uncommon") || rarezaTexto.Contains("Poco común"))
                 return "glow-poco-comun";
 
+
+            // 4. Comunes / Common por defecto (Verde sutil)
             return "glow-comun";
         }
     }
