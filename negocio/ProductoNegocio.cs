@@ -8,6 +8,7 @@ namespace negocio
 {
     public class ProductoNegocio
     {
+        // 1. Método listar clásico (indispensable para la validación inicial de base vacía)
         public List<Producto> listar()
         {
             List<Producto> lista = new List<Producto>();
@@ -48,10 +49,77 @@ namespace negocio
             }
         }
 
-        // Método para ir a buscar cartas a la API y guardarlas en la base de datos
-        public void importarCartasDesdeApi()
+        // 2. Método de paginación profesional con OFFSET y FETCH NEXT de SQL Server
+        public List<Producto> listarPaginado(int pagina, int registrosPorPagina, out int totalRegistros)
         {
-            string url = "https://api.pokemontcg.io/v2/cards?pageSize=12";
+            List<Producto> lista = new List<Producto>();
+            AccesoDatos datos = new AccesoDatos();
+            AccesoDatos datosContador = new AccesoDatos();
+
+            try
+            {
+                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1");
+                totalRegistros = datosContador.ejecutarAccionScalar();
+            }
+            catch (Exception)
+            {
+                totalRegistros = 0;
+            }
+            finally
+            {
+                datosContador.cerrarConexion();
+            }
+
+            int offset = (pagina - 1) * registrosPorPagina;
+
+            try
+            {
+                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo " +
+                                  "FROM PRODUCTOS WHERE Activo = 1 " +
+                                  "ORDER BY Id " +
+                                  "OFFSET @Offset ROWS " +
+                                  "FETCH NEXT @PageSize ROWS ONLY";
+
+                datos.setearConsulta(consulta);
+                datos.setearParametro("@Offset", offset);
+                datos.setearParametro("@PageSize", registrosPorPagina);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
+
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+
+                    aux.Categoria = new Categoria();
+                    aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
+
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        // 3. Método para importar cartas desde la API de Pokémon TCG
+        public void importarCartasDesdeAPI()
+        {
+            string url = "https://api.pokemontcg.io/v2/cards?pageSize=24";
 
             using (HttpClient client = new HttpClient())
             {
@@ -90,7 +158,6 @@ namespace negocio
                             AccesoDatos datos = new AccesoDatos();
                             try
                             {
-                                // Incluimos IdVendedor e IdEstadoPublicacion para cumplir con las restricciones de la nueva BD
                                 datos.setearConsulta("INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdVendedor, IdEstadoPublicacion, Activo) VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, 1, 2, 1)");
                                 datos.setearParametro("@nombre", nombre);
                                 datos.setearParametro("@descripcion", descripcion);
