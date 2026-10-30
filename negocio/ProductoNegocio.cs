@@ -3,29 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using dominio;
 
 namespace negocio
 {
     public class ProductoNegocio
     {
-        public Listar<Producto> Listar()
+        public List<Producto> listar()
         {
-            Listar<Producto> lista = new Listar<Producto>();
+            List<Producto> lista = new List<Producto>();
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("select Id, Codigo, Nombre, Descripcion, IdMarca, IdCategoria, Precio from Productos");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo FROM Productos");
                 datos.ejecutarLectura();
+
                 while (datos.Lector.Read())
                 {
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
-                    aux.Codigo = (string)datos.Lector["Codigo"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
                     aux.Descripcion = (string)datos.Lector["Descripcion"];
-                    aux.IdMarca = (int)datos.Lector["IdMarca"];
-                    aux.IdCategoria = (int)datos.Lector["IdCategoria"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
+
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+
+                    aux.Categoria = new Categoria();
+                    aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
+
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
                     lista.Add(aux);
                 }
                 return lista;
