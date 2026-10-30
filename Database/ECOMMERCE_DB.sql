@@ -21,6 +21,12 @@ CREATE TABLE [dbo].[PRODUCTOS](
 	[Stock] [int] NOT NULL DEFAULT 0,
 	[UrlImagen] [varchar](300) NULL,
 	[IdCategoria] [int] NOT NULL,
+	[IdExpansion] [int] NULL,
+	[IdRareza] [int] NULL,
+	[IdCondicion] [int] NULL,
+	[IdIdioma] [int] NULL,
+	[IdVendedor] [int] NOT NULL,
+	[IdEstadoPublicacion] [int] NOT NULL DEFAULT 1,
 	[Activo] [bit] NOT NULL DEFAULT 1,
  CONSTRAINT [PK_PRODUCTOS] PRIMARY KEY CLUSTERED ([Id] ASC)
 )
@@ -146,6 +152,13 @@ CREATE TABLE [dbo].[IDIOMAS](
 )
 GO
 
+CREATE TABLE [dbo].[ESTADOS_PUBLICACION](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Descripcion] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_ESTADOS_PUBLICACION] PRIMARY KEY CLUSTERED ([Id] ASC)
+)
+GO
+
 ALTER TABLE [dbo].[PRODUCTOS] WITH CHECK ADD CONSTRAINT [FK_PRODUCTOS_CATEGORIAS] FOREIGN KEY([IdCategoria])
 REFERENCES [dbo].[CATEGORIAS] ([Id])
 GO
@@ -198,21 +211,10 @@ insert into PERFILES values ('Cliente')
 insert into PERFILES values ('Administrador')
 insert into PERFILES values ('Vendedor')
 
-insert into CATEGORIAS (Descripcion) values ('Celulares')
-insert into CATEGORIAS (Descripcion) values ('Computación')
-insert into CATEGORIAS (Descripcion) values ('Audio')
+insert into CATEGORIAS (Descripcion) values ('Cartas sueltas')
+insert into CATEGORIAS (Descripcion) values ('Sobres')
+insert into CATEGORIAS (Descripcion) values ('Cajas y packs')
 insert into CATEGORIAS (Descripcion) values ('Accesorios')
-
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Samsung Galaxy A15', 'Celular de 6,5 pulgadas con 128 GB de almacenamiento y 4 GB de RAM.', 289999.00, 15, null, 1)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Motorola Moto G24', 'Celular de 6,6 pulgadas con 128 GB de almacenamiento y batería de 5000 mAh.', 239999.00, 20, null, 1)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Notebook Lenovo IdeaPad 3', 'Notebook de 15,6 pulgadas, Intel Core i5, 8 GB de RAM y 512 GB SSD.', 849999.00, 6, null, 2)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Monitor LG 24 pulgadas', 'Monitor Full HD IPS de 24 pulgadas con entrada HDMI.', 219999.00, 10, null, 2)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Teclado Logitech K120', 'Teclado USB con cable, resistente a salpicaduras.', 18999.00, 40, null, 2)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Auriculares JBL Tune 520BT', 'Auriculares inalámbricos bluetooth con hasta 57 horas de batería.', 79999.00, 25, null, 3)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Parlante JBL Go 3', 'Parlante bluetooth portátil resistente al agua.', 54999.00, 30, null, 3)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Mouse inalámbrico Logitech M170', 'Mouse inalámbrico con receptor USB.', 14999.00, 50, null, 4)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) values ('Cargador rápido 25W', 'Cargador USB-C de carga rápida compatible con Samsung y Motorola.', 22999.00, 35, null, 4)
-insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo) values ('Funda silicona Galaxy A15', 'Funda de silicona para Samsung Galaxy A15.', 7999.00, 0, null, 4, 0)
 
 insert into USUARIOS (Email, Pass, Nombre, Apellido, Telefono, IdPerfil) values ('admin@ecommerce.com', 'admin', 'Admin', 'Sistema', null, 2)
 insert into USUARIOS (Email, Pass, Nombre, Apellido, Telefono, IdPerfil) values ('vendedor@ecommerce.com', 'vendedor', 'Vendedor', 'Prueba', null, 3)
@@ -260,11 +262,28 @@ insert into IDIOMAS values ('Español')
 insert into IDIOMAS values ('Inglés')
 insert into IDIOMAS values ('Japonés')
 
-insert into PEDIDOS (IdUsuario, Fecha, Total, IdFormaPago, IdFormaEntrega, IdDireccion, IdEstado) values (3, '2026-10-20 18:30', 134998.00, 2, 2, 1, 2)
-insert into DETALLE_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) values (1, 6, 1, 79999.00)
-insert into DETALLE_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) values (1, 7, 1, 54999.00)
+insert into ESTADOS_PUBLICACION values ('Pendiente')
+insert into ESTADOS_PUBLICACION values ('Aprobada')
+insert into ESTADOS_PUBLICACION values ('Rechazada')
+
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Sobre Escarlata y Púrpura 151', 'Sobre de 10 cartas de la expansión 151.', 9500.00, 40, null, 2, 2, null, null, 1, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Sobre Destinos de Paldea', 'Sobre de 10 cartas con chances de Pokémon variocolor.', 11000.00, 30, null, 2, 3, null, null, 2, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Sobre Fuerzas Temporales', 'Sobre de 10 cartas de la expansión Fuerzas Temporales.', 7500.00, 50, null, 2, 4, null, null, 1, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Elite Trainer Box 151', 'Caja con 9 sobres, fundas, dados y accesorios de la expansión 151.', 145000.00, 5, null, 3, 2, null, null, 2, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Caja de 36 sobres Fuerzas Temporales', 'Caja sellada de 36 sobres (booster box).', 240000.00, 3, null, 3, 4, null, null, 1, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Charizard ex 199/165', 'Carta de ilustración especial de la expansión 151.', 120000.00, 1, null, 1, 2, 6, 2, 2, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Pikachu 173/165', 'Carta de ilustración rara de la expansión 151.', 18000.00, 2, null, 1, 2, 6, 1, 1, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Mew ex 151/165', 'Carta publicada por un usuario. Guardada en folio desde que se abrió el sobre.', 15000.00, 1, null, 1, 2, 5, 2, 2, 3, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Gengar 94/165', 'Carta publicada por un usuario, con marcas de uso en los bordes.', 4000.00, 1, null, 1, 2, 4, 4, 1, 3, 1)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Bulbasaur 1/165', 'Carta publicada por un usuario, doblada en una esquina.', 1500.00, 1, null, 1, 2, 1, 5, 1, 3, 3)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion) values ('Fundas Pokémon x65', 'Fundas oficiales para proteger cartas de tamaño estándar.', 9000.00, 60, null, 4, null, null, null, null, 1, 2)
+insert into PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, IdExpansion, IdRareza, IdCondicion, IdIdioma, IdVendedor, IdEstadoPublicacion, Activo) values ('Carpeta 9 bolsillos', 'Carpeta para coleccionar con 20 hojas de 9 bolsillos.', 25000.00, 0, null, 4, null, null, null, null, 1, 2, 0)
+
+insert into PEDIDOS (IdUsuario, Fecha, Total, IdFormaPago, IdFormaEntrega, IdDireccion, IdEstado) values (3, '2026-10-20 18:30', 164000.00, 2, 2, 1, 2)
+insert into DETALLE_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) values (1, 4, 1, 145000.00)
+insert into DETALLE_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) values (1, 1, 2, 9500.00)
 insert into OBSERVACIONES_PEDIDO (IdPedido, IdUsuario, Fecha, Texto) values (1, 1, '2026-10-21 10:15', 'Cliente confirmó pago por transferencia.')
 
-insert into PEDIDOS (IdUsuario, Fecha, Total, IdFormaPago, IdFormaEntrega, IdDireccion, IdEstado) values (3, '2026-10-25 12:00', 37998.00, 1, 1, null, 1)
-insert into DETALLE_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) values (2, 5, 2, 18999.00)
+insert into PEDIDOS (IdUsuario, Fecha, Total, IdFormaPago, IdFormaEntrega, IdDireccion, IdEstado) values (3, '2026-10-25 12:00', 30000.00, 1, 1, null, 1)
+insert into DETALLE_PEDIDO (IdPedido, IdProducto, Cantidad, PrecioUnitario) values (2, 3, 4, 7500.00)
 go
