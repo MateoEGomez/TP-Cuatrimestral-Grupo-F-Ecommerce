@@ -18,6 +18,15 @@ namespace dominio
         public string UrlImagen { get; set; }
         [DisplayName("Categoría")]
         public Categoria Categoria { get; set; }
+        [DisplayName("Expansión")]
+        public Expansion Expansion { get; set; }
+        public Rareza Rareza { get; set; }
+        [DisplayName("Condición")]
+        public Condicion Condicion { get; set; }
+        public Idioma Idioma { get; set; }
+        public Usuario Vendedor { get; set; }
+        [DisplayName("Publicación")]
+        public EstadoPublicacion EstadoPublicacion { get; set; }
         public bool Activo { get; set; }
     }
 }
