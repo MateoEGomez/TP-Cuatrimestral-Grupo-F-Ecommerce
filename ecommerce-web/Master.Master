@@ -1,7 +1,6 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Master.master.cs" Inherits="ecommerce_web.Master" %>
 
 <!DOCTYPE html>
-
 <html>
 <head runat="server">
     <title>E-commerce Grupo F</title>
@@ -14,18 +13,38 @@
         <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="Default.aspx">E-commerce Grupo F</a>
+                
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Menú de la izquierda -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="Default.aspx">Inicio</a>
                         </li>
                     </ul>
+
+                    <!-- ZONA DE USUARIO (Alineada a la derecha gracias al div contenedor) -->
+                    <div class="d-flex align-items-center">
+                        <!-- Si NO está logueado -->
+                        <asp:PlaceHolder ID="phNoLogueado" runat="server">
+                            <a href="Login.aspx" class="btn btn-outline-light me-2">Login</a>
+                            <a href="Registro.aspx" class="btn btn-primary">Registrarse</a>
+                        </asp:PlaceHolder>
+
+                        <!-- Si SÍ está logueado -->
+                        <asp:PlaceHolder ID="phLogueado" runat="server" Visible="false">
+                            <span class="navbar-text text-light me-3" id="lblUser" runat="server">Hola, Usuario</span>
+                            <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" OnClick="btnSalir_Click" />
+                        </asp:PlaceHolder>
+                    </div>
+
                 </div>
             </div>
         </nav>
+
         <div class="container">
             <hr />
             <div>
