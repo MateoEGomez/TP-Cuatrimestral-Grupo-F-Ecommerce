@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.UI;
+using System.Linq;
 using dominio;
 using negocio;
 
@@ -72,24 +73,11 @@ namespace ecommerce_web
             if (string.IsNullOrEmpty(descripcion)) return "glow-comun";
 
             // Extraemos únicamente el texto que está después de "Rareza:" para evitar falsos positivos
-            string rarezaTexto = descripcion;
-            int index = descripcion.IndexOf("Rareza:");
-            if (index != -1)
-            {
-                rarezaTexto = descripcion.Substring(index + 7).Trim();
-            }
+            string r = descripcion.Contains("Rareza:") ? descripcion.Substring(descripcion.IndexOf("Rareza:") + 7) : descripcion;
 
-            // 1. Ultra Raras / GX / V / Secret (Dorado / Amarillo furioso)
-            if (rarezaTexto.Contains("GX") || rarezaTexto.Contains("V") || rarezaTexto.Contains("Secret") || rarezaTexto.Contains("Ultra") || rarezaTexto.Contains("VMAX") || rarezaTexto.Contains("VSTAR"))
-                return "glow-ultra";
-
-            // 2. Raras / Holo / Radiantes (Violeta / Púrpura intenso)
-            if (rarezaTexto.Contains("Rare") || rarezaTexto.Contains("Holo") || rarezaTexto.Contains("Radiant"))
-                return "glow-rara";
-
-            // 3. Poco Comunes (Azul)
-            if (rarezaTexto.Contains("Uncommon") || rarezaTexto.Contains("Poco común"))
-                return "glow-poco-comun";
+            if (new[] { "GX", "V", "Secret", "Ultra", "VMAX", "VSTAR" }.Any(r.Contains)) return "glow-ultra";
+            if (new[] { "Rare", "Holo", "Radiant" }.Any(r.Contains)) return "glow-rara";
+            if (new[] { "Uncommon", "Poco común" }.Any(r.Contains)) return "glow-poco-comun";
 
 
             // 4. Comunes / Common por defecto (Verde sutil)
