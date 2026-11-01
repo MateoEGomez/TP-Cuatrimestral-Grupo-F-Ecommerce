@@ -84,7 +84,7 @@
                                 <p class="card-text text-muted small"><%# Eval("Descripcion") %></p>
                                 
                                 <p class="card-text text-success mt-auto"><strong>$<%# Eval("Precio") %></strong></p>
-                                <a href="#" class="btn btn-primary mt-2">Ver detalle</a>
+                                <a href="Detalle.aspx?id=<%# Eval("Id") %>" class="btn btn-primary mt-2">Ver detalle</a>
                             </div>
                         </div>
                     </div>
