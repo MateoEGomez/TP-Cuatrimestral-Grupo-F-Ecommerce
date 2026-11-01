@@ -61,6 +61,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Carrito.aspx" />
     <Content Include="Detalle.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="Registro.aspx" />
@@ -70,6 +71,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Carrito.aspx.cs">
+      <DependentUpon>Carrito.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Carrito.aspx.designer.cs">
+      <DependentUpon>Carrito.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Detalle.aspx.cs">
       <DependentUpon>Detalle.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
