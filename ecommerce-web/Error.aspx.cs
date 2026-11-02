@@ -11,7 +11,16 @@ namespace ecommerce_web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            lblError.Text = Session["error"].ToString();
+            Exception ex = Server.GetLastError();
+
+            if (ex != null)
+            {
+                // Usamos la variable 'ex' aquí adentro para mostrar el mensaje
+                lblMensajeError.Text = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+
+                // Limpiamos el error
+                Server.ClearError();
+            }
         }
 
     }

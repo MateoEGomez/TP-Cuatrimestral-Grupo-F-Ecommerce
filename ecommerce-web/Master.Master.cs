@@ -25,10 +25,13 @@ namespace ecommerce_web
             }
         }
 
-        protected void btnSalir_Click(object sender, EventArgs e)
+        protected void BtnSalir_Click(object sender, EventArgs e)
         {
-            Session.Clear(); // Limpiamos la sesión al cerrar sesión
+            Session.Clear();
+            Session.Abandon();
             Response.Redirect("Default.aspx", false);
         }
+
+
     }
 }

@@ -20,13 +20,18 @@
                 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Menú de la izquierda -->
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="Default.aspx">Inicio</a>
-                        </li>
-                    </ul>
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="Default.aspx">Inicio</a>
+    </li>
 
-                    <!-- ZONA DE USUARIO (Alineada a la derecha gracias al div contenedor) -->
+    <!-- Botón de Admin controlado por código -->
+    <li class="nav-item">
+        <asp:HyperLink ID="lnkAdmin" runat="server" CssClass="nav-link btn btn-outline-warning text-white ms-2" NavigateUrl="~/Admin.aspx" Visible="false">Panel Admin ⚙️</asp:HyperLink>
+    </li>
+</ul>
+
+                    <!-- ZONA DE USUARIO (Alineada a la derecha) -->
                     <div class="d-flex align-items-center">
                         <!-- Si NO está logueado -->
                         <asp:PlaceHolder ID="phNoLogueado" runat="server">
@@ -37,7 +42,7 @@
                         <!-- Si SÍ está logueado -->
                         <asp:PlaceHolder ID="phLogueado" runat="server" Visible="false">
                             <span class="navbar-text text-light me-3" id="lblUser" runat="server">Hola, Usuario</span>
-                            <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" OnClick="btnSalir_Click" />
+                            <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" OnClick="BtnSalir_Click" />
                         </asp:PlaceHolder>
                     </div>
 
