@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Web.UI;
 using dominio;
 using negocio;
@@ -14,7 +15,50 @@ namespace ecommerce_web
         public List<Producto> ListaProductos { get; set; }
         public int PaginaActual { get; set; } = 1;
         public int TotalPaginas { get; set; } = 1;
-        private int registrosPorPagina = 6; // Cantidad de cartas por página
+        private readonly int registrosPorPagina = 6; // Cantidad de cartas por página
+
+        public string HtmlPaginacion
+        {
+            get
+            {
+                var html = new StringBuilder();
+
+                if (PaginaActual > 1)
+                {
+                    html.AppendFormat(
+                        "<li class=\"page-item\"><a class=\"page-link\" href=\"Default.aspx?page={0}\">Anterior</a></li>",
+                        PaginaActual - 1);
+                }
+                else
+                {
+                    html.Append(
+                        "<li class=\"page-item disabled\"><span class=\"page-link\">Anterior</span></li>");
+                }
+
+                for (int i = 1; i <= TotalPaginas; i++)
+                {
+                    string claseActiva = i == PaginaActual ? " active" : "";
+                    html.AppendFormat(
+                        "<li class=\"page-item{0}\"><a class=\"page-link\" href=\"Default.aspx?page={1}\">{1}</a></li>",
+                        claseActiva,
+                        i);
+                }
+
+                if (PaginaActual < TotalPaginas)
+                {
+                    html.AppendFormat(
+                        "<li class=\"page-item\"><a class=\"page-link\" href=\"Default.aspx?page={0}\">Siguiente</a></li>",
+                        PaginaActual + 1);
+                }
+                else
+                {
+                    html.Append(
+                        "<li class=\"page-item disabled\"><span class=\"page-link\">Siguiente</span></li>");
+                }
+
+                return html.ToString();
+            }
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -31,15 +75,15 @@ namespace ecommerce_web
                     ProductoNegocio negocio = new ProductoNegocio();
 
                     // Verificación inicial: Si la base está totalmente vacía, importamos de la API
-                    List<Producto> listaVerificacion = negocio.listar();
+                    List<Producto> listaVerificacion = negocio.Listar();
                     if (listaVerificacion == null || listaVerificacion.Count == 0)
                     {
-                        negocio.importarCartasDesdeAPI();
+                        negocio.ImportarCartasDesdeApi();
                     }
 
                     // Obtener productos paginados y el total de registros de la BD
                     int totalRegistros = 0;
-                    ListaProductos = negocio.listarPaginado(PaginaActual, registrosPorPagina, out totalRegistros);
+                    ListaProductos = negocio.ListarPaginado(PaginaActual, registrosPorPagina, out totalRegistros);
 
                     // Calcular el total de páginas redondedo hacia arriba
                     TotalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina);
@@ -49,7 +93,7 @@ namespace ecommerce_web
                     if (PaginaActual > TotalPaginas)
                     {
                         PaginaActual = TotalPaginas;
-                        ListaProductos = negocio.listarPaginado(PaginaActual, registrosPorPagina, out totalRegistros);
+                        ListaProductos = negocio.ListarPaginado(PaginaActual, registrosPorPagina, out totalRegistros);
                     }
 
                     // Enlazar datos al Repeater

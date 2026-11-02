@@ -84,7 +84,7 @@
                                 <p class="card-text text-muted small"><%# Eval("Descripcion") %></p>
                                 
                                 <p class="card-text text-success mt-auto"><strong>$<%# Eval("Precio") %></strong></p>
-                                <a href="Detalle.aspx?id=<%# Eval("Id") %>" class="btn btn-primary mt-2">Ver detalle</a>
+                                <a href='Detalle.aspx?id=<%# Eval("Id") %>' class="btn btn-outline-primary">Ver detalle</a>
                             </div>
                         </div>
                     </div>
@@ -95,31 +95,7 @@
         <!-- PAGINACIÓN -->
         <nav aria-label="Navegación de páginas" class="mt-4 mb-5">
             <ul class="pagination justify-content-center">
-                <% if (PaginaActual > 1) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="Default.aspx?page=<%= PaginaActual - 1 %>">Anterior</a>
-                    </li>
-                <% } else { %>
-                    <li class="page-item disabled">
-                        <span class="page-link">Anterior</span>
-                    </li>
-                <% } %>
-
-                <% for (int i = 1; i <= TotalPaginas; i++) { %>
-                    <li class="page-item <%= i == PaginaActual ? "active" : "" %>">
-                        <a class="page-link" href="Default.aspx?page=<%= i %>"><%= i %></a>
-                    </li>
-                <% } %>
-
-                <% if (PaginaActual < TotalPaginas) { %>
-                    <li class="page-item">
-                        <a class="page-link" href="Default.aspx?page=<%= PaginaActual + 1 %>">Siguiente</a>
-                    </li>
-                <% } else { %>
-                    <li class="page-item disabled">
-                        <span class="page-link">Siguiente</span>
-                    </li>
-                <% } %>
+                <%= HtmlPaginacion %>
             </ul>
         </nav>
 
@@ -132,6 +108,9 @@
             const btn = document.getElementById('btnToggleTheme');
             
             body.classList.toggle('dark-mode');
+
+            // Agregamos esta guarda para evitar el error de "is possibly null"
+            if (!btn) return; 
 
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');

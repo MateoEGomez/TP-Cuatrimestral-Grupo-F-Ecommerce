@@ -9,7 +9,7 @@ namespace negocio
     public class ProductoNegocio
     {
         // 1. Método listar clásico (indispensable para la validación inicial de base vacía)
-        public List<Producto> listar()
+        public List<Producto> Listar()
         {
             List<Producto> lista = new List<Producto>();
             AccesoDatos datos = new AccesoDatos();
@@ -50,7 +50,7 @@ namespace negocio
         }
 
         // 2. Método de paginación profesional con OFFSET y FETCH NEXT de SQL Server
-        public List<Producto> listarPaginado(int pagina, int registrosPorPagina, out int totalRegistros)
+        public List<Producto> ListarPaginado(int pagina, int registrosPorPagina, out int totalRegistros)
         {
             List<Producto> lista = new List<Producto>();
             AccesoDatos datos = new AccesoDatos();
@@ -117,7 +117,7 @@ namespace negocio
         }
 
         // 3. Método para importar cartas desde la API de Pokémon TCG
-        public void importarCartasDesdeAPI()
+        public void ImportarCartasDesdeApi()
         {
             string url = "https://api.pokemontcg.io/v2/cards?pageSize=60";
 
@@ -192,6 +192,47 @@ namespace negocio
                 {
                     throw ex;
                 }
+            }
+        }
+
+        // 4. Método para obtener un producto por su ID y devolverlo a la página Detalle.aspx
+        public Producto ObtenerPorId(int id)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                // Ajustá los nombres de las columnas si en tu base se llaman distinto (ej: UrlImagen vs ImagenUrl)
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock FROM Productos WHERE Id = @id");
+                datos.setearParametro("@id", id);
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+
+                    // Validamos DBNull por si algún campo viene vacío en la BD
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+
+                    // Si tenés la propiedad Stock en tu clase Producto:
+                    // aux.Stock = (int)datos.Lector["Stock"];
+
+                    return aux;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
             }
         }
     }
