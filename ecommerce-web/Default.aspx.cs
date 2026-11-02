@@ -1,9 +1,10 @@
-﻿using System;
+﻿using dominio;
+using negocio;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Web.UI;
-using dominio;
-using negocio;
 
 namespace ecommerce_web
 {
@@ -23,20 +24,22 @@ namespace ecommerce_web
             get
             {
                 var html = new StringBuilder();
+                string setIdActual = ddlSets != null ? ddlSets.SelectedValue : "";
+                string queryParam = !string.IsNullOrEmpty(setIdActual) ? $"&set={setIdActual}" : "";
 
                 if (PaginaActual > 1)
-                    html.AppendFormat("<li class=\"page-item\"><a class=\"page-link\" href=\"Default.aspx?page={0}\">Anterior</a></li>", PaginaActual - 1);
+                    html.AppendFormat("<li class=\"page-item\"><a class=\"page-link\" href=\"Default.aspx?page={0}{1}\">Anterior</a></li>", PaginaActual - 1, queryParam);
                 else
                     html.Append("<li class=\"page-item disabled\"><span class=\"page-link\">Anterior</span></li>");
 
                 for (int i = 1; i <= TotalPaginas; i++)
                 {
                     string claseActiva = i == PaginaActual ? " active" : "";
-                    html.AppendFormat("<li class=\"page-item{0}\"><a class=\"page-link\" href=\"Default.aspx?page={1}\">{1}</a></li>", claseActiva, i);
+                    html.AppendFormat("<li class=\"page-item{0}\"><a class=\"page-link\" href=\"Default.aspx?page={1}{2}\">{1}</a></li>", claseActiva, i, queryParam);
                 }
 
                 if (PaginaActual < TotalPaginas)
-                    html.AppendFormat("<li class=\"page-item\"><a class=\"page-link\" href=\"Default.aspx?page={0}\">Siguiente</a></li>", PaginaActual + 1);
+                    html.AppendFormat("<li class=\"page-item\"><a class=\"page-link\" href=\"Default.aspx?page={0}{1}\">Siguiente</a></li>", PaginaActual + 1, queryParam);
                 else
                     html.Append("<li class=\"page-item disabled\"><span class=\"page-link\">Siguiente</span></li>");
 
@@ -54,10 +57,18 @@ namespace ecommerce_web
                 if (!IsPostBack)
                 {
                     CargarSetsDesplegable();
-                    VerificarBaseVaciaEImportar();
+
+                    // Si venía un set por parámetro o queryString lo seleccionamos
+                    if (Request.QueryString["set"] != null && ddlSets != null)
+                    {
+                        string setIdQuery = Request.QueryString["set"];
+                        if (ddlSets.Items.FindByValue(setIdQuery) != null)
+                        {
+                            ddlSets.SelectedValue = setIdQuery;
+                        }
+                    }
                 }
 
-                // La paginación y carga de grilla corre siempre (postbacks y cargas iniciales)
                 ProcesarPaginacionYGrilla();
             }
             catch (Exception ex)
@@ -81,24 +92,6 @@ namespace ecommerce_web
             ddlSets.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccioná una expansión...", ""));
         }
 
-        private void VerificarBaseVaciaEImportar()
-        {
-            ProductoNegocio negocio = new ProductoNegocio();
-            List<Producto> listaVerificacion = negocio.Listar();
-            if (listaVerificacion == null || listaVerificacion.Count == 0)
-            {
-                try
-                {
-                    negocio.ImportarCartasPorTandasControladas(1, 1);
-                }
-                catch (Exception ex)
-                {
-                    // Si la API externa da error 500, lo registramos pero dejamos cargar la app
-                    System.Diagnostics.Debug.WriteLine("Aviso: No se pudo conectar a la API TCG: " + ex.Message);
-                }
-            }
-        }
-
         private void ProcesarPaginacionYGrilla()
         {
             if (Request.QueryString["page"] != null && int.TryParse(Request.QueryString["page"], out int p))
@@ -107,17 +100,36 @@ namespace ecommerce_web
             }
 
             ProductoNegocio negocio = new ProductoNegocio();
-            int totalRegistros = 0;
+            string setIdSeleccionado = ddlSets != null ? ddlSets.SelectedValue : "";
 
-            ListaProductos = negocio.ListarPaginado(PaginaActual, registrosPorPagina, out totalRegistros);
-
-            TotalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina);
-            if (TotalPaginas == 0) TotalPaginas = 1;
-
-            if (PaginaActual > TotalPaginas)
+            // Si hay un set seleccionado, filtramos localmente desde la base de datos
+            if (!string.IsNullOrEmpty(setIdSeleccionado))
             {
-                PaginaActual = TotalPaginas;
+                var listaFiltrada = negocio.Filtrar(null, setIdSeleccionado, null, null);
+
+                // Paginación manual simple para la lista filtrada
+                TotalPaginas = (int)Math.Ceiling((double)listaFiltrada.Count / registrosPorPagina);
+                if (TotalPaginas == 0) TotalPaginas = 1;
+
+                if (PaginaActual > TotalPaginas) PaginaActual = TotalPaginas;
+
+                int skip = (PaginaActual - 1) * registrosPorPagina;
+                ListaProductos = listaFiltrada.Skip(skip).Take(registrosPorPagina).ToList();
+            }
+            else
+            {
+                // Listado general paginado nativo
+                int totalRegistros = 0;
                 ListaProductos = negocio.ListarPaginado(PaginaActual, registrosPorPagina, out totalRegistros);
+
+                TotalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina);
+                if (TotalPaginas == 0) TotalPaginas = 1;
+
+                if (PaginaActual > TotalPaginas)
+                {
+                    PaginaActual = TotalPaginas;
+                    ListaProductos = negocio.ListarPaginado(PaginaActual, registrosPorPagina, out totalRegistros);
+                }
             }
 
             repeaterProductos.DataSource = ListaProductos;
@@ -130,36 +142,16 @@ namespace ecommerce_web
         protected void ddlSets_SelectedIndexChanged(object sender, EventArgs e)
         {
             string setId = ddlSets.SelectedValue;
-            string setNombre = ddlSets.SelectedItem.Text;
+            PaginaActual = 1;
 
-            if (string.IsNullOrEmpty(setId)) return;
-
-            ProductoNegocio negocio = new ProductoNegocio();
-
-            try
+            if (string.IsNullOrEmpty(setId))
             {
-                negocio.ImportarCartasPorSet(setId, setNombre);
-
-                var listaCompleta = negocio.Listar();
-                ListaProductos = listaCompleta.FindAll(x => x.Descripcion != null && x.Descripcion.Contains(setNombre));
-
-                if (ListaProductos == null || ListaProductos.Count == 0)
-                {
-                    ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('La expansión seleccionada no contiene cartas disponibles en este momento o es un set especial.');", true);
-                    return;
-                }
-
-                PaginaActual = 1;
-                TotalPaginas = 1;
-
-                repeaterProductos.DataSource = ListaProductos;
-                repeaterProductos.DataBind();
+                Response.Redirect("Default.aspx", false);
+                return;
             }
-            catch (Exception ex)
-            {
-                string mensajeSeguro = ex.Message.Replace("'", "").Replace("\r", "").Replace("\n", " ");
-                ClientScript.RegisterStartupScript(this.GetType(), "alert", $"alert('Atención: {mensajeSeguro}');", true);
-            }
+
+            // Redirigimos conservando el set en la URL para que la paginación funcione perfectamente
+            Response.Redirect($"Default.aspx?set={setId}&page=1", false);
         }
 
         // =========================================================

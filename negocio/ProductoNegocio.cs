@@ -1,21 +1,21 @@
-﻿using System;
+﻿using dominio;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Newtonsoft.Json.Linq;
-using dominio;
 
 namespace negocio
 {
     public class ProductoNegocio
     {
-        // 1. Método listar clásico
+        // 1. Método listar clásico actualizado con las nuevas columnas
         public List<Producto> Listar()
         {
             List<Producto> lista = new List<Producto>();
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo FROM PRODUCTOS");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS");
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
@@ -33,6 +33,12 @@ namespace negocio
                     aux.Categoria = new Categoria();
                     aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
                     aux.Activo = (bool)datos.Lector["Activo"];
+
+                    if (!(datos.Lector["CardId"] is DBNull))
+                        aux.CardId = (string)datos.Lector["CardId"];
+
+                    if (!(datos.Lector["IdExpansion"] is DBNull))
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
 
                     lista.Add(aux);
                 }
@@ -73,7 +79,7 @@ namespace negocio
 
             try
             {
-                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo " +
+                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion " +
                                   "FROM PRODUCTOS WHERE Activo = 1 " +
                                   "ORDER BY Id " +
                                   "OFFSET @Offset ROWS " +
@@ -100,6 +106,12 @@ namespace negocio
                     aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
                     aux.Activo = (bool)datos.Lector["Activo"];
 
+                    if (!(datos.Lector["CardId"] is DBNull))
+                        aux.CardId = (string)datos.Lector["CardId"];
+
+                    if (!(datos.Lector["IdExpansion"] is DBNull))
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+
                     lista.Add(aux);
                 }
                 return lista;
@@ -114,203 +126,13 @@ namespace negocio
             }
         }
 
-        // 3. Método definitivo para importar TODAS las cartas por tandas de 250
-        // Método seguro de importación por tandas controladas (ej: de 250 en 250)
-        public void ImportarCartasPorTandasControladas(int paginaInicio = 1, int cantidadPaginasATraer = 4)
-        {
-            int pageSize = 250; // El límite óptimo por página
-            int paginaFin = paginaInicio + cantidadPaginasATraer - 1;
-
-            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls13;
-
-            using (HttpClient client = new HttpClient())
-            {
-                client.Timeout = TimeSpan.FromMinutes(2);
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-
-                for (int pagina = paginaInicio; pagina <= paginaFin; pagina++)
-                {
-                    string url = $"https://api.pokemontcg.io/v2/cards?page={pagina}&pageSize={pageSize}";
-                    bool exitoTanda = false;
-                    int intentos = 0;
-
-                    // Bucle de reintento por si la API falla intermitentemente (Error 500)
-                    while (!exitoTanda && intentos < 3)
-                    {
-                        try
-                        {
-                            intentos++;
-                            HttpResponseMessage response = client.GetAsync(url).Result;
-
-                            if (response.IsSuccessStatusCode)
-                            {
-                                string jsonResult = response.Content.ReadAsStringAsync().Result;
-                                JObject data = JObject.Parse(jsonResult);
-                                JArray cartas = (JArray)data["data"];
-
-                                if (cartas == null || cartas.Count == 0) return;
-
-                                foreach (var carta in cartas)
-                                {
-                                    string nombre = carta["name"]?.ToString() ?? "Sin nombre";
-                                    string setNombre = carta["set"]?["name"]?.ToString() ?? "Set desconocido";
-                                    string rareza = carta["rarity"]?.ToString() ?? "Común";
-                                    string descripcion = $"{setNombre} - Rareza: {rareza}";
-
-                                    decimal precio = 2500.00m;
-                                    try
-                                    {
-                                        var marketPrice = carta["tcgplayer"]?["prices"]?["holofoil"]?["market"] ?? carta["tcgplayer"]?["prices"]?["normal"]?["market"];
-                                        if (marketPrice != null)
-                                        {
-                                            precio = Convert.ToDecimal(marketPrice) * 1000;
-                                        }
-                                    }
-                                    catch { }
-
-                                    string urlImagen = carta["images"]?["large"]?.ToString() ?? "";
-                                    int stock = 15;
-                                    int idCategoria = 1;
-
-                                    AccesoDatos datos = new AccesoDatos();
-                                    try
-                                    {
-                                        datos.setearConsulta("INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria)");
-                                        datos.setearParametro("@nombre", nombre);
-                                        datos.setearParametro("@descripcion", descripcion);
-                                        datos.setearParametro("@precio", precio);
-                                        datos.setearParametro("@stock", stock);
-                                        datos.setearParametro("@urlImagen", urlImagen);
-                                        datos.setearParametro("@idCategoria", idCategoria);
-
-                                        datos.ejecutarAccion();
-                                    }
-                                    catch
-                                    {
-                                        // Ignoramos duplicados
-                                    }
-                                    finally
-                                    {
-                                        datos.cerrarConexion();
-                                    }
-                                }
-
-                                exitoTanda = true; // La tanda se procesó correctamente
-                            }
-                            else
-                            {
-                                if (intentos >= 3)
-                                {
-                                    throw new Exception($"Error HTTP {(int)response.StatusCode} en la página {pagina} tras 3 intentos.");
-                                }
-                                System.Threading.Thread.Sleep(1000); // Esperar 1 segundo antes de reintentar
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            if (intentos >= 3) throw new Exception("Fallo crítico en tanda: " + ex.Message);
-                            System.Threading.Thread.Sleep(1500);
-                        }
-                    }
-
-                    System.Threading.Thread.Sleep(500); // Pausa de cortesía entre páginas
-                }
-            }
-        }
-
-        // 4. Método para importar cartas de un set específico (Restaurado para que no falle el filtro)
-        public void ImportarCartasPorSet(string setId, string nombreSetLegible)
-        {
-            AccesoDatos datosCheck = new AccesoDatos();
-            int cantidadExistente = 0;
-            try
-            {
-                datosCheck.setearConsulta("SELECT COUNT(Id) FROM Productos WHERE Descripcion LIKE @filtro");
-                datosCheck.setearParametro("@filtro", $"%{nombreSetLegible}%");
-                datosCheck.ejecutarLectura();
-
-                if (datosCheck.Lector.Read())
-                {
-                    cantidadExistente = Convert.ToInt32(datosCheck.Lector[0]);
-                }
-            }
-            finally
-            {
-                datosCheck.cerrarConexion();
-            }
-
-            // Si ya tenemos cartas de este set descargadas, no volvemos a pegarle a la API
-            if (cantidadExistente >= 5) return;
-
-            // Si faltaban, las traemos puntualmente de la API
-            string url = $"https://api.pokemontcg.io/v2/cards?q=set.id:{setId}";
-            using (HttpClient client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Add("User-Agent", "EcommerceTCG-App");
-                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls13;
-
-                HttpResponseMessage response = client.GetAsync(url).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    string jsonResult = response.Content.ReadAsStringAsync().Result;
-                    JObject data = JObject.Parse(jsonResult);
-                    JArray cartas = (JArray)data["data"];
-
-                    if (cartas != null)
-                    {
-                        foreach (var carta in cartas)
-                        {
-                            string nombre = carta["name"]?.ToString() ?? "Sin nombre";
-                            string setNombre = carta["set"]?["name"]?.ToString() ?? "Set desconocido";
-                            string rareza = carta["rarity"]?.ToString() ?? "Común";
-                            string descripcion = $"{setNombre} - Rareza: {rareza}";
-
-                            decimal precio = 2500.00m;
-                            try
-                            {
-                                var marketPrice = carta["tcgplayer"]?["prices"]?["holofoil"]?["market"] ?? carta["tcgplayer"]?["prices"]?["normal"]?["market"];
-                                if (marketPrice != null)
-                                {
-                                    precio = Convert.ToDecimal(marketPrice) * 1000;
-                                }
-                            }
-                            catch { }
-
-                            string urlImagen = carta["images"]?["large"]?.ToString() ?? "";
-                            int stock = 15;
-                            int idCategoria = 1;
-
-                            AccesoDatos datos = new AccesoDatos();
-                            try
-                            {
-                                datos.setearConsulta("INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria) VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria)");
-                                datos.setearParametro("@nombre", nombre);
-                                datos.setearParametro("@descripcion", descripcion);
-                                datos.setearParametro("@precio", precio);
-                                datos.setearParametro("@stock", stock);
-                                datos.setearParametro("@urlImagen", urlImagen);
-                                datos.setearParametro("@idCategoria", idCategoria);
-
-                                datos.ejecutarAccion();
-                            }
-                            catch { }
-                            finally
-                            {
-                                datos.cerrarConexion();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // 5. Método para obtener un producto por su ID (Detalle) - Corregido sin etiquetas sueltas
+        // 3. Método para obtener un producto por su ID (Detalle)
         public Producto ObtenerPorId(int id)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock FROM Productos WHERE Id = @id");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion FROM Productos WHERE Id = @id");
                 datos.setearParametro("@id", id);
                 datos.ejecutarLectura();
 
@@ -325,6 +147,13 @@ namespace negocio
                         aux.UrlImagen = (string)datos.Lector["UrlImagen"];
 
                     aux.Precio = (decimal)datos.Lector["Precio"];
+
+                    if (!(datos.Lector["CardId"] is DBNull))
+                        aux.CardId = (string)datos.Lector["CardId"];
+
+                    if (!(datos.Lector["IdExpansion"] is DBNull))
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+
                     return aux;
                 }
                 return null;
@@ -345,45 +174,168 @@ namespace negocio
             public string Name { get; set; }
         }
 
-        // 6. Método para listar los Sets disponibles en la API (Filtro)
+        // 4. Método para listar los Sets disponibles 100% desde la Base de Datos Local
         public List<SetInfo> ListarSetsDisponibles()
         {
             List<SetInfo> listaSets = new List<SetInfo>();
+            AccesoDatos datos = new AccesoDatos();
             try
             {
-                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls13;
+                datos.setearConsulta("SELECT Id, Nombre FROM Expansiones ORDER BY Nombre ASC");
+                datos.ejecutarLectura();
 
+                while (datos.Lector.Read())
+                {
+                    listaSets.Add(new SetInfo
+                    {
+                        Id = (string)datos.Lector["Id"],
+                        Name = (string)datos.Lector["Nombre"]
+                    });
+                }
+                return listaSets;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        // 5. Método de Filtrado Dinámico Local (Por nombre, expansión y precio)
+        public List<Producto> Filtrar(string nombre, string idExpansion, decimal? precioMin, decimal? precioMax)
+        {
+            List<Producto> lista = new List<Producto>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1";
+
+                if (!string.IsNullOrEmpty(nombre))
+                {
+                    consulta += " AND Nombre LIKE @nombre";
+                }
+
+                if (!string.IsNullOrEmpty(idExpansion) && idExpansion != "0")
+                {
+                    consulta += " AND IdExpansion = @idExpansion";
+                }
+
+                if (precioMin.HasValue)
+                {
+                    consulta += " AND Precio >= @precioMin";
+                }
+
+                if (precioMax.HasValue)
+                {
+                    consulta += " AND Precio <= @precioMax";
+                }
+
+                datos.setearConsulta(consulta);
+
+                if (!string.IsNullOrEmpty(nombre))
+                    datos.setearParametro("@nombre", "%" + nombre + "%");
+
+                if (!string.IsNullOrEmpty(idExpansion) && idExpansion != "0")
+                    datos.setearParametro("@idExpansion", idExpansion);
+
+                if (precioMin.HasValue)
+                    datos.setearParametro("@precioMin", precioMin.Value);
+
+                if (precioMax.HasValue)
+                    datos.setearParametro("@precioMax", precioMax.Value);
+
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
+
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+
+                    aux.Categoria = new Categoria();
+                    aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    if (!(datos.Lector["CardId"] is DBNull))
+                        aux.CardId = (string)datos.Lector["CardId"];
+
+                    if (!(datos.Lector["IdExpansion"] is DBNull))
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        // 6. Método que ejecuta la actualización masiva del precio USD-ARS en la BD usando la API
+        private decimal ObtenerCotizacionDolarBlue()
+        {
+            try
+            {
+                string url = "https://dolarapi.com/v1/dolares/blue";
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-                    string urlApi = "https://api.pokemontcg.io/v2/sets?orderBy=releaseDate";
+                    client.DefaultRequestHeaders.Add("User-Agent", "EcommerceTCG-App");
+                    var response = client.GetAsync(url).Result;
 
-                    var response = client.GetAsync(urlApi).Result;
                     if (response.IsSuccessStatusCode)
                     {
                         string jsonString = response.Content.ReadAsStringAsync().Result;
-                        JObject json = JObject.Parse(jsonString);
-                        JArray setsJson = (JArray)json["data"];
-
-                        foreach (var item in setsJson)
-                        {
-                            listaSets.Add(new SetInfo
-                            {
-                                Id = item["id"]?.ToString(),
-                                Name = item["name"]?.ToString()
-                            });
-                        }
+                        JObject data = JObject.Parse(jsonString);
+                        return Convert.ToDecimal(data["venta"]);
                     }
                 }
             }
-            catch (Exception)
+            catch
             {
-                listaSets.Add(new SetInfo { Id = "base1", Name = "Base" });
-                listaSets.Add(new SetInfo { Id = "sv1", Name = "Scarlet & Violet" });
-                listaSets.Add(new SetInfo { Id = "sval1", Name = "Pokémon 151" });
+                // Valor de respaldo si no hay internet o falla la API
+                return 1200.00m;
             }
 
-            return listaSets;
+            return 1200.00m;
+        }
+
+        // Método que ejecuta la actualización masiva en la BD usando la API
+        public decimal ActualizarPreciosPorApi()
+        {
+            decimal cotizacion = ObtenerCotizacionDolarBlue();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                // Multiplica el precio base en USD por la cotización obtenida de la API
+                datos.setearConsulta("UPDATE Productos SET PrecioARS = Precio * @cotizacion");
+                datos.setearParametro("@cotizacion", cotizacion);
+                datos.ejecutarAccion();
+
+                return cotizacion; // Devolvemos la cotización aplicada para mostrarla en pantalla
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
         }
     }
 }

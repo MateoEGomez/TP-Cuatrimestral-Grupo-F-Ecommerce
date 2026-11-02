@@ -28,5 +28,7 @@ namespace dominio
         [DisplayName("Publicación")]
         public EstadoPublicacion EstadoPublicacion { get; set; }
         public bool Activo { get; set; }
+        public string CardId { get; set; }
+        public string IdExpansion { get; set; }
     }
 }
