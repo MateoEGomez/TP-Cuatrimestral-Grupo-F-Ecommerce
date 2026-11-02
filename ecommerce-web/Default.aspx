@@ -63,6 +63,15 @@
                 🌙 Modo Oscuro
             </button>
         </div>
+        
+        <!-- FILTRO DE EXPANSIÓN -->
+        <div class="row mb-4">
+        <div class="col-md-4">
+        <label for="ddlSets" class="form-label fw-bold">Filtrar por Expansión:</label>
+        <asp:DropDownList ID="ddlSets" runat="server" CssClass="form-select" AutoPostBack="true" OnSelectedIndexChanged="ddlSets_SelectedIndexChanged">
+        </asp:DropDownList>
+        </div>
+        </div>
 
         <!-- GRILLA DE PRODUCTOS -->
         <div class="row">
