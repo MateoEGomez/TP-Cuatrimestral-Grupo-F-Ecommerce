@@ -18,6 +18,13 @@ namespace ecommerce_web
                 Usuario nuevo = new Usuario();
                 UsuarioNegocio negocio = new UsuarioNegocio();
 
+                // Validamos si el mail ya está registrado
+                if (negocio.ExisteEmail(txtEmail.Text))
+                {        
+                 lblError.Text = "El correo ya se encuentra registrado.";
+                    return;
+                }
+
                 nuevo.Email = txtEmail.Text;
                 nuevo.Pass = txtPassword.Text;
                 nuevo.Nombre = txtNombre.Text;
