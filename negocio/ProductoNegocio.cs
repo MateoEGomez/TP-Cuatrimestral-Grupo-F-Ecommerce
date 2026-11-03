@@ -23,7 +23,8 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    if (!(datos.Lector["Descripcion"] is DBNull))
+                        aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
                     aux.Stock = (int)datos.Lector["Stock"];
 
@@ -38,7 +39,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
+                    }
 
                     lista.Add(aux);
                 }
@@ -95,7 +99,8 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    if (!(datos.Lector["Descripcion"] is DBNull))
+                        aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
                     aux.Stock = (int)datos.Lector["Stock"];
 
@@ -110,7 +115,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
+                    }
 
                     lista.Add(aux);
                 }
@@ -141,7 +149,8 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    if (!(datos.Lector["Descripcion"] is DBNull))
+                        aux.Descripcion = (string)datos.Lector["Descripcion"];
 
                     if (!(datos.Lector["UrlImagen"] is DBNull))
                         aux.UrlImagen = (string)datos.Lector["UrlImagen"];
@@ -152,7 +161,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
+                    }
 
                     return aux;
                 }
@@ -181,15 +193,15 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre FROM Expansiones ORDER BY Nombre ASC");
+                datos.setearConsulta("SELECT Id, Descripcion FROM EXPANSIONES WHERE Activo = 1 ORDER BY Descripcion ASC");
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
                 {
                     listaSets.Add(new SetInfo
                     {
-                        Id = (string)datos.Lector["Id"],
-                        Name = (string)datos.Lector["Nombre"]
+                        Id = datos.Lector["Id"].ToString(),
+                        Name = (string)datos.Lector["Descripcion"]
                     });
                 }
                 return listaSets;
@@ -254,7 +266,8 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    if (!(datos.Lector["Descripcion"] is DBNull))
+                        aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
                     aux.Stock = (int)datos.Lector["Stock"];
 
@@ -269,7 +282,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
+                    }
 
                     lista.Add(aux);
                 }
