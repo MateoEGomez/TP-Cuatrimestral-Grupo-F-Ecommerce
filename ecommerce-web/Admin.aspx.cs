@@ -12,12 +12,11 @@ namespace ecommerce_web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            // Opcional: Validar que el usuario logueado sea Administrador
-            // if (Session["usuario"] == null || !((dominio.Usuario)Session["usuario"]).EsAdmin)
-            // {
-            //     Response.Redirect("Default.aspx", false);
-            //     return;
-            // }
+            if (!Seguridad.sesionActiva(Session["usuario"]))
+                Response.Redirect("Login.aspx");
+
+            if (!Seguridad.esAdmin(Session["usuario"]))
+                Response.Redirect("Default.aspx");
         }
 
         protected void btnActualizarPrecios_Click(object sender, EventArgs e)

@@ -17,6 +17,8 @@ namespace ecommerce_web
 
                 // Si cargó nombre se lo mostramos, sino mostramos el email
                 lblUser.InnerText = "Hola, " + (!string.IsNullOrEmpty(user.Nombre) ? user.Nombre : user.Email);
+
+                lnkAdmin.Visible = negocio.Seguridad.esAdmin(Session["usuario"]);
             }
             else
             {
