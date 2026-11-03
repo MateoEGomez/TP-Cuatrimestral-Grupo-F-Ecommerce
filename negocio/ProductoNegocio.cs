@@ -67,7 +67,7 @@ namespace negocio
 
             try
             {
-                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1");
+                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1 AND IdEstadoPublicacion = 2");
                 totalRegistros = datosContador.ejecutarAccionScalar();
             }
             catch (Exception)
@@ -84,7 +84,7 @@ namespace negocio
             try
             {
                 string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion " +
-                                  "FROM PRODUCTOS WHERE Activo = 1 " +
+                                  "FROM PRODUCTOS WHERE Activo = 1 AND IdEstadoPublicacion = 2 " +
                                   "ORDER BY Id " +
                                   "OFFSET @Offset ROWS " +
                                   "FETCH NEXT @PageSize ROWS ONLY";
@@ -140,7 +140,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion FROM Productos WHERE Id = @id");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion FROM Productos WHERE Id = @id AND Activo = 1 AND IdEstadoPublicacion = 2");
                 datos.setearParametro("@id", id);
                 datos.ejecutarLectura();
 
@@ -223,7 +223,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1";
+                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1 AND IdEstadoPublicacion = 2";
 
                 if (!string.IsNullOrEmpty(nombre))
                 {
