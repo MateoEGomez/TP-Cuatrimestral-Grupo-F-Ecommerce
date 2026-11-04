@@ -82,7 +82,7 @@
                             
                             <!-- CONTENEDOR DE LA IMAGEN CON EL RESPLANDOR DE RAREZA -->
                             <div class="p-3 text-center">
-                                <div class='d-inline-block p-1 <%# ObtenerClaseGlow((string)Eval("Descripcion")) %>'>
+                                <div class='d-inline-block p-1 <%# ObtenerClaseGlow(Eval("Descripcion").ToString()) %>'>
                                     <img src='<%# Eval("UrlImagen") %>' class="img-fluid" alt='<%# Eval("Nombre") %>' style="height: 280px; object-fit: contain;" />
                                 </div>
                             </div>

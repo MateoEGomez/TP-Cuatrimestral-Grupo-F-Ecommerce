@@ -23,8 +23,7 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    if (!(datos.Lector["Descripcion"] is DBNull))
-                        aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
                     aux.Stock = (int)datos.Lector["Stock"];
 
@@ -39,10 +38,7 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                    {
-                        aux.Expansion = new Expansion();
-                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
-                    }
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
 
                     lista.Add(aux);
                 }
@@ -67,7 +63,7 @@ namespace negocio
 
             try
             {
-                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1 AND IdEstadoPublicacion = 2");
+                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1");
                 totalRegistros = datosContador.ejecutarAccionScalar();
             }
             catch (Exception)
@@ -84,7 +80,7 @@ namespace negocio
             try
             {
                 string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion " +
-                                  "FROM PRODUCTOS WHERE Activo = 1 AND IdEstadoPublicacion = 2 " +
+                                  "FROM PRODUCTOS WHERE Activo = 1 " +
                                   "ORDER BY Id " +
                                   "OFFSET @Offset ROWS " +
                                   "FETCH NEXT @PageSize ROWS ONLY";
@@ -99,8 +95,7 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    if (!(datos.Lector["Descripcion"] is DBNull))
-                        aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
                     aux.Stock = (int)datos.Lector["Stock"];
 
@@ -115,10 +110,7 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                    {
-                        aux.Expansion = new Expansion();
-                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
-                    }
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
 
                     lista.Add(aux);
                 }
@@ -140,7 +132,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion FROM Productos WHERE Id = @id AND Activo = 1 AND IdEstadoPublicacion = 2");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion FROM Productos WHERE Id = @id");
                 datos.setearParametro("@id", id);
                 datos.ejecutarLectura();
 
@@ -149,8 +141,7 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    if (!(datos.Lector["Descripcion"] is DBNull))
-                        aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
 
                     if (!(datos.Lector["UrlImagen"] is DBNull))
                         aux.UrlImagen = (string)datos.Lector["UrlImagen"];
@@ -161,10 +152,7 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                    {
-                        aux.Expansion = new Expansion();
-                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
-                    }
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
 
                     return aux;
                 }
@@ -193,15 +181,15 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Descripcion FROM EXPANSIONES WHERE Activo = 1 ORDER BY Descripcion ASC");
+                datos.setearConsulta("SELECT Id, Nombre FROM Expansiones ORDER BY Nombre ASC");
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
                 {
                     listaSets.Add(new SetInfo
                     {
-                        Id = datos.Lector["Id"].ToString(),
-                        Name = (string)datos.Lector["Descripcion"]
+                        Id = (string)datos.Lector["Id"],
+                        Name = (string)datos.Lector["Nombre"]
                     });
                 }
                 return listaSets;
@@ -223,7 +211,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1 AND IdEstadoPublicacion = 2";
+                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1";
 
                 if (!string.IsNullOrEmpty(nombre))
                 {
@@ -266,8 +254,7 @@ namespace negocio
                     Producto aux = new Producto();
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
-                    if (!(datos.Lector["Descripcion"] is DBNull))
-                        aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
                     aux.Stock = (int)datos.Lector["Stock"];
 
@@ -282,10 +269,7 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                    {
-                        aux.Expansion = new Expansion();
-                        aux.Expansion.Id = (int)datos.Lector["IdExpansion"];
-                    }
+                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
 
                     lista.Add(aux);
                 }
