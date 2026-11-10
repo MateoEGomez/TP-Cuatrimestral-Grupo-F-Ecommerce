@@ -8,7 +8,7 @@
             <p class="text-muted">Lo sentimos, ha ocurrido un problema al procesar tu solicitud.</p>
             
             <div class="mt-3">
-                <asp:Label ID="lblMensajeError" runat="server" CssClass="fw-bold text-dark" />
+                <asp:Label ID="lblMensajeError" runat="server" CssClass="d-block small text-danger text-start text-break" />
             </div>
 
             <div class="mt-4">

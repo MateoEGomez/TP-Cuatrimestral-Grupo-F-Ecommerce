@@ -25,7 +25,12 @@ namespace ecommerce_web
         }
         void Application_Error(object sender, EventArgs e)
         {
-            Response.Redirect("~/Error.aspx", false);
+            Exception exc = Server.GetLastError();
+
+            if (Context.Session != null)
+                Session.Add("error", exc.ToString());
+
+            Server.Transfer("~/Error.aspx");
         }
     }
 }
