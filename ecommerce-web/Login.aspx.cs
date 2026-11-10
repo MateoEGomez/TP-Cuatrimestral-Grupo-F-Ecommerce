@@ -35,8 +35,8 @@ namespace ecommerce_web
             }
             catch (Exception ex)
             {
-                Session["error"] = ex.ToString();
-                // Response.Redirect("Error.aspx", false);
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false);
             }
         }
     }

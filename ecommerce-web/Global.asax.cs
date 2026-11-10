@@ -28,9 +28,10 @@ namespace ecommerce_web
             Exception exc = Server.GetLastError();
 
             if (Context.Session != null)
+            {
                 Session.Add("error", exc.ToString());
-
-            Server.Transfer("~/Error.aspx");
+                Server.Transfer("~/Error.aspx");
+            }
         }
     }
 }
