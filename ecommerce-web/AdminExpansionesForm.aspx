@@ -41,7 +41,7 @@
                         </div>
                         <!-- Botones -->
                         <div class="d-grid gap-2 mt-4">
-                            <asp:Button ID="btnGuardar" runat="server" Text="💾 Guardar Expansion" CssClass="btn btn-success btn-lg" />
+                            <asp:Button ID="btnGuardar" runat="server" Text="💾 Guardar Expansion" CssClass="btn btn-success btn-lg" OnClick="btnGuardar_click"/>
                             <asp:Label ID="lblError" runat="server" CssClass="text-danger text-center mt-2" Visible="false"></asp:Label>
                         </div>
                     </div>

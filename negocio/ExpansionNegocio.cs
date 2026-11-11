@@ -53,7 +53,7 @@ namespace negocio
             {
                 datos.setearConsulta("select Id, Nombre, Serie, TotalCartas, Activo from Expansiones where Id = @id");
                 datos.setearParametro("@id", id);
-                datos.ejecutarAccion();
+                datos.ejecutarLectura();
 
                 if (datos.Lector.Read())
                 {
