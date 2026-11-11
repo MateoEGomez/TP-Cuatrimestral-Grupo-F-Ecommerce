@@ -8,13 +8,15 @@ namespace dominio
 {
     public class Expansion
     {
-        public int Id { get; set; }
-        public string Descripcion { get; set; }
+        public string Id { get; set; }
+        public string Nombre { get; set; }
+        public string Serie { get; set; }
+        public int TotalCartas {  get; set; }
         public bool Activo { get; set; }
 
         public override string ToString()
         {
-            return Descripcion;
+            return Nombre;
         }
     }
 }
