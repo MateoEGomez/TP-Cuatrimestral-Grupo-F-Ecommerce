@@ -32,10 +32,22 @@ namespace ecommerce_web
                 else
                     html.Append("<li class=\"page-item disabled\"><span class=\"page-link\">Anterior</span></li>");
 
+                bool puntosAgregados = false;
                 for (int i = 1; i <= TotalPaginas; i++)
                 {
-                    string claseActiva = i == PaginaActual ? " active" : "";
-                    html.AppendFormat("<li class=\"page-item{0}\"><a class=\"page-link\" href=\"Default.aspx?page={1}{2}\">{1}</a></li>", claseActiva, i, queryParam);
+                    bool mostrar = i == 1 || i == TotalPaginas || (i >= PaginaActual - 2 && i <= PaginaActual + 2);
+
+                    if (mostrar)
+                    {
+                        string claseActiva = i == PaginaActual ? " active" : "";
+                        html.AppendFormat("<li class=\"page-item{0}\"><a class=\"page-link\" href=\"Default.aspx?page={1}{2}\">{1}</a></li>", claseActiva, i, queryParam);
+                        puntosAgregados = false;
+                    }
+                    else if (!puntosAgregados)
+                    {
+                        html.Append("<li class=\"page-item disabled\"><span class=\"page-link\">…</span></li>");
+                        puntosAgregados = true;
+                    }
                 }
 
                 if (PaginaActual < TotalPaginas)
