@@ -20697,3 +20697,31 @@ go
 if OBJECT_ID('FK_PRODUCTOS_ESTADOS_PUBLICACION') is null
 	alter table Productos with check add constraint FK_PRODUCTOS_ESTADOS_PUBLICACION foreign key (IdEstadoPublicacion) references ESTADOS_PUBLICACION (Id)
 go
+
+use ECOMMERCE_DB
+go
+
+create or alter procedure storedListarCategorias
+as
+	select Id, Descripcion, Activo from CATEGORIAS order by Descripcion
+go
+
+create or alter procedure storedAltaCategoria
+	@Descripcion varchar(50)
+as
+	insert into CATEGORIAS (Descripcion, Activo) values (@Descripcion, 1)
+go
+
+create or alter procedure storedModificarCategoria
+	@Id int,
+	@Descripcion varchar(50)
+as
+	update CATEGORIAS set Descripcion = @Descripcion where Id = @Id
+go
+
+create or alter procedure storedBajaLogicaCategoria
+	@Id int,
+	@Activo bit
+as
+	update CATEGORIAS set Activo = @Activo where Id = @Id
+go
