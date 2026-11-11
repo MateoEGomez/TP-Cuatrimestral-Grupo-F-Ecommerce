@@ -62,6 +62,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Admin.aspx" />
+    <Content Include="AdminCategorias.aspx" />
+    <Content Include="AdminCategoriasForm.aspx" />
     <Content Include="AdminExpansiones.aspx" />
     <Content Include="AdminExpansionesForm.aspx" />
     <Content Include="Carrito.aspx" />
@@ -69,6 +71,7 @@
     <Content Include="Detalle.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="MisPedidos.aspx" />
+    <Content Include="MisVentas.aspx" />
     <Content Include="Registro.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="Error.aspx" />
@@ -82,6 +85,20 @@
     </Compile>
     <Compile Include="Admin.aspx.designer.cs">
       <DependentUpon>Admin.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminCategorias.aspx.cs">
+      <DependentUpon>AdminCategorias.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminCategorias.aspx.designer.cs">
+      <DependentUpon>AdminCategorias.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminCategoriasForm.aspx.cs">
+      <DependentUpon>AdminCategoriasForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminCategoriasForm.aspx.designer.cs">
+      <DependentUpon>AdminCategoriasForm.aspx</DependentUpon>
     </Compile>
     <Compile Include="AdminExpansiones.aspx.cs">
       <DependentUpon>AdminExpansiones.aspx</DependentUpon>
@@ -131,6 +148,13 @@
     </Compile>
     <Compile Include="MisPedidos.aspx.designer.cs">
       <DependentUpon>MisPedidos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MisVentas.aspx.cs">
+      <DependentUpon>MisVentas.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MisVentas.aspx.designer.cs">
+      <DependentUpon>MisVentas.aspx</DependentUpon>
     </Compile>
     <Compile Include="Registro.aspx.cs">
       <DependentUpon>Registro.aspx</DependentUpon>

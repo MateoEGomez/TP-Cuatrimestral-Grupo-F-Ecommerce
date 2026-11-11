@@ -42,6 +42,13 @@
                         <!-- Si SÍ está logueado -->
                         <asp:PlaceHolder ID="phLogueado" runat="server" Visible="false">
                             <span class="navbar-text text-light me-3" id="lblUser" runat="server">Hola, Usuario</span>
+                            <div class="dropdown me-2">
+                                <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Mi cuenta</button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="MisPedidos.aspx">Mis pedidos</a></li>
+                                    <li><a class="dropdown-item" href="MisVentas.aspx">Mis ventas</a></li>
+                                </ul>
+                            </div>
                             <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" CausesValidation="false" OnClick="BtnSalir_Click" />
                         </asp:PlaceHolder>
                     </div>
