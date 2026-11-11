@@ -9,7 +9,6 @@ namespace dominio
     public class ObservacionPedido
     {
         public int Id { get; set; }
-        public int IdPedido { get; set; }
         public Usuario Usuario { get; set; }
         public DateTime Fecha { get; set; }
         public string Texto { get; set; }

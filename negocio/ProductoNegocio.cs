@@ -39,7 +39,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
+                    }
 
                     lista.Add(aux);
                 }
@@ -112,7 +115,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
+                    }
 
                     lista.Add(aux);
                 }
@@ -155,7 +161,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
+                    }
 
                     return aux;
                 }
@@ -273,7 +282,10 @@ namespace negocio
                         aux.CardId = (string)datos.Lector["CardId"];
 
                     if (!(datos.Lector["IdExpansion"] is DBNull))
-                        aux.IdExpansion = (string)datos.Lector["IdExpansion"];
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
+                    }
 
                     lista.Add(aux);
                 }

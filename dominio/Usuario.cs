@@ -16,6 +16,5 @@ namespace dominio
         public string Telefono { get; set; }
         public Perfil Perfil { get; set; }
         public bool Activo { get; set; }
-        public int IdPerfil { get; set; }
     }
 }
