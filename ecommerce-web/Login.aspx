@@ -10,12 +10,15 @@
                 
                 <div class="mb-3">
                     <label for="txtEmail" class="form-label">Correo electrónico</label>
-                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email" required="true"></asp:TextBox>
+                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" MaxLength="100"></asp:TextBox>
+                    <asp:RequiredFieldValidator ID="rfvEmail" runat="server" ControlToValidate="txtEmail" ErrorMessage="Ingresá tu correo." CssClass="text-danger small" Display="Dynamic" />
+                    <asp:RegularExpressionValidator ID="revEmail" runat="server" ControlToValidate="txtEmail" ErrorMessage="El correo no tiene un formato válido." CssClass="text-danger small" Display="Dynamic" ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$" />
                 </div>
-                
+
                 <div class="mb-3">
                     <label for="txtPassword" class="form-label">Contraseña</label>
-                    <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" required="true"></asp:TextBox>
+                    <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" MaxLength="50"></asp:TextBox>
+                    <asp:RequiredFieldValidator ID="rfvPassword" runat="server" ControlToValidate="txtPassword" ErrorMessage="Ingresá tu contraseña." CssClass="text-danger small" Display="Dynamic" />
                 </div>
 
                 <asp:Label ID="lblError" runat="server" CssClass="text-danger mb-3 d-block" Visible="false"></asp:Label>

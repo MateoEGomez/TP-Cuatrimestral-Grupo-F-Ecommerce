@@ -15,14 +15,18 @@
 
                 <div class="mb-3">
                     <label for="txtEmail" class="form-label">Correo electrónico</label>
-                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" TextMode="Email" required="true"></asp:TextBox>
+                    <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" MaxLength="100"></asp:TextBox>
+                    <asp:RequiredFieldValidator ID="rfvEmail" runat="server" ControlToValidate="txtEmail" ErrorMessage="Ingresá tu correo." CssClass="text-danger small" Display="Dynamic" />
+                    <asp:RegularExpressionValidator ID="revEmail" runat="server" ControlToValidate="txtEmail" ErrorMessage="El correo no tiene un formato válido." CssClass="text-danger small" Display="Dynamic" ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$" />
                 </div>
                 
                 <div class="mb-3">
                     <label for="txtPassword" class="form-label">Contraseña</label>
                     <!-- ClientIDMode="Static" permite encontrar el ID fácil desde JS -->
-                    <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" ClientIDMode="Static" onkeyup="verificarFuerzaPassword(this.value);" />
-                    
+                    <asp:TextBox ID="txtPassword" runat="server" TextMode="Password" CssClass="form-control" ClientIDMode="Static" MaxLength="50" onkeyup="verificarFuerzaPassword(this.value);" />
+                    <asp:RequiredFieldValidator ID="rfvPassword" runat="server" ControlToValidate="txtPassword" ErrorMessage="Ingresá una contraseña." CssClass="text-danger small" Display="Dynamic" />
+                    <asp:RegularExpressionValidator ID="revPassword" runat="server" ControlToValidate="txtPassword" ErrorMessage="La contraseña debe tener al menos 6 caracteres." CssClass="text-danger small" Display="Dynamic" ValidationExpression="^.{6,50}$" />
+
                     <!-- Barra de progreso de Bootstrap -->
                     <div class="progress mt-2" style="height: 6px;">
                         <div id="barraFuerza" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -30,20 +34,28 @@
                     <small id="textoFuerza" class="form-text text-muted">Mínimo 6 caracteres, letras y números.</small>
                 </div>
 
+                <div class="mb-3">
+                    <label for="txtConfirmarPassword" class="form-label">Repetir contraseña</label>
+                    <asp:TextBox ID="txtConfirmarPassword" runat="server" TextMode="Password" CssClass="form-control" MaxLength="50" />
+                    <asp:RequiredFieldValidator ID="rfvConfirmarPassword" runat="server" ControlToValidate="txtConfirmarPassword" ErrorMessage="Repetí la contraseña." CssClass="text-danger small" Display="Dynamic" />
+                    <asp:CompareValidator ID="cvConfirmarPassword" runat="server" ControlToValidate="txtConfirmarPassword" ControlToCompare="txtPassword" ErrorMessage="Las contraseñas no coinciden." CssClass="text-danger small" Display="Dynamic" />
+                </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="txtNombre" class="form-label">Nombre</label>
-                        <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control"></asp:TextBox>
+                        <asp:TextBox ID="txtNombre" runat="server" CssClass="form-control" MaxLength="50"></asp:TextBox>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="txtApellido" class="form-label">Apellido</label>
-                        <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control"></asp:TextBox>
+                        <asp:TextBox ID="txtApellido" runat="server" CssClass="form-control" MaxLength="50"></asp:TextBox>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label for="txtTelefono" class="form-label">Teléfono</label>
-                    <asp:TextBox ID="txtTelefono" runat="server" CssClass="form-control" TextMode="Phone"></asp:TextBox>
+                    <asp:TextBox ID="txtTelefono" runat="server" CssClass="form-control" TextMode="Phone" MaxLength="30"></asp:TextBox>
+                    <asp:RegularExpressionValidator ID="revTelefono" runat="server" ControlToValidate="txtTelefono" ErrorMessage="El teléfono solo puede tener números, espacios, + o -." CssClass="text-danger small" Display="Dynamic" ValidationExpression="^[0-9 +\-]{6,30}$" />
                 </div>
 
                 <asp:Button ID="btnRegistrar" runat="server" Text="Registrarse" CssClass="btn btn-primary w-100" OnClick="btnRegistrar_Click" />

@@ -13,6 +13,9 @@ namespace ecommerce_web
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             Usuario usuario = new Usuario();
             UsuarioNegocio negocio = new UsuarioNegocio();
 

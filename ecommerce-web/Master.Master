@@ -42,7 +42,7 @@
                         <!-- Si SÍ está logueado -->
                         <asp:PlaceHolder ID="phLogueado" runat="server" Visible="false">
                             <span class="navbar-text text-light me-3" id="lblUser" runat="server">Hola, Usuario</span>
-                            <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" OnClick="BtnSalir_Click" />
+                            <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" CausesValidation="false" OnClick="BtnSalir_Click" />
                         </asp:PlaceHolder>
                     </div>
 

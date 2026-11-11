@@ -13,6 +13,9 @@ namespace ecommerce_web
 
         protected void btnRegistrar_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             try
             {
                 Usuario nuevo = new Usuario();
