@@ -67,6 +67,7 @@
     <Content Include="Detalle.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="MisPedidos.aspx" />
+    <Content Include="MisVentas.aspx" />
     <Content Include="Registro.aspx" />
     <Content Include="Default.aspx" />
     <Content Include="Error.aspx" />
@@ -115,6 +116,13 @@
     </Compile>
     <Compile Include="MisPedidos.aspx.designer.cs">
       <DependentUpon>MisPedidos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MisVentas.aspx.cs">
+      <DependentUpon>MisVentas.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MisVentas.aspx.designer.cs">
+      <DependentUpon>MisVentas.aspx</DependentUpon>
     </Compile>
     <Compile Include="Registro.aspx.cs">
       <DependentUpon>Registro.aspx</DependentUpon>
