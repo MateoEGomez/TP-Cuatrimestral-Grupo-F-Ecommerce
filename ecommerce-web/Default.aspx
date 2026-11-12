@@ -64,6 +64,24 @@
             </button>
         </div>
         
+        <!-- SECCION COMPRA VENTA -->
+        <div class="container text-center my-4">
+    <div class="row">
+        <div class="col-md-6">
+            <a href="Default.aspx" class="btn btn-primary btn-lg w-100 py-3 shadow-sm">
+                <i class="fas fa-shopping-cart"></i> QUIERO COMPRAR
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="PublicarCarta.aspx" class="btn btn-success btn-lg w-100 py-3 shadow-sm">
+                <i class="fas fa-tag"></i> QUIERO VENDER
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
         <!-- FILTRO DE EXPANSIÓN -->
         <div class="row mb-4">
         <div class="col-md-4">

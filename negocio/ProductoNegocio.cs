@@ -353,5 +353,37 @@ namespace negocio
                 datos.cerrarConexion();
             }
         }
+
+        // Método para registrar la carta publicada por un cliente
+        public void InsertarPublicacionCliente(Producto nuevo, int idVendedor)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId) " +
+                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId)";
+
+                datos.setearConsulta(consulta);
+                datos.setearParametro("@nombre", nuevo.Nombre);
+                datos.setearParametro("@descripcion", (object)nuevo.Descripcion ?? DBNull.Value);
+                datos.setearParametro("@precio", nuevo.Precio);
+                datos.setearParametro("@stock", 1);
+                datos.setearParametro("@urlImagen", (object)nuevo.UrlImagen ?? DBNull.Value);
+                datos.setearParametro("@idCategoria", 1); // Categoría por defecto o la que corresponda
+                datos.setearParametro("@activo", true);
+                datos.setearParametro("@idExpansion", (object)nuevo.Expansion?.Id ?? DBNull.Value);
+                datos.setearParametro("@cardId", (object)nuevo.CardId ?? DBNull.Value);
+
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
     }
 }

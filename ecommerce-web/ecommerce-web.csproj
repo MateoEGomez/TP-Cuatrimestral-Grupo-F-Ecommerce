@@ -70,6 +70,7 @@
     <Content Include="Checkout.aspx" />
     <Content Include="Detalle.aspx" />
     <Content Include="Login.aspx" />
+    <Content Include="Publicar.aspx" />
     <Content Include="MisPedidos.aspx" />
     <Content Include="MisVentas.aspx" />
     <Content Include="Registro.aspx" />
@@ -141,6 +142,13 @@
     </Compile>
     <Compile Include="Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Publicar.aspx.cs">
+      <DependentUpon>Publicar.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Publicar.aspx.designer.cs">
+      <DependentUpon>Publicar.aspx</DependentUpon>
     </Compile>
     <Compile Include="MisPedidos.aspx.cs">
       <DependentUpon>MisPedidos.aspx</DependentUpon>
