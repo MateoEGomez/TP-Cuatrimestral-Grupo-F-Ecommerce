@@ -15,7 +15,8 @@ namespace ecommerce_web
         {
             try
             {
-                if(!IsPostBack)
+                chkActivo.InputAttributes.Add("class", "form-check-input");
+                if (!IsPostBack)
                 {
                     if (Request.QueryString["id"] != null)
                     {

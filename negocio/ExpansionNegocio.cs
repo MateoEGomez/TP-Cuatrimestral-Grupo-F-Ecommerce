@@ -104,11 +104,12 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("update Expansiones set Nombre = @nombre, Serie = @serie, TotalCartas = @total, Activo = @activo");
+                datos.setearConsulta("update Expansiones set Nombre = @nombre, Serie = @serie, TotalCartas = @total, Activo = @activo where Id = @id");
                 datos.setearParametro("@nombre", modificada.Nombre);
-                datos.setearParametro("@serie", modificada.Serie);
+                datos.setearParametro("@serie", string.IsNullOrEmpty(modificada.Serie) ? (object)DBNull.Value : modificada.Serie);
                 datos.setearParametro("@total", modificada.TotalCartas);
                 datos.setearParametro("@activo", modificada.Activo);
+                datos.setearParametro("@id", modificada.Id);
 
                 datos.ejecutarAccion();
             }

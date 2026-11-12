@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-md-8 offset-md-2">
 
-                <div class="d-flex justify-content-between align.items.center mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2 id="lblTituloFormulario" runat="server">➕ Nueva Expasion</h2>
                     <a href="AdminExpansiones.aspx" class="btn btn-outline-secondary">⬅ Volver</a>
                 </div>
@@ -36,7 +36,7 @@
                         </div>
                         <!-- Estado -->
                         <div class="mb-4 form-check form-switch">
-                            <asp:CheckBox ID="chkActivo" runat="server" CssClass="form-check-input" Checked="true" />
+                            <asp:CheckBox ID="chkActivo" runat="server" Checked="true" ClientIDMode="Static" />
                             <label for="chkActivo" class="form-check-label fw-bold">Expansion Activa (Visible)</label>
                         </div>
                         <!-- Botones -->
