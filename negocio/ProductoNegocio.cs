@@ -360,8 +360,8 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId) " +
-                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId)";
+                string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId, IdVendedor) " +
+                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId, @idVendedor)";
 
                 datos.setearConsulta(consulta);
                 datos.setearParametro("@nombre", nuevo.Nombre);
@@ -373,8 +373,60 @@ namespace negocio
                 datos.setearParametro("@activo", true);
                 datos.setearParametro("@idExpansion", (object)nuevo.Expansion?.Id ?? DBNull.Value);
                 datos.setearParametro("@cardId", (object)nuevo.CardId ?? DBNull.Value);
+                datos.setearParametro("@idVendedor", idVendedor); // <-- ¡Acá guardamos el ID del usuario real!
 
                 datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        // Método para listar únicamente las publicaciones de un vendedor específico
+        public List<Producto> ListarPorVendedor(int idVendedor)
+        {
+            List<Producto> lista = new List<Producto>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE IdVendedor = @idVendedor");
+                datos.setearParametro("@idVendedor", idVendedor);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    if (!(datos.Lector["Descripcion"] is DBNull))
+                        aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
+
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+
+                    aux.Categoria = new Categoria();
+                    aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    if (!(datos.Lector["CardId"] is DBNull))
+                        aux.CardId = (string)datos.Lector["CardId"];
+
+                    if (!(datos.Lector["IdExpansion"] is DBNull))
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
+                    }
+
+                    lista.Add(aux);
+                }
+                return lista;
             }
             catch (Exception ex)
             {
