@@ -58,7 +58,7 @@ namespace negocio
             finally { datos.cerrarConexion(); }
         }
 
-        public void EliminacionLogica(int id, bool activo = false)
+        public void EliminarLogico(int id, bool activo = false)
         {
             AccesoDatos datos = new AccesoDatos();
             try
