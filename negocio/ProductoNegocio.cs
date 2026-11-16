@@ -8,7 +8,7 @@ namespace negocio
 {
     public class ProductoNegocio
     {
-        // 1. Método listar clásico actualizado con las nuevas columnas
+        // 1. Método listar clásico actualizado
         public List<Producto> Listar()
         {
             List<Producto> lista = new List<Producto>();
@@ -67,7 +67,7 @@ namespace negocio
 
             try
             {
-                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1");
+                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0");
                 totalRegistros = datosContador.ejecutarAccionScalar();
             }
             catch (Exception)
@@ -84,7 +84,7 @@ namespace negocio
             try
             {
                 string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion " +
-                                  "FROM PRODUCTOS WHERE Activo = 1 " +
+                                  "FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0 " +
                                   "ORDER BY Id " +
                                   "OFFSET @Offset ROWS " +
                                   "FETCH NEXT @PageSize ROWS ONLY";
@@ -140,7 +140,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion FROM Productos WHERE Id = @id");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion, IdVendedor FROM PRODUCTOS WHERE Id = @id");
                 datos.setearParametro("@id", id);
                 datos.ejecutarLectura();
 
@@ -156,6 +156,7 @@ namespace negocio
                         aux.UrlImagen = (string)datos.Lector["UrlImagen"];
 
                     aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
 
                     if (!(datos.Lector["CardId"] is DBNull))
                         aux.CardId = (string)datos.Lector["CardId"];
@@ -164,6 +165,12 @@ namespace negocio
                     {
                         aux.Expansion = new Expansion();
                         aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
+                    }
+
+                    if (!(datos.Lector["IdVendedor"] is DBNull))
+                    {
+                        aux.Vendedor = new Usuario();
+                        aux.Vendedor.Id = (int)datos.Lector["IdVendedor"];
                     }
 
                     return aux;
@@ -216,14 +223,14 @@ namespace negocio
             }
         }
 
-        // 5. Método de Filtrado Dinámico Local (Por nombre, expansión y precio)
+        // 5. Método de Filtrado Dinámico Local
         public List<Producto> Filtrar(string nombre, string idExpansion, decimal? precioMin, decimal? precioMax)
         {
             List<Producto> lista = new List<Producto>();
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1";
+                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0";
 
                 if (!string.IsNullOrEmpty(nombre))
                 {
@@ -301,7 +308,7 @@ namespace negocio
             }
         }
 
-        // 6. Método que ejecuta la actualización masiva del precio USD-ARS en la BD usando la API
+        // 6. Cotización Dólar Blue
         private decimal ObtenerCotizacionDolarBlue()
         {
             try
@@ -322,14 +329,13 @@ namespace negocio
             }
             catch
             {
-                // Valor de respaldo si no hay internet o falla la API
                 return 1200.00m;
             }
 
             return 1200.00m;
         }
 
-        // Método que ejecuta la actualización masiva en la BD usando la API
+        // 7. Actualización masiva de precios
         public decimal ActualizarPreciosPorApi()
         {
             decimal cotizacion = ObtenerCotizacionDolarBlue();
@@ -337,12 +343,11 @@ namespace negocio
 
             try
             {
-                // Multiplica el precio base en USD por la cotización obtenida de la API
                 datos.setearConsulta("UPDATE Productos SET PrecioARS = Precio * @cotizacion");
                 datos.setearParametro("@cotizacion", cotizacion);
                 datos.ejecutarAccion();
 
-                return cotizacion; // Devolvemos la cotización aplicada para mostrarla en pantalla
+                return cotizacion;
             }
             catch (Exception ex)
             {
@@ -354,7 +359,7 @@ namespace negocio
             }
         }
 
-        // Método para registrar la carta publicada por un cliente
+        // 8. Registrar publicación de un cliente
         public void InsertarPublicacionCliente(Producto nuevo, int idVendedor)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -369,11 +374,11 @@ namespace negocio
                 datos.setearParametro("@precio", nuevo.Precio);
                 datos.setearParametro("@stock", 1);
                 datos.setearParametro("@urlImagen", (object)nuevo.UrlImagen ?? DBNull.Value);
-                datos.setearParametro("@idCategoria", 1); // Categoría por defecto o la que corresponda
+                datos.setearParametro("@idCategoria", 1);
                 datos.setearParametro("@activo", true);
                 datos.setearParametro("@idExpansion", (object)nuevo.Expansion?.Id ?? DBNull.Value);
                 datos.setearParametro("@cardId", (object)nuevo.CardId ?? DBNull.Value);
-                datos.setearParametro("@idVendedor", idVendedor); // <-- ¡Acá guardamos el ID del usuario real!
+                datos.setearParametro("@idVendedor", idVendedor);
 
                 datos.ejecutarAccion();
             }
@@ -387,7 +392,7 @@ namespace negocio
             }
         }
 
-        // Método para listar únicamente las publicaciones de un vendedor específico
+        // 9. Listar publicaciones de un vendedor específico
         public List<Producto> ListarPorVendedor(int idVendedor)
         {
             List<Producto> lista = new List<Producto>();
@@ -427,6 +432,27 @@ namespace negocio
                     lista.Add(aux);
                 }
                 return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        // 10. Pausar o reactivar publicación desde Mis Ventas
+        public void CambiarEstadoPublicacion(int idProducto, bool nuevoEstado)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearConsulta("UPDATE PRODUCTOS SET Activo = @activo WHERE Id = @id");
+                datos.setearParametro("@activo", nuevoEstado);
+                datos.setearParametro("@id", idProducto);
+                datos.ejecutarAccion();
             }
             catch (Exception ex)
             {
