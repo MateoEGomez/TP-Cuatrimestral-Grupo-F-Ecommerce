@@ -49,7 +49,7 @@
                                     <li><a class="dropdown-item" href="MisVentas.aspx">Mis ventas</a></li>
                                 </ul>
                             </div>
-                            <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" CausesValidation="false" OnClick="BtnSalir_Click" />
+                            <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" CausesValidation="false" UseSubmitBehavior="false" OnClick="BtnSalir_Click" />
                         </asp:PlaceHolder>
                     </div>
 
