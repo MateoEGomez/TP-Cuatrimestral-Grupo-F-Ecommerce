@@ -65,10 +65,14 @@
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminCategoriasForm.aspx" />
     <Content Include="AdminExpansiones.aspx" />
+    <Content Include="AdminExpansionesForm.aspx" />
+    <Content Include="AdminParametros.aspx" />
+    <Content Include="AdminParametrosForm.aspx" />
     <Content Include="Carrito.aspx" />
     <Content Include="Checkout.aspx" />
     <Content Include="Detalle.aspx" />
     <Content Include="Login.aspx" />
+    <Content Include="Publicar.aspx" />
     <Content Include="MisPedidos.aspx" />
     <Content Include="MisVentas.aspx" />
     <Content Include="Registro.aspx" />
@@ -106,6 +110,27 @@
     <Compile Include="AdminExpansiones.aspx.designer.cs">
       <DependentUpon>AdminExpansiones.aspx</DependentUpon>
     </Compile>
+    <Compile Include="AdminExpansionesForm.aspx.cs">
+      <DependentUpon>AdminExpansionesForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminExpansionesForm.aspx.designer.cs">
+      <DependentUpon>AdminExpansionesForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminParametros.aspx.cs">
+      <DependentUpon>AdminParametros.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminParametros.aspx.designer.cs">
+      <DependentUpon>AdminParametros.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminParametrosForm.aspx.cs">
+      <DependentUpon>AdminParametrosForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminParametrosForm.aspx.designer.cs">
+      <DependentUpon>AdminParametrosForm.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Carrito.aspx.cs">
       <DependentUpon>Carrito.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -133,6 +158,13 @@
     </Compile>
     <Compile Include="Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Publicar.aspx.cs">
+      <DependentUpon>Publicar.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Publicar.aspx.designer.cs">
+      <DependentUpon>Publicar.aspx</DependentUpon>
     </Compile>
     <Compile Include="MisPedidos.aspx.cs">
       <DependentUpon>MisPedidos.aspx</DependentUpon>

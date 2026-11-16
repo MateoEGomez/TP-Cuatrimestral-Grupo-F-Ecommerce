@@ -23,7 +23,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="container mt-4 mb-5">
 
-        <div class="d-flex justify-content-between aling-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>Dashboard de Administracion</h2>
             <span class="badge bg-primary fs-6">Perfil: Administrador</span>
         </div>
@@ -33,7 +33,7 @@
         <div class="row mb-5">
             <div class="col-12">
                 <div class="card shadow-sm dark-mode-card">
-                    <div class="card-body d-flex justify-content-between aling-items-center flex-wrap gap-3">
+                    <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <div>
                             <h5 class="card-title mb-1">Cotizacion y precios</h5>
                             <p class="card-text text-muted mb-0">Actualizacion masiva del catalogo basada en el Dolar Blue oficial.</p>

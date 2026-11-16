@@ -19,17 +19,22 @@
                 </button>
                 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Menú de la izquierda -->
-<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-    <li class="nav-item">
-        <a class="nav-link active" aria-current="page" href="Default.aspx">Inicio</a>
-    </li>
+<!-- Menú de la izquierda -->
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="Default.aspx">Inicio</a>
+        </li>
+        
+        <!-- Botón Quiero Vender -->
+        <li class="nav-item ms-lg-2">
+            <a class="nav-link btn btn-success text-white px-3" href="Publicar.aspx">🏷️ QUIERO VENDER</a>
+        </li>
 
-    <!-- Botón de Admin controlado por código -->
-    <li class="nav-item">
-        <asp:HyperLink ID="lnkAdmin" runat="server" CssClass="nav-link btn btn-outline-warning text-white ms-2" NavigateUrl="~/Admin.aspx" Visible="false">Panel Admin ⚙️</asp:HyperLink>
-    </li>
-</ul>
+        <!-- Botón de Admin controlado por código -->
+        <li class="nav-item">
+            <asp:HyperLink ID="lnkAdmin" runat="server" CssClass="nav-link btn btn-outline-warning text-white ms-2" NavigateUrl="~/Admin.aspx" Visible="false">Panel Admin ⚙️</asp:HyperLink>
+        </li>
+    </ul>
 
                     <!-- ZONA DE USUARIO (Alineada a la derecha) -->
                     <div class="d-flex align-items-center">

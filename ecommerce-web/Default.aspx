@@ -64,6 +64,25 @@
             </button>
         </div>
         
+        <!-- SECCION COMPRA VENTA -->
+        <div class="container text-center my-4">
+    <div class="row">
+        <div class="col-md-6">
+            <a href="Default.aspx" class="btn btn-primary btn-lg w-100 py-3 shadow-sm">
+                <i class="fas fa-shopping-cart"></i> QUIERO COMPRAR
+            </a>
+        </div>
+        <div class="col-md-6">
+<a href="Publicar.aspx" class="btn btn-success btn-lg w-100 py-3 shadow-sm">
+    <i class="fas fa-tag"></i> QUIERO VENDER
+</a>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+
         <!-- FILTRO DE EXPANSIÓN -->
         <div class="row mb-4">
         <div class="col-md-4">
@@ -73,33 +92,34 @@
         </div>
         </div>
 
-        <!-- GRILLA DE PRODUCTOS -->
-        <div class="row">
-            <asp:Repeater ID="repeaterProductos" runat="server">
-                <ItemTemplate>
-                    <div class="col-md-4 mb-4">
-                        <div class="card h-100 shadow-sm">
-                            
-                            <!-- CONTENEDOR DE LA IMAGEN CON EL RESPLANDOR DE RAREZA -->
-                            <div class="p-3 text-center">
-                                <div class='d-inline-block p-1 <%# ObtenerClaseGlow((string)Eval("Descripcion")) %>'>
-                                    <img src='<%# Eval("UrlImagen") %>' class="img-fluid" alt='<%# Eval("Nombre") %>' style="height: 280px; object-fit: contain;" />
-                                </div>
-                            </div>
-                            
-                            <!-- CUERPO DE LA TARJETA -->
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title"><%# Eval("Nombre") %></h5>
-                                <p class="card-text text-muted small"><%# Eval("Descripcion") %></p>
-                                
-                                <p class="card-text text-success mt-auto"><strong>$<%# Eval("Precio") %></strong></p>
-                                <a href='Detalle.aspx?id=<%# Eval("Id") %>' class="btn btn-outline-primary">Ver detalle</a>
-                            </div>
+<!-- GRILLA DE PRODUCTOS -->
+<div class="row">
+    <asp:Repeater ID="repeaterProductos" runat="server">
+        <ItemTemplate>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    
+                    <!-- CONTENEDOR DE LA IMAGEN CON EL RESPLANDOR DE RAREZA -->
+                    <div class="p-3 text-center">
+                        <div class='d-inline-block p-1 <%# ObtenerClaseGlow(Eval("Descripcion")?.ToString() ?? "") %>'>
+                            <img src='<%# Eval("UrlImagen") != null ? ResolveUrl(Eval("UrlImagen").ToString()) : "" %>' class="img-fluid" alt='<%# Eval("Nombre") %>' style="height: 280px; object-fit: contain;" />
                         </div>
                     </div>
-                </ItemTemplate>
-            </asp:Repeater>
-        </div>
+                    
+                    <!-- CUERPO DE LA TARJETA -->
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title"><%# Eval("Nombre") %></h5>
+                        <p class="card-text text-muted small"><%# Eval("Descripcion") %></p>
+                        
+                        <p class="card-text text-success mt-auto"><strong>$<%# Eval("Precio") %></strong></p>
+                        <a href='Detalle.aspx?id=<%# Eval("Id") %>' class="btn btn-outline-primary">Ver detalle</a>
+                    </div>
+
+                </div>
+            </div>
+        </ItemTemplate>
+    </asp:Repeater>
+</div>
 
         <!-- PAGINACIÓN -->
         <nav aria-label="Navegación de páginas" class="mt-4 mb-5">

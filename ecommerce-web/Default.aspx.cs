@@ -70,7 +70,6 @@ namespace ecommerce_web
                 {
                     CargarSetsDesplegable();
 
-                    // Si venía un set por parámetro o queryString lo seleccionamos
                     if (Request.QueryString["set"] != null && ddlSets != null)
                     {
                         string setIdQuery = Request.QueryString["set"];
