@@ -85,6 +85,17 @@
                 </a>
             </div>
 
+            <!--ABM Formas de pago-->
+            <div class="col-md-6 col-lg-4">
+                <a href="AdminFormasPago.aspx" class="card h-100 shadow-sm dark-mode-card admin-card p-3">
+                    <div class="card-body text-center">
+                        <h1 class="display-4 mb-3">💳</h1>
+                        <h5 class="card-title">Formas de pago</h5>
+                        <p class="card-text-muted small">Medios de pago disponibles en el checkout.</p>
+                    </div>
+                </a>
+            </div>
+
         </div>
 
         <!-- Seccion 3: Moderacion y usuarios -->
