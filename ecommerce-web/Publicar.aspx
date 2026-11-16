@@ -34,8 +34,9 @@
 
                 <div class="mb-3">
                     <label for="fileImagen" class="form-label fw-bold">Foto real de la carta:</label>
-                    <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" />
-                    <div class="form-text">Subí una foto clara y real de la carta que vas a enviar al comprador.</div>
+                    <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" accept=".jpg,.jpeg,.png" />
+                    <asp:Label ID="lblErrorImagen" runat="server" CssClass="text-danger small d-block" Visible="false" />
+                    <div class="form-text">Subí una foto clara y real de la carta que vas a enviar al comprador (JPG o PNG).</div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">

@@ -12,6 +12,9 @@ namespace ecommerce_web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!Seguridad.esAdmin(Session["usuario"]))
+                Response.Redirect("Default.aspx");
+
             if(!IsPostBack)
             {
                 try

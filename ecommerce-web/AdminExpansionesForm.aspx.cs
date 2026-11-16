@@ -13,6 +13,9 @@ namespace ecommerce_web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!Seguridad.esAdmin(Session["usuario"]))
+                Response.Redirect("Default.aspx");
+
             try
             {
                 chkActivo.InputAttributes.Add("class", "form-check-input");
@@ -41,12 +44,15 @@ namespace ecommerce_web
             catch(Exception ex) 
             {
                 Session.Add("error", ex.ToString());
-                Response.Redirect("Error.aspx, false");
+                Response.Redirect("Error.aspx", false);
             }
         }
 
         protected void btnGuardar_click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             try
             {
                 Expansion nuevo = new Expansion();
@@ -65,6 +71,12 @@ namespace ecommerce_web
                 }
                 else
                 {
+                    if (negocio.ObtenerPorId(nuevo.Id) != null)
+                    {
+                        lblError.Text = "Ya existe una expansión con el código " + nuevo.Id + ".";
+                        lblError.Visible = true;
+                        return;
+                    }
                     negocio.Agregar(nuevo);
                 }
                 Response.Redirect("AdminExpansiones.aspx", false);

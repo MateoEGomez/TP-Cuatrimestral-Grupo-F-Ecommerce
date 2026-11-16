@@ -23,7 +23,7 @@
                 <div class="mb-3">
                     <label for="txtDescripcion" class="form-label">Descripcion</label>
                     <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" MaxLength="50" />
-                    <asp:RequiredFieldValidator ID="rfvDescripcion" runat="server" ControlToValidate="txtDescripcion" ErrorMessage="Ingresa una descripcion." CssClass="Text-danger small" Display="Dynamic" />
+                    <asp:RequiredFieldValidator ID="rfvDescripcion" runat="server" ControlToValidate="txtDescripcion" ErrorMessage="Ingresa una descripcion." CssClass="text-danger small" Display="Dynamic" />
                 </div>
                 <asp:Panel ID="pnlEstado" runat="server" CssClass="mb-3" Visible="false">
                     

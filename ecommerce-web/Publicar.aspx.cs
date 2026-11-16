@@ -72,6 +72,21 @@ namespace ecommerce_web
             {
                 if (ddlCartas.SelectedValue == "0") return;
 
+                if (!Page.IsValid)
+                    return;
+
+                string extension = "";
+                if (fileImagen.HasFile)
+                {
+                    extension = Path.GetExtension(fileImagen.FileName).ToLower();
+                    if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
+                    {
+                        lblErrorImagen.Text = "La foto tiene que ser una imagen JPG o PNG.";
+                        lblErrorImagen.Visible = true;
+                        return;
+                    }
+                }
+
                 Usuario user = (Usuario)Session["usuario"];
                 int idCartaBase = int.Parse(ddlCartas.SelectedValue);
 
@@ -97,7 +112,6 @@ namespace ecommerce_web
                     string carpeta = Server.MapPath("~/Images/");
                     if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
 
-                    string extension = Path.GetExtension(fileImagen.FileName);
                     string nombreUnico = "pub_" + Guid.NewGuid().ToString().Substring(0, 8) + extension;
                     string rutaFisica = Path.Combine(carpeta, nombreUnico);
 
