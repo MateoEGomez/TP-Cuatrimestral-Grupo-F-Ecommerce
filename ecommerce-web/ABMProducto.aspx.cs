@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using dominio;
 using negocio;
+using System.Web.UI.WebControls;
 
 namespace ecommerce_web
 {
@@ -13,14 +14,11 @@ namespace ecommerce_web
             {
                 if (!IsPostBack)
                 {
-                    // 1. Cargamos los menús desplegables la primera vez que entra
                     CargarDesplegables();
-
-                    // 2. Cargamos la grilla con la lista de productos
                     CargarGrilla();
                 }
             }
-            catch (Exception ex) // <-- Corregido para que compile bien
+            catch (Exception ex)
             {
                 Session.Add("error", ex.ToString());
                 Response.Redirect("Error.aspx", false);
@@ -31,60 +29,91 @@ namespace ecommerce_web
         {
             ProductoNegocio negocio = new ProductoNegocio();
 
-            // Cargamos el Dropdown de Expansiones
             ddlExpansiones.DataSource = negocio.ListarSetsDisponibles();
             ddlExpansiones.DataTextField = "Name";
             ddlExpansiones.DataValueField = "Id";
             ddlExpansiones.DataBind();
-            ddlExpansiones.Items.Insert(0, new System.Web.UI.WebControls.ListItem("Seleccioná una expansión...", "0"));
+            ddlExpansiones.Items.Insert(0, new ListItem("Seleccioná una expansión...", "0"));
         }
 
         private void CargarGrilla()
         {
             ProductoNegocio negocio = new ProductoNegocio();
-
-            // Asignamos la lista completa de productos a la grilla del admin
             gvProductos.DataSource = negocio.Listar();
             gvProductos.DataBind();
         }
 
+        protected void gvProductos_RowCommand(object sender, GridViewCommandEventArgs e)
+        {
+            if (e.CommandName == "ModificarItem")
+            {
+                int id = Convert.ToInt32(e.CommandArgument);
+                ProductoNegocio negocio = new ProductoNegocio();
+                Producto seleccionado = negocio.ObtenerPorId(id);
+
+                if (seleccionado != null)
+                {
+                    txtNombre.Text = seleccionado.Nombre;
+                    txtPrecio.Text = seleccionado.Precio.ToString("0.00");
+                    txtStock.Text = seleccionado.Stock.ToString();
+                    txtUrlImagen.Text = seleccionado.UrlImagen;
+                    txtDescripcion.Text = seleccionado.Descripcion;
+
+                    if (seleccionado.Expansion != null && ddlExpansiones.Items.FindByValue(seleccionado.Expansion.Id) != null)
+                        ddlExpansiones.SelectedValue = seleccionado.Expansion.Id;
+
+                    Session.Add("idProductoModificar", seleccionado.Id);
+
+                    btnGuardar.Text = "Actualizar Producto";
+                    btnGuardar.CssClass = "btn btn-warning px-4";
+                }
+            }
+        }
+
+        // ÚNICO MÉTODO btnGuardar_Click (Maneja Alta y Modificación)
         protected void btnGuardar_Click(object sender, EventArgs e)
         {
             try
             {
-                Producto nuevo = new Producto();
                 ProductoNegocio negocio = new ProductoNegocio();
+                Producto aux = new Producto();
 
-                nuevo.Nombre = txtNombre.Text;
-                nuevo.Descripcion = txtDescripcion.Text;
+                aux.Nombre = txtNombre.Text;
+                aux.Descripcion = txtDescripcion.Text;
 
-                // Validamos y convertimos precio y stock de texto a números de forma segura
                 if (decimal.TryParse(txtPrecio.Text, out decimal precio))
-                    nuevo.Precio = precio;
-                else
-                    nuevo.Precio = 0;
+                    aux.Precio = precio;
 
                 if (int.TryParse(txtStock.Text, out int stock))
-                    nuevo.Stock = stock;
-                else
-                    nuevo.Stock = 1;
+                    aux.Stock = stock;
 
-                nuevo.UrlImagen = txtUrlImagen.Text;
+                aux.UrlImagen = txtUrlImagen.Text;
 
-                // Capturamos la expansión seleccionada en el DropDownList
                 if (ddlExpansiones.SelectedValue != "0")
                 {
-                    nuevo.Expansion = new Expansion();
-                    nuevo.Expansion.Id = ddlExpansiones.SelectedValue;
+                    aux.Expansion = new Expansion();
+                    aux.Expansion.Id = ddlExpansiones.SelectedValue;
                 }
 
-                // Ejecutamos el guardado en la base de datos
-                negocio.InsertarAdmin(nuevo);
+                // Si hay sesión activa, estamos modificando; sino, es alta nueva
+                if (Session["idProductoModificar"] != null)
+                {
+                    aux.Id = (int)Session["idProductoModificar"];
+                    aux.Activo = true;
+                    negocio.Modificar(aux);
 
-                // Recargamos la grilla para que aparezca el nuevo producto al instante
+                    Session.Remove("idProductoModificar");
+                    btnGuardar.Text = "Guardar Producto";
+                    btnGuardar.CssClass = "btn btn-success px-4";
+                }
+                else
+                {
+                    negocio.InsertarAdmin(aux);
+                }
+
                 CargarGrilla();
 
-                // Limpiamos los campos (opcional)
+                // Limpiar campos
                 txtNombre.Text = "";
                 txtPrecio.Text = "";
                 txtStock.Text = "";
@@ -97,6 +126,14 @@ namespace ecommerce_web
                 Session.Add("error", ex.ToString());
                 Response.Redirect("Error.aspx", false);
             }
+        }
+
+        protected void gvProductos_PageIndexChanging(object sender, GridViewPageEventArgs e)
+        {
+            // Cambiamos a la página seleccionada
+            gvProductos.PageIndex = e.NewPageIndex;
+            // Recargamos la grilla
+            CargarGrilla();
         }
     }
 }

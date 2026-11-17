@@ -496,5 +496,35 @@ namespace negocio
                 datos.cerrarConexion();
             }
         }
+
+        // 12. Método para modificar un producto desde el panel de administración
+        public void Modificar(Producto prod)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                string consulta = "UPDATE PRODUCTOS SET Nombre = @nombre, Descripcion = @descripcion, Precio = @precio, Stock = @stock, UrlImagen = @urlImagen, Activo = @activo, IdExpansion = @idExpansion WHERE Id = @id";
+
+                datos.setearConsulta(consulta);
+                datos.setearParametro("@nombre", prod.Nombre);
+                datos.setearParametro("@descripcion", (object)prod.Descripcion ?? DBNull.Value);
+                datos.setearParametro("@precio", prod.Precio);
+                datos.setearParametro("@stock", prod.Stock);
+                datos.setearParametro("@urlImagen", (object)prod.UrlImagen ?? DBNull.Value);
+                datos.setearParametro("@activo", prod.Activo);
+                datos.setearParametro("@idExpansion", (object)prod.Expansion?.Id ?? DBNull.Value);
+                datos.setearParametro("@id", prod.Id);
+
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
     }
 }

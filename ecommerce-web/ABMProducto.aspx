@@ -72,21 +72,28 @@
         <div class="card shadow-sm p-4">
             <h4 class="mb-3">Listado General de Cartas</h4>
             <div class="table-responsive">
-                <asp:GridView ID="gvProductos" runat="server" CssClass="table table-striped table-hover align-middle" AutoGenerateColumns="false">
-                    <Columns>
-                        <asp:BoundField DataField="Id" HeaderText="ID" />
-                        <asp:BoundField DataField="Nombre" HeaderText="Nombre" />
-                        <asp:BoundField DataField="Precio" HeaderText="Precio" DataFormatString="{0:C}" />
-                        <asp:BoundField DataField="Stock" HeaderText="Stock" />
-                        <asp:CheckBoxField DataField="Activo" HeaderText="Activo" />
-                        <asp:TemplateField HeaderText="Acciones">
-                            <ItemTemplate>
-                                <asp:Button ID="btnModificar" runat="server" Text="Modificar" CssClass="btn btn-primary btn-sm me-1" />
-                                <asp:Button ID="btnEstado" runat="server" Text="Cambiar Estado" CssClass="btn btn-warning btn-sm" />
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
+<asp:GridView ID="gvProductos" runat="server" 
+    CssClass="table table-striped table-hover align-middle" 
+    AutoGenerateColumns="false" 
+    DataKeyNames="Id" 
+    OnRowCommand="gvProductos_RowCommand"
+    AllowPaging="true" 
+    PageSize="10" 
+    OnPageIndexChanging="gvProductos_PageIndexChanging">
+    <Columns>
+        <asp:BoundField DataField="Id" HeaderText="ID" />
+        <asp:BoundField DataField="Nombre" HeaderText="Nombre" />
+        <asp:BoundField DataField="Precio" HeaderText="Precio" DataFormatString="{0:C}" />
+        <asp:BoundField DataField="Stock" HeaderText="Stock" />
+        <asp:CheckBoxField DataField="Activo" HeaderText="Activo" />
+        <asp:TemplateField HeaderText="Acciones">
+            <ItemTemplate>
+                <asp:Button ID="btnModificar" runat="server" Text="Modificar" CssClass="btn btn-primary btn-sm me-1" CommandName="ModificarItem" CommandArgument='<%# Eval("Id") %>' />
+                <asp:Button ID="btnEstado" runat="server" Text="Cambiar Estado" CssClass="btn btn-warning btn-sm" />
+            </ItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</asp:GridView>
             </div>
         </div>
     </div>
