@@ -463,5 +463,38 @@ namespace negocio
                 datos.cerrarConexion();
             }
         }
+
+        // 11. Método para insertar un producto desde el panel de administración
+        public void InsertarAdmin(Producto nuevo)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId, IdVendedor) " +
+                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId, @idVendedor)";
+
+                datos.setearConsulta(consulta);
+                datos.setearParametro("@nombre", nuevo.Nombre);
+                datos.setearParametro("@descripcion", (object)nuevo.Descripcion ?? DBNull.Value); // ✅ Corregido con las comillas cerradas
+                datos.setearParametro("@precio", nuevo.Precio);
+                datos.setearParametro("@stock", nuevo.Stock);
+                datos.setearParametro("@urlImagen", (object)nuevo.UrlImagen ?? DBNull.Value);
+                datos.setearParametro("@idCategoria", 1);
+                datos.setearParametro("@activo", true);
+                datos.setearParametro("@idExpansion", (object)nuevo.Expansion?.Id ?? DBNull.Value);
+                datos.setearParametro("@cardId", DBNull.Value);
+                datos.setearParametro("@idVendedor", DBNull.Value);
+
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
     }
 }

@@ -61,6 +61,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ABMProducto.aspx" />
     <Content Include="Admin.aspx" />
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminCategoriasForm.aspx" />
@@ -86,6 +87,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ABMProducto.aspx.cs">
+      <DependentUpon>ABMProducto.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ABMProducto.aspx.designer.cs">
+      <DependentUpon>ABMProducto.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Admin.aspx.cs">
       <DependentUpon>Admin.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
