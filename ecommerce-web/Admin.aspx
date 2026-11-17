@@ -96,6 +96,17 @@
                 </a>
             </div>
 
+            <!--ABM Formas de entrega-->
+            <div class="col-md-6 col-lg-4">
+                <a href="AdminFormasEntrega.aspx" class="card h-100 shadow-sm dark-mode-card admin-card p-3">
+                    <div class="card-body text-center">
+                        <h1 class="display-4 mb-3">🚚</h1>
+                        <h5 class="card-title">Formas de entrega</h5>
+                        <p class="card-text-muted small">Retiro en el local o envío a domicilio.</p>
+                    </div>
+                </a>
+            </div>
+
         </div>
 
         <!-- Seccion 3: Moderacion y usuarios -->

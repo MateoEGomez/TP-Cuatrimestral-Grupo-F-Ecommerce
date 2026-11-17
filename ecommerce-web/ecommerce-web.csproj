@@ -64,6 +64,8 @@
     <Content Include="Admin.aspx" />
     <Content Include="AdminCategorias.aspx" />
     <Content Include="AdminCategoriasForm.aspx" />
+    <Content Include="AdminFormasEntrega.aspx" />
+    <Content Include="AdminFormasEntregaForm.aspx" />
     <Content Include="AdminFormasPago.aspx" />
     <Content Include="AdminFormasPagoForm.aspx" />
     <Content Include="AdminExpansiones.aspx" />
@@ -118,6 +120,20 @@
     </Compile>
     <Compile Include="AdminFormasPagoForm.aspx.designer.cs">
       <DependentUpon>AdminFormasPagoForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminFormasEntrega.aspx.cs">
+      <DependentUpon>AdminFormasEntrega.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminFormasEntrega.aspx.designer.cs">
+      <DependentUpon>AdminFormasEntrega.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminFormasEntregaForm.aspx.cs">
+      <DependentUpon>AdminFormasEntregaForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminFormasEntregaForm.aspx.designer.cs">
+      <DependentUpon>AdminFormasEntregaForm.aspx</DependentUpon>
     </Compile>
     <Compile Include="AdminExpansiones.aspx.cs">
       <DependentUpon>AdminExpansiones.aspx</DependentUpon>
