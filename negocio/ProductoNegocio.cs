@@ -464,27 +464,121 @@ namespace negocio
             }
         }
 
-        // 11. Método para insertar un producto desde el panel de administración
+        public List<Producto> ListarAdmin(string filtro)
+        {
+            List<Producto> lista = new List<Producto>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedListarProductosAdmin");
+                datos.setearParametro("@Filtro", filtro);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    aux.Categoria = new Categoria();
+                    aux.Categoria.Descripcion = (string)datos.Lector["Categoria"];
+
+                    aux.Expansion = new Expansion();
+                    if (!(datos.Lector["Expansion"] is DBNull))
+                        aux.Expansion.Nombre = (string)datos.Lector["Expansion"];
+
+                    aux.EstadoPublicacion = new EstadoPublicacion();
+                    aux.EstadoPublicacion.Descripcion = (string)datos.Lector["EstadoPublicacion"];
+
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public Producto ObtenerParaEditar(int id)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedObtenerProducto");
+                datos.setearParametro("@Id", id);
+                datos.ejecutarLectura();
+
+                if (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    if (!(datos.Lector["Descripcion"] is DBNull))
+                        aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+                    if (!(datos.Lector["CardId"] is DBNull))
+                        aux.CardId = (string)datos.Lector["CardId"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    aux.Categoria = new Categoria();
+                    aux.Categoria.Id = (int)datos.Lector["IdCategoria"];
+
+                    if (!(datos.Lector["IdExpansion"] is DBNull))
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
+                    }
+                    if (!(datos.Lector["IdRareza"] is DBNull))
+                    {
+                        aux.Rareza = new Rareza();
+                        aux.Rareza.Id = (int)datos.Lector["IdRareza"];
+                    }
+                    if (!(datos.Lector["IdCondicion"] is DBNull))
+                    {
+                        aux.Condicion = new Condicion();
+                        aux.Condicion.Id = (int)datos.Lector["IdCondicion"];
+                    }
+                    if (!(datos.Lector["IdIdioma"] is DBNull))
+                    {
+                        aux.Idioma = new Idioma();
+                        aux.Idioma.Id = (int)datos.Lector["IdIdioma"];
+                    }
+
+                    return aux;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
         public void InsertarAdmin(Producto nuevo)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId, IdVendedor) " +
-                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId, @idVendedor)";
-
-                datos.setearConsulta(consulta);
-                datos.setearParametro("@nombre", nuevo.Nombre);
-                datos.setearParametro("@descripcion", (object)nuevo.Descripcion ?? DBNull.Value); // ✅ Corregido con las comillas cerradas
-                datos.setearParametro("@precio", nuevo.Precio);
-                datos.setearParametro("@stock", nuevo.Stock);
-                datos.setearParametro("@urlImagen", (object)nuevo.UrlImagen ?? DBNull.Value);
-                datos.setearParametro("@idCategoria", 1);
-                datos.setearParametro("@activo", true);
-                datos.setearParametro("@idExpansion", (object)nuevo.Expansion?.Id ?? DBNull.Value);
-                datos.setearParametro("@cardId", DBNull.Value);
-                datos.setearParametro("@idVendedor", DBNull.Value);
-
+                datos.setearProcedimiento("storedAltaProducto");
+                CargarParametros(datos, nuevo);
+                datos.setearParametro("@IdVendedor", nuevo.Vendedor.Id);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -497,24 +591,14 @@ namespace negocio
             }
         }
 
-        // 12. Método para modificar un producto desde el panel de administración
-        public void Modificar(Producto prod)
+        public void Modificar(Producto producto)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "UPDATE PRODUCTOS SET Nombre = @nombre, Descripcion = @descripcion, Precio = @precio, Stock = @stock, UrlImagen = @urlImagen, Activo = @activo, IdExpansion = @idExpansion WHERE Id = @id";
-
-                datos.setearConsulta(consulta);
-                datos.setearParametro("@nombre", prod.Nombre);
-                datos.setearParametro("@descripcion", (object)prod.Descripcion ?? DBNull.Value);
-                datos.setearParametro("@precio", prod.Precio);
-                datos.setearParametro("@stock", prod.Stock);
-                datos.setearParametro("@urlImagen", (object)prod.UrlImagen ?? DBNull.Value);
-                datos.setearParametro("@activo", prod.Activo);
-                datos.setearParametro("@idExpansion", (object)prod.Expansion?.Id ?? DBNull.Value);
-                datos.setearParametro("@id", prod.Id);
-
+                datos.setearProcedimiento("storedModificarProducto");
+                datos.setearParametro("@Id", producto.Id);
+                CargarParametros(datos, producto);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)
@@ -525,6 +609,41 @@ namespace negocio
             {
                 datos.cerrarConexion();
             }
+        }
+
+        public void EliminarLogico(int id, bool activo = false)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedBajaLogicaProducto");
+                datos.setearParametro("@Id", id);
+                datos.setearParametro("@Activo", activo);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        private void CargarParametros(AccesoDatos datos, Producto producto)
+        {
+            datos.setearParametro("@Nombre", producto.Nombre);
+            datos.setearParametro("@Descripcion", producto.Descripcion != null ? (object)producto.Descripcion : DBNull.Value);
+            datos.setearParametro("@Precio", producto.Precio);
+            datos.setearParametro("@Stock", producto.Stock);
+            datos.setearParametro("@UrlImagen", producto.UrlImagen != null ? (object)producto.UrlImagen : DBNull.Value);
+            datos.setearParametro("@IdCategoria", producto.Categoria.Id);
+            datos.setearParametro("@IdExpansion", producto.Expansion != null ? (object)producto.Expansion.Id : DBNull.Value);
+            datos.setearParametro("@IdRareza", producto.Rareza != null ? (object)producto.Rareza.Id : DBNull.Value);
+            datos.setearParametro("@IdCondicion", producto.Condicion != null ? (object)producto.Condicion.Id : DBNull.Value);
+            datos.setearParametro("@IdIdioma", producto.Idioma != null ? (object)producto.Idioma.Id : DBNull.Value);
+            datos.setearParametro("@CardId", producto.CardId != null ? (object)producto.CardId : DBNull.Value);
         }
     }
 }

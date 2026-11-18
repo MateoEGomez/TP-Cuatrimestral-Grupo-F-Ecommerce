@@ -52,6 +52,17 @@
         <h4 class="mb-4">📦 Gestion del Catalogo Maestro</h4>
         <div class="row g-4 mb-5">
 
+            <!-- ABM Productos -->
+            <div class="col-md-6 col-lg-4">
+                <a href="ABMProducto.aspx" class="card h-100 shadow-sm dark-mode-card admin-card p-3">
+                    <div class="card-body text-center">
+                        <h1 class="display-4 mb-3">🃏</h1>
+                        <h5 class="card-title">Productos</h5>
+                        <p class="card-text-muted small">Alta, baja y modificacion de las cartas y productos del catalogo.</p>
+                    </div>
+                </a>
+            </div>
+
             <!-- ABM Expansiones -->
             <div class="col-md-6 col-lg-4">
                 <a href="AdminExpansiones.aspx" class="card h-100 shadow-sm dark-mode-card admin-card p-3">
