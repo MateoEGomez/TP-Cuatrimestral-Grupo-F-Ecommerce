@@ -41,10 +41,10 @@
         <!-- Selector de Cantidad -->
         <div class="row align-items-center mb-4">
             <div class="col-auto">
-                <label for="txtCantidad" class="col-form-label fw-bold">Cantidad:</label>
+                <label for="<%= txtCantidad.ClientID %>" class="col-form-label fw-bold">Cantidad:</label>
             </div>
             <div class="col-auto">
-                <input type="number" id="txtCantidad" class="form-control text-center" value="1" min="1" max="<%= ProductoSeleccionado.Stock %>" style="width: 80px;" />
+                <asp:TextBox ID="txtCantidad" runat="server" TextMode="Number" min="1" Text="1" CssClass="form-control text-center" style="width: 80px;" />
             </div>
             <div class="col-auto text-muted small">
                 (Disponibles: <%= ProductoSeleccionado.Stock %>)
@@ -53,10 +53,13 @@
 
         <!-- Botón de Compra -->
         <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-            <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 shadow-sm">
-                🛒 Agregar al Carrito
-            </button>
+            <asp:Button ID="btnAgregarCarrito" runat="server" Text="🛒 Agregar al Carrito" CssClass="btn btn-primary btn-lg px-4 me-md-2 shadow-sm" OnClick="btnAgregarCarrito_Click" />
+            <a href="Carrito.aspx" class="btn btn-outline-secondary btn-lg px-4">Ver Carrito</a>
         </div>
+
+        <asp:Panel ID="pnlMensajeDetalle" runat="server" Visible="false" CssClass="alert alert-success mt-3 mb-0">
+            <asp:Label ID="lblMensajeDetalle" runat="server" Text=""></asp:Label>
+        </asp:Panel>
     <% } else { %>
         <div class="alert alert-secondary fw-bold" role="alert">
             Sin stock disponible.
