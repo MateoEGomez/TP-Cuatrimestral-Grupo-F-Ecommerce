@@ -93,6 +93,86 @@ namespace negocio
             }
         }
 
+        public List<Usuario> Listar()
+        {
+            List<Usuario> lista = new List<Usuario>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedListarUsuarios");
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Usuario aux = new Usuario();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Email = (string)datos.Lector["Email"];
+                    aux.Nombre = datos.Lector["Nombre"] is DBNull ? null : (string)datos.Lector["Nombre"];
+                    aux.Apellido = datos.Lector["Apellido"] is DBNull ? null : (string)datos.Lector["Apellido"];
+                    aux.Telefono = datos.Lector["Telefono"] is DBNull ? null : (string)datos.Lector["Telefono"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    aux.Perfil = new Perfil();
+                    aux.Perfil.Id = (int)datos.Lector["IdPerfil"];
+                    aux.Perfil.Descripcion = (string)datos.Lector["Perfil"];
+
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public void Modificar(Usuario usuario)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedModificarUsuario");
+                datos.setearParametro("@Id", usuario.Id);
+                datos.setearParametro("@Nombre", (object)usuario.Nombre ?? DBNull.Value);
+                datos.setearParametro("@Apellido", (object)usuario.Apellido ?? DBNull.Value);
+                datos.setearParametro("@Telefono", (object)usuario.Telefono ?? DBNull.Value);
+                datos.setearParametro("@IdPerfil", usuario.Perfil.Id);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public void EliminarLogico(int id, bool activo = false)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedBajaLogicaUsuario");
+                datos.setearParametro("@Id", id);
+                datos.setearParametro("@Activo", activo);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
         private string HashPassword(string password)
         {
             using (var sha256 = System.Security.Cryptography.SHA256.Create())

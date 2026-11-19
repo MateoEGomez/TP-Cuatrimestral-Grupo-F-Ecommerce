@@ -73,6 +73,8 @@
     <Content Include="AdminExpansionesForm.aspx" />
     <Content Include="AdminParametros.aspx" />
     <Content Include="AdminParametrosForm.aspx" />
+    <Content Include="AdminUsuarios.aspx" />
+    <Content Include="AdminUsuariosForm.aspx" />
     <Content Include="Carrito.aspx" />
     <Content Include="Checkout.aspx" />
     <Content Include="Detalle.aspx" />
@@ -170,6 +172,20 @@
     </Compile>
     <Compile Include="AdminParametrosForm.aspx.designer.cs">
       <DependentUpon>AdminParametrosForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminUsuarios.aspx.cs">
+      <DependentUpon>AdminUsuarios.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminUsuarios.aspx.designer.cs">
+      <DependentUpon>AdminUsuarios.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminUsuariosForm.aspx.cs">
+      <DependentUpon>AdminUsuariosForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminUsuariosForm.aspx.designer.cs">
+      <DependentUpon>AdminUsuariosForm.aspx</DependentUpon>
     </Compile>
     <Compile Include="Carrito.aspx.cs">
       <DependentUpon>Carrito.aspx</DependentUpon>

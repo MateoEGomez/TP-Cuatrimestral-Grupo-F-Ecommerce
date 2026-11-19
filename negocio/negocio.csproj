@@ -54,6 +54,7 @@
     <Compile Include="FormaPagoNegocio.cs" />
     <Compile Include="FormaEntregaNegocio.cs" />
     <Compile Include="IdiomaNegocio.cs" />
+    <Compile Include="PerfilNegocio.cs" />
     <Compile Include="ProductoNegocio.cs" />
     <Compile Include="RarezaNegocio.cs" />
     <Compile Include="Seguridad.cs" />
