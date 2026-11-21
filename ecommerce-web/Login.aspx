@@ -7,6 +7,9 @@
         <div class="card shadow">
             <div class="card-body">
                 <h3 class="card-title text-center mb-4">Iniciar Sesión</h3>
+                <% if (VieneDelCheckout) { %>
+                <div class="alert alert-info small">Iniciá sesión o creá tu cuenta para finalizar la compra.</div>
+                <% } %>
                 
                 <div class="mb-3">
                     <label for="txtEmail" class="form-label">Correo electrónico</label>
@@ -26,7 +29,7 @@
                 <asp:Button ID="btnLogin" runat="server" Text="Ingresar" CssClass="btn btn-success w-100" OnClick="btnLogin_Click" />
                 
                 <div class="mt-3 text-center">
-                    <a href="Registro.aspx">¿No tenés cuenta? Registrate acá</a>
+                    <a href="Registro.aspx<%= VieneDelCheckout ? "?volver=checkout" : "" %>">¿No tenés cuenta? Registrate acá</a>
                 </div>
             </div>
         </div>

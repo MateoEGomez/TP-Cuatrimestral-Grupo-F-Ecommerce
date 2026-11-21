@@ -6,6 +6,11 @@ namespace ecommerce_web
 {
     public partial class Registro : System.Web.UI.Page
     {
+        public bool VieneDelCheckout
+        {
+            get { return Request.QueryString["volver"] == "checkout"; }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
 
@@ -44,7 +49,7 @@ namespace ecommerce_web
                 if (negocio.Loguear(nuevo))
                 {
                     Session["usuario"] = nuevo;
-                    Response.Redirect("Default.aspx", false);
+                    Response.Redirect(VieneDelCheckout ? "Checkout.aspx" : "Default.aspx", false);
                 }
             }
             catch (Exception ex)
