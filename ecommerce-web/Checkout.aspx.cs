@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Web.UI.WebControls;
 using dominio;
 using negocio;
 
@@ -10,19 +11,19 @@ namespace ecommerce_web
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["usuario"] == null)
+            {
+                Response.Redirect("Login.aspx?volver=checkout", false);
+                return;
+            }
+
             try
             {
-                // Verificamos que el usuario esté logueado para poder comprar
-                if (Session["usuario"] == null)
-                {
-                    Response.Redirect("Login.aspx", false);
-                    return;
-                }
-
                 if (!IsPostBack)
                 {
                     CargarFormasEntrega();
                     CargarFormasPago();
+                    CargarDirecciones();
                     ActualizarEstadoDireccion();
                     CargarResumenCarrito();
                 }
@@ -52,7 +53,10 @@ namespace ecommerce_web
             rblFormaEntrega.DataValueField = "Id";
             rblFormaEntrega.DataBind();
 
-            if (rblFormaEntrega.Items.Count > 0)
+            FormaEntrega sinDireccion = lista.FirstOrDefault(x => !x.RequiereDireccion);
+            if (sinDireccion != null)
+                rblFormaEntrega.SelectedValue = sinDireccion.Id.ToString();
+            else if (rblFormaEntrega.Items.Count > 0)
                 rblFormaEntrega.SelectedIndex = 0;
         }
 
@@ -70,26 +74,55 @@ namespace ecommerce_web
                 rblFormaPago.SelectedIndex = 0;
         }
 
+        private void CargarDirecciones()
+        {
+            Usuario usuario = (Usuario)Session["usuario"];
+            PedidoNegocio negocio = new PedidoNegocio();
+
+            ddlDirecciones.Items.Clear();
+            foreach (Direccion direccion in negocio.ListarDirecciones(usuario.Id))
+                ddlDirecciones.Items.Add(new ListItem(direccion.ToString(), direccion.Id.ToString()));
+            ddlDirecciones.Items.Add(new ListItem("➕ Nueva dirección", "0"));
+
+            ddlDirecciones.SelectedIndex = 0;
+            pnlNuevaDireccion.Visible = ddlDirecciones.SelectedValue == "0";
+        }
+
         protected void rblFormaEntrega_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ActualizarEstadoDireccion();
+            try
+            {
+                ActualizarEstadoDireccion();
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false);
+            }
+        }
+
+        protected void ddlDirecciones_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            pnlNuevaDireccion.Visible = ddlDirecciones.SelectedValue == "0";
+        }
+
+        private FormaEntrega ObtenerFormaEntregaSeleccionada()
+        {
+            if (string.IsNullOrEmpty(rblFormaEntrega.SelectedValue))
+                return null;
+
+            int idEntrega = int.Parse(rblFormaEntrega.SelectedValue);
+            FormaEntregaNegocio negocio = new FormaEntregaNegocio();
+            return negocio.Listar().FirstOrDefault(x => x.Id == idEntrega);
         }
 
         private void ActualizarEstadoDireccion()
         {
-            if (string.IsNullOrEmpty(rblFormaEntrega.SelectedValue)) return;
-
-            int idEntrega = int.Parse(rblFormaEntrega.SelectedValue);
-            FormaEntregaNegocio negocio = new FormaEntregaNegocio();
-            FormaEntrega seleccionada = negocio.Listar().FirstOrDefault(x => x.Id == idEntrega);
-
+            FormaEntrega seleccionada = ObtenerFormaEntregaSeleccionada();
             bool requiere = seleccionada != null && seleccionada.RequiereDireccion;
 
-            txtCalle.Enabled = requiere;
-            txtNumero.Enabled = requiere;
-            txtLocalidad.Enabled = requiere;
-            txtCP.Enabled = requiere;
-            txtObservaciones.Enabled = requiere;
+            pnlDireccion.Visible = requiere;
+            lblTituloPago.Text = requiere ? "3. Forma de Pago" : "2. Forma de Pago";
         }
 
         private void CargarResumenCarrito()
@@ -110,22 +143,19 @@ namespace ecommerce_web
             if (carrito.Count == 0)
             {
                 MostrarMensaje("Tu carrito está vacío. Agregá productos antes de confirmar la compra.", "alert-warning");
-                btnConfirmarCompra.Enabled = false;
+                pnlCheckout.Visible = false;
             }
         }
 
         protected void btnConfirmarCompra_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             try
             {
                 Usuario usuario = (Usuario)Session["usuario"];
                 List<DetallePedido> carrito = ObtenerCarrito();
-
-                if (usuario == null)
-                {
-                    Response.Redirect("Login.aspx", false);
-                    return;
-                }
 
                 if (carrito.Count == 0)
                 {
@@ -133,55 +163,51 @@ namespace ecommerce_web
                     return;
                 }
 
-                int idFormaEntrega = int.Parse(rblFormaEntrega.SelectedValue);
-                int idFormaPago = int.Parse(rblFormaPago.SelectedValue);
+                PedidoNegocio pedidoNegocio = new PedidoNegocio();
+                string errorStock = pedidoNegocio.VerificarStock(carrito);
+                if (errorStock != null)
+                {
+                    MostrarMensaje(errorStock + " Ajustá la cantidad en el carrito.", "alert-danger");
+                    return;
+                }
 
-                FormaEntregaNegocio entregaNegocio = new FormaEntregaNegocio();
-                FormaEntrega formaEntrega = entregaNegocio.Listar().FirstOrDefault(x => x.Id == idFormaEntrega);
+                FormaEntrega formaEntrega = ObtenerFormaEntregaSeleccionada();
 
                 Direccion direccion = null;
                 if (formaEntrega != null && formaEntrega.RequiereDireccion)
                 {
-                    if (string.IsNullOrWhiteSpace(txtCalle.Text) ||
-                        string.IsNullOrWhiteSpace(txtNumero.Text) ||
-                        string.IsNullOrWhiteSpace(txtLocalidad.Text) ||
-                        string.IsNullOrWhiteSpace(txtCP.Text))
+                    direccion = new Direccion();
+                    if (ddlDirecciones.SelectedValue != "0")
                     {
-                        MostrarMensaje("Completá Calle, Número, Localidad y Código Postal para el envío a domicilio.", "alert-danger");
-                        return;
+                        direccion.Id = int.Parse(ddlDirecciones.SelectedValue);
                     }
-
-                    direccion = new Direccion
+                    else
                     {
-                        Calle = txtCalle.Text.Trim(),
-                        Numero = txtNumero.Text.Trim(),
-                        Localidad = txtLocalidad.Text.Trim(),
-                        CodigoPostal = txtCP.Text.Trim(),
-                        Observaciones = txtObservaciones.Text.Trim()
-                    };
+                        direccion.Calle = txtCalle.Text.Trim();
+                        direccion.Numero = txtNumero.Text.Trim();
+                        direccion.Localidad = txtLocalidad.Text.Trim();
+                        direccion.CodigoPostal = txtCP.Text.Trim();
+                        direccion.Observaciones = txtObservaciones.Text.Trim();
+                    }
                 }
 
-                decimal total = carrito.Sum(x => x.PrecioUnitario * x.Cantidad);
+                Pedido nuevoPedido = new Pedido();
+                nuevoPedido.Usuario = usuario;
+                nuevoPedido.Fecha = DateTime.Now;
+                nuevoPedido.Total = carrito.Sum(x => x.PrecioUnitario * x.Cantidad);
+                nuevoPedido.FormaPago = new FormaPago();
+                nuevoPedido.FormaPago.Id = int.Parse(rblFormaPago.SelectedValue);
+                nuevoPedido.FormaEntrega = formaEntrega;
+                nuevoPedido.Direccion = direccion;
+                nuevoPedido.Estado = new EstadoPedido();
+                nuevoPedido.Estado.Id = 1;
+                nuevoPedido.Detalles = carrito;
 
-                Pedido nuevoPedido = new Pedido
-                {
-                    Usuario = usuario,
-                    Fecha = DateTime.Now,
-                    Total = total,
-                    FormaPago = new FormaPago { Id = idFormaPago },
-                    FormaEntrega = formaEntrega,
-                    Direccion = direccion,
-                    Estado = new EstadoPedido { Id = 1 },
-                    Detalles = carrito
-                };
-
-                PedidoNegocio pedidoNegocio = new PedidoNegocio();
                 int idPedido = pedidoNegocio.ConfirmarPedido(nuevoPedido);
 
-                // Vaciamos el carrito y avisamos
                 Session["carrito"] = null;
-                btnConfirmarCompra.Enabled = false;
-                MostrarMensaje($"¡Compra confirmada con éxito! Tu número de pedido es #{idPedido}.", "alert-success");
+                pnlCheckout.Visible = false;
+                MostrarMensaje("¡Compra confirmada con éxito! Tu número de pedido es #" + idPedido + ". Queda en estado Pendiente hasta que se registre el pago.", "alert-success");
             }
             catch (Exception ex)
             {
@@ -193,7 +219,7 @@ namespace ecommerce_web
         private void MostrarMensaje(string texto, string claseAlerta)
         {
             pnlMensaje.Visible = true;
-            pnlMensaje.CssClass = $"alert {claseAlerta}";
+            pnlMensaje.CssClass = "alert " + claseAlerta;
             lblMensaje.Text = texto;
         }
     }

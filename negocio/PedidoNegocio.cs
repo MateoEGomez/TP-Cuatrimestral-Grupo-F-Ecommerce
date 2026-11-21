@@ -6,6 +6,57 @@ namespace negocio
 {
     public class PedidoNegocio
     {
+        public List<Direccion> ListarDirecciones(int idUsuario)
+        {
+            List<Direccion> lista = new List<Direccion>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedListarDireccionesUsuario");
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Direccion aux = new Direccion();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.IdUsuario = (int)datos.Lector["IdUsuario"];
+                    aux.Calle = (string)datos.Lector["Calle"];
+                    aux.Numero = (string)datos.Lector["Numero"];
+                    aux.Localidad = (string)datos.Lector["Localidad"];
+                    aux.CodigoPostal = (string)datos.Lector["CodigoPostal"];
+                    if (!(datos.Lector["Observaciones"] is DBNull))
+                        aux.Observaciones = (string)datos.Lector["Observaciones"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public string VerificarStock(List<DetallePedido> detalles)
+        {
+            ProductoNegocio productoNegocio = new ProductoNegocio();
+            foreach (DetallePedido item in detalles)
+            {
+                Producto actual = productoNegocio.ObtenerPorId(item.Producto.Id);
+                if (actual == null)
+                    return "El producto \"" + item.Producto.Nombre + "\" ya no está disponible.";
+                if (actual.Stock < item.Cantidad)
+                    return "No hay stock suficiente de \"" + actual.Nombre + "\": quedan " + actual.Stock + " unidad(es).";
+            }
+            return null;
+        }
+
         public int AgregarDireccion(Direccion dir)
         {
             AccesoDatos datos = new AccesoDatos();
@@ -38,8 +89,15 @@ namespace negocio
             // 1. Si la forma de entrega requiere dirección, la guardamos primero
             if (pedido.FormaEntrega != null && pedido.FormaEntrega.RequiereDireccion && pedido.Direccion != null)
             {
-                pedido.Direccion.IdUsuario = pedido.Usuario.Id;
-                idDireccionGenerada = AgregarDireccion(pedido.Direccion);
+                if (pedido.Direccion.Id != 0)
+                {
+                    idDireccionGenerada = pedido.Direccion.Id;
+                }
+                else
+                {
+                    pedido.Direccion.IdUsuario = pedido.Usuario.Id;
+                    idDireccionGenerada = AgregarDireccion(pedido.Direccion);
+                }
             }
 
             // 2. Insertamos la cabecera del Pedido
