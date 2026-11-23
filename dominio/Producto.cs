@@ -14,6 +14,7 @@ namespace dominio
         [DisplayName("Descripción")]
         public string Descripcion { get; set; }
         public decimal Precio { get; set; }
+        public decimal? PrecioARS { get; set; }
         public int Stock { get; set; }
         public string UrlImagen { get; set; }
         [DisplayName("Categoría")]

@@ -82,10 +82,9 @@
                     <a href="Publicar.aspx" class="btn btn-success btn-lg w-100 py-3 shadow-sm">
                         <i class="fas fa-tag"></i>QUIERO VENDER
                     </a>
-                    </a>
                 </div>
             </div>
-        </div
+        </div>
 
         <!-- PANEL DE BUSQUEDA Y FILTROS DINAMICOS -->
         <asp:Panel ID="pnlFiltros" runat="server" DefaultButton="btnFiltrar" CssClass="card shadow-sm mb-4">
@@ -97,24 +96,31 @@
                     </div>
                     <div class="col-md-4">
                         <label for="<%= ddlSets.ClientID %>" class="form-label fw-bold">Expansión</label>
-                        <asp:DropDownList ID="ddlSets" runat="server" CssClass="form-select" AutoPostBack="true" OnSelectedIndexChanged="ddlSets_SelectedIndexChanged">
+                        <asp:DropDownList ID="ddlSets" runat="server" CssClass="form-select" AutoPostBack="true" OnSelectedIndexChanged="DdlSets_SelectedIndexChanged">
                         </asp:DropDownList>
                     </div>
                     <div class="col-md-2">
                         <label for="<%= txtPrecioMin.ClientID %>" class="form-label fw-bold">Precio Mín.</label>
-                        <asp:TextBox ID="txtPrecioMin" runat="server" TextMode="Number" step="0.01" min="0" CssClass="form-control" placeholder="$ 0"></asp:TextBox>
+                        <asp:TextBox ID="txtPrecioMin" runat="server" TextMode="Number" step="0.01" min="0" CssClass="form-control" placeholder="0"></asp:TextBox>
                     </div>
                     <div class="col-md-2">
                         <label for="<%= txtPrecioMax.ClientID %>" class="form-label fw-bold">Precio Máx.</label>
-                        <asp:TextBox ID="txtPrecioMax" runat="server" TextMode="Number" step="0.01" min="0" CssClass="form-control" placeholder="$ Máx"></asp:TextBox>
+                        <asp:TextBox ID="txtPrecioMax" runat="server" TextMode="Number" step="0.01" min="0" CssClass="form-control" placeholder="Máx"></asp:TextBox>
                     </div>
                 </div>
 
                 <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-2 border-top">
                     <asp:Label ID="lblResultados" runat="server" CssClass="text-muted small" Text=""></asp:Label>
-                    <div class="d-flex gap-2 ms-auto">
-                        <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar filtros" CssClass="btn btn-outline-secondary btn-sm" CausesValidation="false" OnClick="btnLimpiar_Click" />
-                        <asp:Button ID="btnFiltrar" runat="server" Text="🔍 Buscar" CssClass="btn btn-primary btn-sm px-4" OnClick="btnFiltrar_Click" />
+                    <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
+                        <div class="d-flex align-items-center gap-2 me-2">
+                            <label for="<%= ddlMoneda.ClientID %>" class="form-label mb-0 small fw-bold">Moneda:</label>
+                            <asp:DropDownList ID="ddlMoneda" runat="server" CssClass="form-select form-select-sm" Style="width: auto;" AutoPostBack="true" OnSelectedIndexChanged="DdlMoneda_SelectedIndexChanged">
+                                <asp:ListItem Text="USD (Dólares)" Value="USD" Selected="True" />
+                                <asp:ListItem Text="ARS (Pesos)" Value="ARS" />
+                            </asp:DropDownList>
+                        </div>
+                        <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar filtros" CssClass="btn btn-outline-secondary btn-sm" CausesValidation="false" OnClick="BtnLimpiar_Click" />
+                        <asp:Button ID="btnFiltrar" runat="server" Text="🔍 Buscar" CssClass="btn btn-primary btn-sm px-4" OnClick="BtnFiltrar_Click" />
                     </div>
                 </div>
             </div>
@@ -144,7 +150,7 @@
                                 <h5 class="card-title"><%# Eval("Nombre") %></h5>
                                 <p class="card-text text-muted small"><%# Eval("Descripcion") %></p>
 
-                                <p class="card-text text-success mt-auto"><strong>$<%# Eval("Precio") %></strong></p>
+                                <p class="card-text text-success mt-auto"><strong><%# FormatearPrecioProducto(Container.DataItem) %></strong></p>
                                 <a href='Detalle.aspx?id=<%# Eval("Id") %>' class="btn btn-outline-primary">Ver detalle</a>
                             </div>
 
@@ -168,11 +174,10 @@
         function toggleDarkMode() {
             const body = document.body;
             const btn = document.getElementById('btnToggleTheme');
-            
+
             body.classList.toggle('dark-mode');
 
-            // Agregamos esta guarda para evitar el error de "is possibly null"
-            if (!btn) return; 
+            if (!btn) return;
 
             if (body.classList.contains('dark-mode')) {
                 localStorage.setItem('theme', 'dark');
@@ -185,11 +190,10 @@
             }
         }
 
-        // Al cargar la página, mantiene la preferencia guardada en el navegador
         window.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme');
             const btn = document.getElementById('btnToggleTheme');
-            
+
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
                 if (btn) {
