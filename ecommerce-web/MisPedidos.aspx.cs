@@ -95,10 +95,11 @@ namespace ecommerce_web
             switch(idEstado)
             {
                 case 1: return "bg-warning text-dark";  // Pendiente
-                case 2: return "bg-primary";            // Pagado / Confirmado
-                case 3: return "bg-info text-dark";     // Enviado / En Camino
-                case 4: return "bg-success";            // Entregado
-                case 5: return "bg-danger";             // Cancelado
+                case 2: return "bg-primary";            // Pagado
+                case 3: return "bg-info text-dark";     // En preparación
+                case 4: return "bg-info text-dark";     // Enviado
+                case 5: return "bg-success";            // Entregado
+                case 6: return "bg-danger";             // Cancelado
                 default: return "bg-secondary";
             }
         }
