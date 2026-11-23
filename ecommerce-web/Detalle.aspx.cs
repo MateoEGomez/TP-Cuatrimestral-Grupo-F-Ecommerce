@@ -22,8 +22,13 @@ namespace ecommerce_web
                 ProductoNegocio negocio = new ProductoNegocio();
                 Producto prod = negocio.ObtenerPorId(idProducto);
 
-                if (prod == null)
+                if (prod == null || !prod.Activo)
+                {
+                    pnlMensajeDetalle.Visible = true;
+                    pnlMensajeDetalle.CssClass = "alert alert-warning mt-3";
+                    lblMensajeDetalle.Text = "Esta publicación ya no está disponible.";
                     return;
+                }
 
                 if (Session["usuario"] != null && prod.Vendedor != null)
                 {
@@ -98,6 +103,12 @@ namespace ecommerce_web
                     {
                         Usuario user = (Usuario)Session["usuario"];
                         EsPublicacionPropia = (ProductoSeleccionado.Vendedor.Id == user.Id);
+                    }
+
+                    if (!ProductoSeleccionado.Activo && !EsPublicacionPropia)
+                    {
+                        Response.Redirect("Default.aspx", false);
+                        return;
                     }
                 }
                 else

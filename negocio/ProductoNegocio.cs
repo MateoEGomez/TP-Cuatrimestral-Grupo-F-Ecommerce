@@ -140,7 +140,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion, IdVendedor FROM PRODUCTOS WHERE Id = @id");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion, IdVendedor, Activo FROM PRODUCTOS WHERE Id = @id");
                 datos.setearParametro("@id", id);
                 datos.ejecutarLectura();
 
@@ -157,6 +157,7 @@ namespace negocio
 
                     aux.Precio = (decimal)datos.Lector["Precio"];
                     aux.Stock = (int)datos.Lector["Stock"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
 
                     if (!(datos.Lector["CardId"] is DBNull))
                         aux.CardId = (string)datos.Lector["CardId"];

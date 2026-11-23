@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Windows.Forms;
 using dominio;
 
 namespace negocio
@@ -150,7 +148,7 @@ namespace negocio
             foreach (DetallePedido item in detalles)
             {
                 Producto actual = productoNegocio.ObtenerPorId(item.Producto.Id);
-                if (actual == null)
+                if (actual == null || !actual.Activo)
                     return "El producto \"" + item.Producto.Nombre + "\" ya no está disponible.";
                 if (actual.Stock < item.Cantidad)
                     return "No hay stock suficiente de \"" + actual.Nombre + "\": quedan " + actual.Stock + " unidad(es).";

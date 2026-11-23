@@ -167,7 +167,7 @@ namespace ecommerce_web
                 string errorStock = pedidoNegocio.VerificarStock(carrito);
                 if (errorStock != null)
                 {
-                    MostrarMensaje(errorStock + " Ajustá la cantidad en el carrito.", "alert-danger");
+                    MostrarMensaje(errorStock + " Revisá tu carrito.", "alert-danger");
                     return;
                 }
 
