@@ -71,6 +71,7 @@
     <Content Include="AdminFormasPagoForm.aspx" />
     <Content Include="AdminExpansiones.aspx" />
     <Content Include="AdminExpansionesForm.aspx" />
+    <Content Include="AdminModeracion.aspx" />
     <Content Include="AdminParametros.aspx" />
     <Content Include="AdminParametrosForm.aspx" />
     <Content Include="AdminUsuarios.aspx" />
@@ -158,6 +159,13 @@
     </Compile>
     <Compile Include="AdminExpansionesForm.aspx.designer.cs">
       <DependentUpon>AdminExpansionesForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminModeracion.aspx.cs">
+      <DependentUpon>AdminModeracion.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminModeracion.aspx.designer.cs">
+      <DependentUpon>AdminModeracion.aspx</DependentUpon>
     </Compile>
     <Compile Include="AdminParametros.aspx.cs">
       <DependentUpon>AdminParametros.aspx</DependentUpon>

@@ -4,67 +4,71 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    
+
     <div class="container mt-5 mb-5">
-        
+
         <!-- Botón Volver -->
         <div class="mb-4">
-            <a href="Default.aspx" class="btn btn-outline-secondary">
-                &larr; Volver al catálogo
+            <a href="Default.aspx" class="btn btn-outline-secondary">&larr; Volver al catálogo
             </a>
         </div>
-
-<!-- Columna Imagen Dinámica -->
-<div class="col-md-5 text-center mb-4 mb-md-0">
-    <div class="p-3 glow-ultra d-inline-block">
-        <img src="<%= ProductoSeleccionado != null && !string.IsNullOrEmpty(ProductoSeleccionado.UrlImagen) ? ResolveUrl(ProductoSeleccionado.UrlImagen) : "" %>" alt="Carta TCG" class="img-fluid rounded" style="max-height: 500px; object-fit: contain;" />
-    </div>
-</div>
-
-<!-- Columna Información Dinámica -->
-<div class="col-md-7 d-flex flex-column justify-content-center">
-    <h2 class="display-5 fw-bold mb-2"><%= ProductoSeleccionado != null ? ProductoSeleccionado.Nombre : "" %></h2>
-    
-    <h3 class="text-success fw-bold mb-4">$ <%= ProductoSeleccionado != null ? ProductoSeleccionado.Precio.ToString("N2") : "0.00" %></h3>
-
-    <p class="lead mb-4">
-        <%= ProductoSeleccionado != null ? ProductoSeleccionado.Descripcion : "" %>
-    </p>
-
-    <hr class="mb-4" />
-
-    <% if (EsPublicacionPropia) { %>
-        <div class="alert alert-info fw-bold" role="alert">
-            Esta carta fue publicada por vos. Podés administrarla desde <a href="MisVentas.aspx" class="alert-link">Mis Ventas</a>.
-        </div>
-    <% } else if (ProductoSeleccionado != null && ProductoSeleccionado.Stock > 0) { %>
-        <!-- Selector de Cantidad -->
-        <div class="row align-items-center mb-4">
-            <div class="col-auto">
-                <label for="<%= txtCantidad.ClientID %>" class="col-form-label fw-bold">Cantidad:</label>
+        <div class="row">
+            <!-- Columna Imagen Dinámica -->
+            <div class="col-md-5 text-center mb-4 mb-md-0">
+                <div class="p-3 glow-ultra d-inline-block">
+                    <img src="<%= ProductoSeleccionado != null && !string.IsNullOrEmpty(ProductoSeleccionado.UrlImagen) ? ResolveUrl(ProductoSeleccionado.UrlImagen) : "" %>" alt="Carta TCG" class="img-fluid rounded" style="max-height: 500px; object-fit: contain;" />
+                </div>
             </div>
-            <div class="col-auto">
-                <asp:TextBox ID="txtCantidad" runat="server" TextMode="Number" min="1" Text="1" CssClass="form-control text-center" style="width: 80px;" />
+
+            <!-- Columna Información Dinámica -->
+            <div class="col-md-7 d-flex flex-column justify-content-center">
+                <h2 class="display-5 fw-bold mb-2"><%= ProductoSeleccionado != null ? ProductoSeleccionado.Nombre : "" %></h2>
+
+                <h3 class="text-success fw-bold mb-4">$ <%= ProductoSeleccionado != null ? ProductoSeleccionado.Precio.ToString("N2") : "0.00" %></h3>
+
+                <p class="lead mb-4">
+                    <%= ProductoSeleccionado != null ? ProductoSeleccionado.Descripcion : "" %>
+                </p>
+
+                <hr class="mb-4" />
+
+                <% if (EsPublicacionPropia)
+                    { %>
+                <div class="alert alert-info fw-bold" role="alert">
+                    Esta carta fue publicada por vos. Podés administrarla desde <a href="MisVentas.aspx" class="alert-link">Mis Ventas</a>.
+                </div>
+                <% }
+                    else if (ProductoSeleccionado != null && ProductoSeleccionado.Stock > 0)
+                    { %>
+                <!-- Selector de Cantidad -->
+                <div class="row align-items-center mb-4">
+                    <div class="col-auto">
+                        <label for="<%= txtCantidad.ClientID %>" class="col-form-label fw-bold">Cantidad:</label>
+                    </div>
+                    <div class="col-auto">
+                        <asp:TextBox ID="txtCantidad" runat="server" TextMode="Number" min="1" Text="1" CssClass="form-control text-center" Style="width: 80px;" />
+                    </div>
+                    <div class="col-auto text-muted small">
+                        (Disponibles: <%= ProductoSeleccionado.Stock %>)
+                    </div>
+                </div>
+
+                <!-- Botón de Compra -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <asp:Button ID="btnAgregarCarrito" runat="server" Text="🛒 Agregar al Carrito" CssClass="btn btn-primary btn-lg px-4 me-md-2 shadow-sm" OnClick="btnAgregarCarrito_Click" />
+                    <a href="Carrito.aspx" class="btn btn-outline-secondary btn-lg px-4">Ver Carrito</a>
+                </div>
+
+                <asp:Panel ID="pnlMensajeDetalle" runat="server" Visible="false" CssClass="alert alert-success mt-3 mb-0">
+                    <asp:Label ID="lblMensajeDetalle" runat="server" Text=""></asp:Label>
+                </asp:Panel>
+                <% }
+                else
+                { %>
+                <div class="alert alert-secondary fw-bold" role="alert">
+                    Sin stock disponible.
+                </div>
+                <% } %>
             </div>
-            <div class="col-auto text-muted small">
-                (Disponibles: <%= ProductoSeleccionado.Stock %>)
-            </div>
         </div>
-
-        <!-- Botón de Compra -->
-        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-            <asp:Button ID="btnAgregarCarrito" runat="server" Text="🛒 Agregar al Carrito" CssClass="btn btn-primary btn-lg px-4 me-md-2 shadow-sm" OnClick="btnAgregarCarrito_Click" />
-            <a href="Carrito.aspx" class="btn btn-outline-secondary btn-lg px-4">Ver Carrito</a>
-        </div>
-
-        <asp:Panel ID="pnlMensajeDetalle" runat="server" Visible="false" CssClass="alert alert-success mt-3 mb-0">
-            <asp:Label ID="lblMensajeDetalle" runat="server" Text=""></asp:Label>
-        </asp:Panel>
-    <% } else { %>
-        <div class="alert alert-secondary fw-bold" role="alert">
-            Sin stock disponible.
-        </div>
-    <% } %>
-</div>
-
 </asp:Content>

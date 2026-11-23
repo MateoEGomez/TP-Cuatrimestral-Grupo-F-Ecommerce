@@ -645,5 +645,84 @@ namespace negocio
             datos.setearParametro("@IdIdioma", producto.Idioma != null ? (object)producto.Idioma.Id : DBNull.Value);
             datos.setearParametro("@CardId", producto.CardId != null ? (object)producto.CardId : DBNull.Value);
         }
+
+        public List<Producto> ListarParaModeracion(string filtro = "", string estado = "todos")
+        {
+            List<Producto> lista = new List<Producto>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                string consulta = @"SELECT TOP 100 P.Id, P.Nombre, P.Descripcion, P.Precio, P.Stock, P.UrlImagen, P.Activo,
+                                           E.Nombre AS ExpansionNombre,
+                                           U.Id AS IdVendedor, U.Nombre AS VendedorNombre, U.Apellido AS VendedorApellido, U.Email AS VendedorEmail
+                                    FROM PRODUCTOS P
+                                    LEFT JOIN EXPANSIONES E ON P.IdExpansion = E.Id
+                                    LEFT JOIN USUARIOS U ON P.IdVendedor = U.Id
+                                    WHERE 1 = 1";
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                    consulta += " AND (P.Nombre LIKE @filtro OR U.Email LIKE @filtro OR U.Nombre LIKE @filtro OR U.Apellido LIKE @filtro)";
+
+                if (estado == "activas")
+                    consulta += " AND P.Activo = 1";
+                else if (estado == "inactivas")
+                    consulta += " AND P.Activo = 0";
+                else if (estado == "usuarios")
+                    consulta += " AND P.IdVendedor IS NOT NULL";
+
+                consulta += " ORDER BY P.Id DESC";
+
+                datos.setearConsulta(consulta);
+
+                if (!string.IsNullOrWhiteSpace(filtro))
+                    datos.setearParametro("@filtro", "%" + filtro.Trim() + "%");
+
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    if (!(datos.Lector["Descripcion"] is DBNull))
+                        aux.Descripcion = (string)datos.Lector["Descripcion"];
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+                    aux.Stock = (int)datos.Lector["Stock"];
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+                    aux.Activo = (bool)datos.Lector["Activo"];
+
+                    if (!(datos.Lector["ExpansionNombre"] is DBNull))
+                    {
+                        aux.Expansion = new Expansion
+                        {
+                            Nombre = (string)datos.Lector["ExpansionNombre"]
+                        };
+                    }
+
+                    if (!(datos.Lector["IdVendedor"] is DBNull))
+                    {
+                        aux.Vendedor = new Usuario
+                        {
+                            Id = (int)datos.Lector["IdVendedor"],
+                            Nombre = datos.Lector["VendedorNombre"] is DBNull ? "" : (string)datos.Lector["VendedorNombre"],
+                            Apellido = datos.Lector["VendedorApellido"] is DBNull ? "" : (string)datos.Lector["VendedorApellido"],
+                            Email = datos.Lector["VendedorEmail"] is DBNull ? "" : (string)datos.Lector["VendedorEmail"]
+                        };
+                    }
+
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
     }
 }
