@@ -12,6 +12,9 @@ namespace ecommerce_web
 {
     public partial class Default : System.Web.UI.Page
     {
+        private static readonly object _lockDolar = new object();
+        private static readonly TimeSpan _intervaloActualizacion = TimeSpan.FromHours(1);
+
         // =========================================================
         // PROPIEDADES PUBLICAS
         // =========================================================
@@ -19,6 +22,12 @@ namespace ecommerce_web
         public int PaginaActual { get; set; } = 1;
         public int TotalPaginas { get; set; } = 1;
         private readonly int registrosPorPagina = 6;
+
+        public string MonedaActual
+        {
+            get { return Session["moneda"] as string ?? "USD"; }
+            set { Session["moneda"] = value; }
+        }
 
         // Propiedad para renderizar la paginacion conservando todos los filtros activos
         public string HtmlPaginacion
@@ -67,8 +76,13 @@ namespace ecommerce_web
         {
             try
             {
+                ActualizarPreciosSiCorresponde();
+
                 if (!IsPostBack)
                 {
+                    if (ddlMoneda != null)
+                        ddlMoneda.SelectedValue = MonedaActual;
+
                     CargarSetsDesplegable();
                     RestaurarFiltrosDesdeQueryString();
                 }
@@ -80,6 +94,79 @@ namespace ecommerce_web
                 Session.Add("error", ex.ToString());
                 Response.Redirect("Error.aspx", false);
             }
+        }
+
+        // =========================================================
+        // ACTUALIZACION HORARIA Y MONEDA
+        // =========================================================
+        public static void ActualizarPreciosSiCorresponde()
+        {
+            var appState = HttpContext.Current?.Application;
+            if (appState == null)
+                return;
+
+            DateTime ahora = DateTime.Now;
+            DateTime? ultima = appState["UltimaActualizacionDolar"] as DateTime?;
+
+            if (ultima.HasValue && (ahora - ultima.Value) < _intervaloActualizacion)
+                return;
+
+            lock (_lockDolar)
+            {
+                ultima = appState["UltimaActualizacionDolar"] as DateTime?;
+                if (ultima.HasValue && (ahora - ultima.Value) < _intervaloActualizacion)
+                    return;
+
+                try
+                {
+                    ProductoNegocio prodNegocio = new ProductoNegocio();
+                    decimal cotizacion = prodNegocio.ActualizarPreciosPorApi();
+                    appState["CotizacionDolar"] = cotizacion;
+                    appState["UltimaActualizacionDolar"] = DateTime.Now;
+                }
+                catch
+                {
+                    appState["UltimaActualizacionDolar"] = DateTime.Now.AddMinutes(-50);
+                }
+            }
+        }
+
+        protected void DdlMoneda_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                MonedaActual = ddlMoneda.SelectedValue;
+                ProcesarPaginacionYGrilla();
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false);
+            }
+        }
+
+        public string FormatearPrecioProducto(object dataItem)
+        {
+            if (!(dataItem is Producto prod))
+                return "";
+
+            if (MonedaActual == "ARS")
+            {
+                decimal ars;
+                if (prod.PrecioARS.HasValue && prod.PrecioARS.Value > 0)
+                {
+                    ars = prod.PrecioARS.Value;
+                }
+                else
+                {
+                    decimal cotizacion = HttpContext.Current?.Application?["CotizacionDolar"] is decimal d && d > 0 ? d : 1200.00m;
+                    ars = prod.Precio * cotizacion;
+                }
+
+                return "ARS " + ars.ToString("N2", new CultureInfo("es-AR"));
+            }
+
+            return "USD " + prod.Precio.ToString("N2", CultureInfo.InvariantCulture);
         }
 
         // =========================================================
@@ -229,17 +316,17 @@ namespace ecommerce_web
         // =========================================================
         // EVENTOS DE BUSQUEDA Y FILTRO
         // =========================================================
-        protected void ddlSets_SelectedIndexChanged(object sender, EventArgs e)
+        protected void DdlSets_SelectedIndexChanged(object sender, EventArgs e)
         {
             AplicarFiltros();
         }
 
-        protected void btnFiltrar_Click(object sender, EventArgs e)
+        protected void BtnFiltrar_Click(object sender, EventArgs e)
         {
             AplicarFiltros();
         }
 
-        protected void btnLimpiar_Click(object sender, EventArgs e)
+        protected void BtnLimpiar_Click(object sender, EventArgs e)
         {
             Response.Redirect("Default.aspx", false);
         }

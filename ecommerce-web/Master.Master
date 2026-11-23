@@ -13,31 +13,37 @@
         <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="Default.aspx">E-commerce Grupo F</a>
-                
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-<!-- Menú de la izquierda -->
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="Default.aspx">Inicio</a>
-        </li>
-        
-        <!-- Botón Quiero Vender -->
-        <li class="nav-item ms-lg-2">
-            <a class="nav-link btn btn-success text-white px-3" href="Publicar.aspx">🏷️ QUIERO VENDER</a>
-        </li>
 
-        <!-- Botón de Admin controlado por código -->
-        <li class="nav-item">
-            <asp:HyperLink ID="lnkAdmin" runat="server" CssClass="nav-link btn btn-outline-warning text-white ms-2" NavigateUrl="~/Admin.aspx" Visible="false">Panel Admin ⚙️</asp:HyperLink>
-        </li>
-    </ul>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Menú de la izquierda -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="Default.aspx">Inicio</a>
+                        </li>
+
+                        <!-- Botón Quiero Vender -->
+                        <li class="nav-item ms-lg-2">
+                            <a class="nav-link btn btn-success text-white px-3" href="Publicar.aspx">🏷️ QUIERO VENDER</a>
+                        </li>
+
+                        <!-- Botón de Admin controlado por código -->
+                        <li class="nav-item">
+                            <asp:HyperLink ID="lnkAdmin" runat="server" CssClass="nav-link btn btn-outline-warning text-white ms-2" NavigateUrl="~/Admin.aspx" Visible="false">Panel Admin ⚙️</asp:HyperLink>
+                        </li>
+                    </ul>
 
                     <!-- ZONA DE USUARIO (Alineada a la derecha) -->
                     <div class="d-flex align-items-center">
+                        <!-- SELECTOR DE MONEDA (USD / ARS) -->
+                        <div class="btn-group me-3" role="group" aria-label="Moneda">
+                            <asp:LinkButton ID="btnMonedaUsd" runat="server" CssClass="btn btn-sm btn-outline-info active" CausesValidation="false" OnClick="BtnMonedaUsd_Click">USD</asp:LinkButton>
+                            <asp:LinkButton ID="btnMonedaArs" runat="server" CssClass="btn btn-sm btn-outline-info" CausesValidation="false" OnClick="BtnMonedaArs_Click">ARS</asp:LinkButton>
+                        </div>
+
                         <!-- Si NO está logueado -->
                         <asp:PlaceHolder ID="phNoLogueado" runat="server">
                             <a href="Login.aspx" class="btn btn-outline-light me-2">Login</a>
@@ -57,7 +63,6 @@
                             <asp:Button ID="btnSalir" runat="server" Text="Salir" CssClass="btn btn-outline-danger" CausesValidation="false" UseSubmitBehavior="false" OnClick="BtnSalir_Click" />
                         </asp:PlaceHolder>
                     </div>
-
                 </div>
             </div>
         </nav>

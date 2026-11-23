@@ -9,13 +9,14 @@ namespace negocio
     public class ProductoNegocio
     {
         // 1. Método listar clásico actualizado
+        // 1. Método listar clásico actualizado
         public List<Producto> Listar()
         {
             List<Producto> lista = new List<Producto>();
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Precio, PrecioARS, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS");
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
@@ -26,6 +27,8 @@ namespace negocio
                     if (!(datos.Lector["Descripcion"] is DBNull))
                         aux.Descripcion = (string)datos.Lector["Descripcion"];
                     aux.Precio = (decimal)datos.Lector["Precio"];
+                    if (!(datos.Lector["PrecioARS"] is DBNull))
+                        aux.PrecioARS = (decimal)datos.Lector["PrecioARS"];
                     aux.Stock = (int)datos.Lector["Stock"];
 
                     if (!(datos.Lector["UrlImagen"] is DBNull))
@@ -317,6 +320,7 @@ namespace negocio
                 string url = "https://dolarapi.com/v1/dolares/blue";
                 using (HttpClient client = new HttpClient())
                 {
+                    client.Timeout = TimeSpan.FromSeconds(5);
                     client.DefaultRequestHeaders.Add("User-Agent", "EcommerceTCG-App");
                     var response = client.GetAsync(url).Result;
 
@@ -324,7 +328,9 @@ namespace negocio
                     {
                         string jsonString = response.Content.ReadAsStringAsync().Result;
                         JObject data = JObject.Parse(jsonString);
-                        return Convert.ToDecimal(data["venta"]);
+                        decimal venta = Convert.ToDecimal(data["venta"], System.Globalization.CultureInfo.InvariantCulture);
+                        if (venta > 0)
+                            return venta;
                     }
                 }
             }
