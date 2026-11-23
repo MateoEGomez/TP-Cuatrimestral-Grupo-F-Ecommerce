@@ -11,7 +11,8 @@
         </div>
 
         <div class="card shadow-sm p-4 mb-4 dark-mode-card">
-            <h4 class="mb-3"><asp:Label ID="lblTituloForm" runat="server" Text="Nuevo producto" /></h4>
+            <h4 class="mb-3">
+                <asp:Label ID="lblTituloForm" runat="server" Text="Nuevo producto" /></h4>
 
             <div class="row">
                 <div class="col-md-9">
@@ -105,7 +106,7 @@
 
             <div class="table-responsive">
                 <asp:GridView ID="gvProductos" runat="server"
-                    CssClass="table table-striped table-hover align-middle"
+                    CssClass="table table-striped table-hover align-middle mb-0"
                     AutoGenerateColumns="false"
                     DataKeyNames="Id"
                     OnRowCommand="gvProductos_RowCommand"

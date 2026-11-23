@@ -11,57 +11,91 @@
             <a href="Default.aspx" class="btn btn-outline-primary">Ir a la tienda</a>
         </div>
 
-        <div class="card shadow-sm dark-mode-card">
+        <asp:Panel ID="pnlSinPedidos" runat="server" Visible="false" CssClass="alert alert-info">
+            Todavia no realizaste ninguna compra. <a href="Default.aspx" class="alert-link">Explora el catalogo de cartas</a>.
+        </asp:Panel>
+
+        <asp:Panel ID="pnlTablaPedidos" runat="server" CssClass="card shadow-sm dark-mode-card mb-4">
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead class="table-dark">
                             <tr>
                                 <th scope="col" class="ps-4">Nro. Orden</th>
                                 <th scope="col">Fecha</th>
+                                <th scope="col">Entrega</th>
+                                <th scope="col">Pago</th>
                                 <th scope="col">Total</th>
                                 <th scope="col">Estado</th>
                                 <th scope="col" class="text-center pe-4">Accion</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Pedido Estatico 1 -->
-                            <tr>
-                                <td class="ps-4 fw-bold">#ORD-001042</td>
-                                <td>15/10/2026</td>
-                                <td>$ 153,500.00</td>
-                                <td><span class="badge bg-success">Entregado</span></td>
-                                <td class="text-center pe-4">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Ver detalle</button>
-                                </td>
-                            </tr>
-                            <!-- Pedido Estatico 2 -->
-                            <tr>
-                                <td class="ps-4 fw-bold">#ORD-001089</td>
-                                <td>20/10/2026</td>
-                                <td>$ 45,000.00</td>
-                                <td><span class="badge bg-warning text-dark">En camino</span></td>
-                                <td class="text-center pe-4">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Ver detalle</button>
-                                </td>
-                            </tr>
-                            <!-- Pedido Estatico 3 -->
-                            <tr>
-                                <td class="ps-4 fw-bold">#ORD-001105</td>
-                                <td>02/11/2026</td>
-                                <td>$ 12,500.00</td>
-                                <td><span class="badge bg-primary">procesando pago</span></td>
-                                <td class="text-center pe-4">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary">Ver detalle</button>
-                                </td>
-                            </tr>
+                            <asp:Repeater ID="repPedidos" runat="server" OnItemCommand="repPedidos_ItemCommand">
+                                <ItemTemplate>
+                                    <tr>
+                                        <td class="ps-4 fw-bold">#ORD-<%# ((int)Eval("Id")).ToString("D6") %></td>
+                                        <td><%# ((DateTime)Eval("Fecha")).ToString("dd/MM/yyyy HH:mm") %></td>
+                                        <td><%# Eval("FormaEntrega.Descripcion") %></td>
+                                        <td><%# Eval("FormaPago.Descripcion") %></td>
+                                        <td class="fw-bold text-success"><%# ((decimal)Eval("Total")).ToString("C") %></td>
+                                        <td>
+                                            <span class='badge <%# ObtenerClaseEstado((int)Eval("Estado.Id")) %>'>
+                                                <%# Eval("Estado.Descripcion") %>
+                                            </span>
+                                        </td>
+                                        <td class="text-center pe-4">
+                                            <asp:LinkButton ID="btnVerDetalle" runat="server"
+                                                CommandName="VerDetalle"
+                                                CommandArgument='<%# Eval("Id") %>'
+                                                CssClass="btn btn-sm btn-outline-primary">
+                                            Ver Detalle
+                                            </asp:LinkButton>
+                                        </td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="card-footer text-muted text-center py-3">
-                Mostrando los ultimos 3 pedidos realizados.
+        </asp:Panel>
+
+        <asp:Panel ID="pnlDetallePedido" runat="server" Visible="false" CssClass="card shadow-sm dark-mode-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Detalle de la orden <asp:Label ID="lblNumeroOrdenDetalle" runat="server" CssClass="fw-bold" /></h5>
+                <asp:Button ID="btnCerrarDetalle" runat="server" Text="Cerrar ✖" CssClass="btn btn-sm btn-outline-secondary" OnClick="btnCerrarDetalle_Click" />
             </div>
-        </div>
+            <div class="card-body">
+                <p class="mb-3">
+                    <strong>Entrega:</strong> <asp:Label ID="lblInfoEntrega" runat="server" />
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Carta</th>
+                                <th>Precio Unitario</th>
+                                <th>Cantidad</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <asp:Repeater ID="repDetallePedido" runat="server">
+                                <ItemTemplate>
+                                    <tr>
+                                        <td><%# Eval("Producto.Nombre") %></td>
+                                        <td><%# ((decimal)Eval("PrecioUnitario")).ToString("C") %></td>
+                                        <td><%# Eval("Cantidad") %></td>
+                                        <td class="text-end fw-bold"><%# ((decimal)Eval("PrecioUnitario") * (int)Eval("Cantidad")).ToString("C") %></td>
+                                    </tr>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </asp:Panel>
+
     </div>
 </asp:Content>

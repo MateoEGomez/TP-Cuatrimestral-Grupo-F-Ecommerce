@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.Windows.Forms;
 using dominio;
 
 namespace negocio
@@ -30,6 +32,105 @@ namespace negocio
                     aux.Activo = (bool)datos.Lector["Activo"];
 
                     lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public List<Pedido> ListarPorUsuario(int idUsuario)
+        {
+            List<Pedido> lista = new List<Pedido>();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("storedListarPedidosUsuario");
+                datos.setearParametro("@IdUsuario", idUsuario);
+                datos.ejecutarLectura();
+
+                while(datos.Lector.Read())
+                {
+                    Pedido aux = new Pedido();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Fecha = (DateTime)datos.Lector["Fecha"];
+                    aux.Total = (decimal)datos.Lector["Total"];
+
+                    aux.FormaPago = new FormaPago
+                    {
+                        Id = (int)datos.Lector["IdFormaPago"],
+                        Descripcion = (string)datos.Lector["FormaPago"]
+                    };
+
+                    aux.FormaEntrega = new FormaEntrega
+                    {
+                        Id = (int)datos.Lector["IdFormaEntrega"],
+                        Descripcion = (string)datos.Lector["FormaEntrega"],
+                        RequiereDireccion = (bool)datos.Lector["RequiereDireccion"]
+                    };
+
+                    aux.Estado = new EstadoPedido
+                    {
+                        Id = (int)datos.Lector["IdEstado"],
+                        Descripcion = (string)datos.Lector["Estado"]
+                    };
+
+                    if (!(datos.Lector["IdDireccion"] is DBNull))
+                    {
+                        aux.Direccion = new Direccion
+                        {
+                            Id = (int)datos.Lector["IdDireccion"],
+                            Calle = (String)datos.Lector["Calle"],
+                            Numero = (string)datos.Lector["Numero"],
+                            Localidad = (string)datos.Lector["Localidad"],
+                            CodigoPostal = (string)datos.Lector["CodigoPostal"]
+                        };
+                    }
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public List<DetallePedido> ListarDetallePedido(int idPedido)
+        {
+            List<DetallePedido> lista = new List<DetallePedido>();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("storedListarDetallePedido");
+                datos.setearParametro("@IdPedido", idPedido);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    DetallePedido item = new DetallePedido();
+                    item.Producto = new Producto
+                    {
+                        Id = (int)datos.Lector["idProducto"],
+                        Nombre = (string)datos.Lector["ProductoNombre"],
+                        UrlImagen = datos.Lector["UrlImagen"] is DBNull ? null : (string)datos.Lector["UrlImagen"]
+                    };
+                    item.Cantidad = (int)datos.Lector["Cantidad"];
+                    item.PrecioUnitario = (decimal)datos.Lector["PrecioUnitario"];
+
+                    lista.Add(item);
                 }
                 return lista;
             }
