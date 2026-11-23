@@ -182,5 +182,25 @@ namespace negocio
                 return Convert.ToBase64String(hash);
             }
         }
+
+        public void CambiarPasswordPorEmail(string email, string nuevaPass)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearConsulta("UPDATE USUARIOS SET Pass = @pass WHERE Email = @email AND Activo = 1");
+                datos.setearParametro("@email", email);
+                datos.setearParametro("@pass", nuevaPass);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
     }
 }

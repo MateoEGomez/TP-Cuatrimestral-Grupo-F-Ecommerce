@@ -61,6 +61,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="RecuperarClave.aspx" />
     <Content Include="ABMProducto.aspx" />
     <Content Include="Admin.aspx" />
     <Content Include="AdminCategorias.aspx" />
@@ -90,6 +91,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RecuperarClave.aspx.cs">
+      <DependentUpon>RecuperarClave.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RecuperarClave.aspx.designer.cs">
+      <DependentUpon>RecuperarClave.aspx</DependentUpon>
+    </Compile>
     <Compile Include="ABMProducto.aspx.cs">
       <DependentUpon>ABMProducto.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

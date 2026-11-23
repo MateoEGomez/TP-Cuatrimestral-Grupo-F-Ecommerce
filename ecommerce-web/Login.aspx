@@ -31,6 +31,9 @@
                 <div class="mt-3 text-center">
                     <a href="Registro.aspx<%= VieneDelCheckout ? "?volver=checkout" : "" %>">¿No tenés cuenta? Registrate acá</a>
                 </div>
+                <div class="mt-2 text-center">
+                    <a href="RecuperarClave.aspx" class="small text-muted">¿Olvidaste tu contraseña? Recuperala acá</a>
+                </div>
             </div>
         </div>
     </div>
