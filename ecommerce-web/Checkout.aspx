@@ -84,23 +84,23 @@
                                     <ItemTemplate>
                                         <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
                                             <small class="text-muted"><%# Eval("Producto.Nombre") %> (x<%# Eval("Cantidad") %>)</small>
-                                            <small><%# ((decimal)Eval("PrecioUnitario") * (int)Eval("Cantidad")).ToString("C") %></small>
+                                            <small><%# FormatearSubtotalItem(Container.DataItem) %></small>
                                         </div>
                                     </ItemTemplate>
                                 </asp:Repeater>
 
                                 <div class="d-flex justify-content-between mb-2 mt-3">
                                     <span>Subtotal:</span>
-                                    <asp:Label ID="lblSubtotal" runat="server" Text="$0,00"></asp:Label>
+                                    <asp:Label ID="lblSubtotal" runat="server" Text="USD 0.00"></asp:Label>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Envío:</span>
-                                    <asp:Label ID="lblEnvio" runat="server" Text="$0,00"></asp:Label>
+                                    <asp:Label ID="lblEnvio" runat="server" Text="USD 0.00"></asp:Label>
                                 </div>
                                 <hr />
                                 <div class="d-flex justify-content-between mb-4">
                                     <strong class="fs-5">Total a Pagar</strong>
-                                    <asp:Label ID="lblTotal" runat="server" CssClass="fs-5 text-success fw-bold" Text="$0,00"></asp:Label>
+                                    <asp:Label ID="lblTotal" runat="server" CssClass="fs-5 text-success fw-bold" Text="USD 0.00"></asp:Label>
                                 </div>
 
                                 <asp:Button ID="btnConfirmarCompra" runat="server" Text="Confirmar Compra" CssClass="btn btn-primary w-100 btn-lg shadow-sm" OnClick="btnConfirmarCompra_Click" />
