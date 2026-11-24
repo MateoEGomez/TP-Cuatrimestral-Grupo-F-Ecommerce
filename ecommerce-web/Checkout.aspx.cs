@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Web;
 using System.Web.UI.WebControls;
 using dominio;
 using negocio;
@@ -9,6 +11,21 @@ namespace ecommerce_web
 {
     public partial class Checkout : System.Web.UI.Page
     {
+        private string MonedaActual
+        {
+            get { return Session["moneda"] as string ?? "USD"; }
+        }
+
+        private decimal CotizacionActual
+        {
+            get
+            {
+                return HttpContext.Current?.Application?["CotizacionDolar"] is decimal d && d > 0
+                    ? d
+                    : 1200.00m;
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["usuario"] == null)
@@ -41,6 +58,39 @@ namespace ecommerce_web
                 return (List<DetallePedido>)Session["carrito"];
 
             return new List<DetallePedido>();
+        }
+
+        private decimal ObtenerPrecioUnitarioEnMoneda(DetallePedido item)
+        {
+            if (item == null)
+                return 0m;
+
+            if (MonedaActual == "ARS")
+            {
+                if (item.Producto != null && item.Producto.PrecioARS.HasValue && item.Producto.PrecioARS.Value > 0)
+                    return item.Producto.PrecioARS.Value;
+
+                return item.PrecioUnitario * CotizacionActual;
+            }
+
+            return item.PrecioUnitario;
+        }
+
+        private string FormatearMonto(decimal monto)
+        {
+            if (MonedaActual == "ARS")
+                return "ARS " + monto.ToString("N2", new CultureInfo("es-AR"));
+
+            return "USD " + monto.ToString("N2", CultureInfo.InvariantCulture);
+        }
+
+        public string FormatearSubtotalItem(object dataItem)
+        {
+            if (!(dataItem is DetallePedido item))
+                return "";
+
+            decimal subtotalItem = ObtenerPrecioUnitarioEnMoneda(item) * item.Cantidad;
+            return FormatearMonto(subtotalItem);
         }
 
         private void CargarFormasEntrega()
@@ -111,9 +161,11 @@ namespace ecommerce_web
             if (string.IsNullOrEmpty(rblFormaEntrega.SelectedValue))
                 return null;
 
-            int idEntrega = int.Parse(rblFormaEntrega.SelectedValue);
+            if (!int.TryParse(rblFormaEntrega.SelectedValue, out int idEntrega))
+                return null;
+
             FormaEntregaNegocio negocio = new FormaEntregaNegocio();
-            return negocio.Listar().FirstOrDefault(x => x.Id == idEntrega);
+            return negocio.Listar().FirstOrDefault(x => x.Id == idEntrega && x.Activo);
         }
 
         private void ActualizarEstadoDireccion()
@@ -132,13 +184,13 @@ namespace ecommerce_web
             repResumen.DataSource = carrito;
             repResumen.DataBind();
 
-            decimal subtotal = carrito.Sum(x => x.PrecioUnitario * x.Cantidad);
-            decimal envio = 0;
+            decimal subtotal = carrito.Sum(x => ObtenerPrecioUnitarioEnMoneda(x) * x.Cantidad);
+            decimal envio = 0m;
             decimal total = subtotal + envio;
 
-            lblSubtotal.Text = subtotal.ToString("C");
-            lblEnvio.Text = envio.ToString("C");
-            lblTotal.Text = total.ToString("C");
+            lblSubtotal.Text = FormatearMonto(subtotal);
+            lblEnvio.Text = FormatearMonto(envio);
+            lblTotal.Text = FormatearMonto(total);
 
             if (carrito.Count == 0)
             {
@@ -163,6 +215,58 @@ namespace ecommerce_web
                     return;
                 }
 
+                FormaEntrega formaEntrega = ObtenerFormaEntregaSeleccionada();
+                if (formaEntrega == null)
+                {
+                    MostrarMensaje("Seleccioná una forma de entrega válida.", "alert-warning");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(rblFormaPago.SelectedValue) || !int.TryParse(rblFormaPago.SelectedValue, out int idFormaPago))
+                {
+                    MostrarMensaje("Seleccioná una forma de pago válida.", "alert-warning");
+                    return;
+                }
+
+                Direccion direccion = null;
+                if (formaEntrega.RequiereDireccion)
+                {
+                    if (ddlDirecciones.SelectedValue != "0")
+                    {
+                        if (!int.TryParse(ddlDirecciones.SelectedValue, out int idDir) || idDir <= 0)
+                        {
+                            MostrarMensaje("Seleccioná una dirección de envío válida.", "alert-warning");
+                            return;
+                        }
+                        direccion = new Direccion { Id = idDir };
+                    }
+                    else
+                    {
+                        string calle = txtCalle.Text.Trim();
+                        string numero = txtNumero.Text.Trim();
+                        string localidad = txtLocalidad.Text.Trim();
+                        string cp = txtCP.Text.Trim();
+
+                        if (string.IsNullOrWhiteSpace(calle) ||
+                            string.IsNullOrWhiteSpace(numero) ||
+                            string.IsNullOrWhiteSpace(localidad) ||
+                            string.IsNullOrWhiteSpace(cp))
+                        {
+                            MostrarMensaje("Completá todos los campos obligatorios de la nueva dirección de envío.", "alert-warning");
+                            return;
+                        }
+
+                        direccion = new Direccion
+                        {
+                            Calle = calle,
+                            Numero = numero,
+                            Localidad = localidad,
+                            CodigoPostal = cp,
+                            Observaciones = txtObservaciones.Text.Trim()
+                        };
+                    }
+                }
+
                 PedidoNegocio pedidoNegocio = new PedidoNegocio();
                 string errorStock = pedidoNegocio.VerificarStock(carrito);
                 if (errorStock != null)
@@ -171,36 +275,14 @@ namespace ecommerce_web
                     return;
                 }
 
-                FormaEntrega formaEntrega = ObtenerFormaEntregaSeleccionada();
-
-                Direccion direccion = null;
-                if (formaEntrega != null && formaEntrega.RequiereDireccion)
-                {
-                    direccion = new Direccion();
-                    if (ddlDirecciones.SelectedValue != "0")
-                    {
-                        direccion.Id = int.Parse(ddlDirecciones.SelectedValue);
-                    }
-                    else
-                    {
-                        direccion.Calle = txtCalle.Text.Trim();
-                        direccion.Numero = txtNumero.Text.Trim();
-                        direccion.Localidad = txtLocalidad.Text.Trim();
-                        direccion.CodigoPostal = txtCP.Text.Trim();
-                        direccion.Observaciones = txtObservaciones.Text.Trim();
-                    }
-                }
-
                 Pedido nuevoPedido = new Pedido();
                 nuevoPedido.Usuario = usuario;
                 nuevoPedido.Fecha = DateTime.Now;
                 nuevoPedido.Total = carrito.Sum(x => x.PrecioUnitario * x.Cantidad);
-                nuevoPedido.FormaPago = new FormaPago();
-                nuevoPedido.FormaPago.Id = int.Parse(rblFormaPago.SelectedValue);
+                nuevoPedido.FormaPago = new FormaPago { Id = idFormaPago };
                 nuevoPedido.FormaEntrega = formaEntrega;
                 nuevoPedido.Direccion = direccion;
-                nuevoPedido.Estado = new EstadoPedido();
-                nuevoPedido.Estado.Id = 1;
+                nuevoPedido.Estado = new EstadoPedido { Id = 1 };
                 nuevoPedido.Detalles = carrito;
 
                 int idPedido = pedidoNegocio.ConfirmarPedido(nuevoPedido);

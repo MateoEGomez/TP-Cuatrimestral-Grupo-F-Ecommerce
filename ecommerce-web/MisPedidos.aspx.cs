@@ -6,25 +6,29 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Configuration;
 
 namespace ecommerce_web
 {
     public partial class MisPedidos : System.Web.UI.Page
     {
+        private List<Pedido> PedidosUsuario
+        {
+            get { return ViewState["PedidosUsuario"] as List<Pedido>; }
+            set { ViewState["PedidosUsuario"] = value; }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["Usuario"]==null)
+            if (Session["usuario"] == null)
             {
                 Response.Redirect("Login.aspx", false);
                 return;
             }
 
-            if(!IsPostBack)
+            if (!IsPostBack)
             {
                 CargarPedidosUsuario();
             }
-
         }
 
         private void CargarPedidosUsuario()
@@ -34,6 +38,7 @@ namespace ecommerce_web
                 Usuario usuario = (Usuario)Session["usuario"];
                 PedidoNegocio negocio = new PedidoNegocio();
                 List<Pedido> lista = negocio.ListarPorUsuario(usuario.Id);
+                PedidosUsuario = lista;
 
                 if (lista != null && lista.Count > 0)
                 {
@@ -48,7 +53,7 @@ namespace ecommerce_web
                     pnlSinPedidos.Visible = true;
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Session.Add("error", ex.ToString());
                 Response.Redirect("Error.aspx", false);
@@ -62,13 +67,17 @@ namespace ecommerce_web
 
             try
             {
-                int idPedido = int.Parse(e.CommandArgument.ToString());
+                if (!int.TryParse(e.CommandArgument.ToString(), out int idPedido))
+                    return;
+
                 Usuario usuario = (Usuario)Session["usuario"];
                 PedidoNegocio negocio = new PedidoNegocio();
 
-                Pedido seleccionado = negocio.ListarPorUsuario(usuario.Id).FirstOrDefault(x => x.Id == idPedido);
+                List<Pedido> lista = PedidosUsuario ?? negocio.ListarPorUsuario(usuario.Id);
+                Pedido seleccionado = lista.FirstOrDefault(x => x.Id == idPedido);
                 if (seleccionado == null)
                     return;
+
                 lblNumeroOrdenDetalle.Text = "#ORD-" + seleccionado.Id.ToString("D6");
                 lblInfoEntrega.Text = seleccionado.Direccion != null
                     ? seleccionado.FormaEntrega.Descripcion + " - " + seleccionado.Direccion.ToString()
@@ -92,7 +101,7 @@ namespace ecommerce_web
 
         public string ObtenerClaseEstado(int idEstado)
         {
-            switch(idEstado)
+            switch (idEstado)
             {
                 case 1: return "bg-warning text-dark";  // Pendiente
                 case 2: return "bg-primary";            // Pagado
