@@ -108,6 +108,65 @@ namespace negocio
             }
         }
 
+        public List<Pedido> ListarVentasVendedor(int idVendedor)
+        {
+            List<Pedido> lista = new List<Pedido>();
+            AccesoDatos datos = new AccesoDatos();
+
+            try
+            {
+                datos.setearProcedimiento("storedListarVentasVendedor");
+                datos.setearParametro("@IdVendedor", idVendedor);
+                datos.ejecutarLectura();
+
+                Pedido actual = null;
+                while (datos.Lector.Read())
+                {
+                    int idPedido = (int)datos.Lector["IdPedido"];
+                    if (actual == null || actual.Id != idPedido)
+                    {
+                        actual = new Pedido();
+                        actual.Id = idPedido;
+                        actual.Fecha = (DateTime)datos.Lector["Fecha"];
+                        actual.Estado = new EstadoPedido
+                        {
+                            Id = (int)datos.Lector["IdEstado"],
+                            Descripcion = (string)datos.Lector["Estado"]
+                        };
+                        actual.Detalles = new List<DetallePedido>();
+                        lista.Add(actual);
+                    }
+
+                    DetallePedido item = new DetallePedido();
+                    item.Producto = new Producto
+                    {
+                        Id = (int)datos.Lector["IdProducto"],
+                        Nombre = (string)datos.Lector["ProductoNombre"],
+                        UrlImagen = datos.Lector["UrlImagen"] is DBNull ? null : (string)datos.Lector["UrlImagen"]
+                    };
+                    item.Cantidad = (int)datos.Lector["Cantidad"];
+                    item.PrecioUnitario = (decimal)datos.Lector["PrecioUnitario"];
+                    actual.Detalles.Add(item);
+                }
+
+                foreach (Pedido venta in lista)
+                {
+                    venta.Total = 0;
+                    foreach (DetallePedido item in venta.Detalles)
+                        venta.Total += item.PrecioUnitario * item.Cantidad;
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
         public List<DetallePedido> ListarDetallePedido(int idPedido)
         {
             List<DetallePedido> lista = new List<DetallePedido>();
