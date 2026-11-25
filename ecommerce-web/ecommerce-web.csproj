@@ -74,6 +74,8 @@
     <Content Include="AdminExpansionesForm.aspx" />
     <Content Include="AdminModeracion.aspx" />
     <Content Include="AdminParametros.aspx" />
+    <Content Include="AdminPedidos.aspx" />
+    <Content Include="AdminPedidosForm.aspx" />
     <Content Include="AdminParametrosForm.aspx" />
     <Content Include="AdminUsuarios.aspx" />
     <Content Include="AdminUsuariosForm.aspx" />
@@ -188,6 +190,20 @@
     </Compile>
     <Compile Include="AdminParametrosForm.aspx.designer.cs">
       <DependentUpon>AdminParametrosForm.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminPedidos.aspx.cs">
+      <DependentUpon>AdminPedidos.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminPedidos.aspx.designer.cs">
+      <DependentUpon>AdminPedidos.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminPedidosForm.aspx.cs">
+      <DependentUpon>AdminPedidosForm.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="AdminPedidosForm.aspx.designer.cs">
+      <DependentUpon>AdminPedidosForm.aspx</DependentUpon>
     </Compile>
     <Compile Include="AdminUsuarios.aspx.cs">
       <DependentUpon>AdminUsuarios.aspx</DependentUpon>
