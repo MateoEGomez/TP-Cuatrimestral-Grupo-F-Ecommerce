@@ -115,14 +115,16 @@ namespace ecommerce_web
         {
             MonedaActual = "USD";
             ActualizarEstilosMoneda();
-            Response.Redirect(Request.RawUrl, false);
+            if (!(Page is Checkout))
+                Response.Redirect(Request.RawUrl, false);
         }
 
         protected void BtnMonedaArs_Click(object sender, EventArgs e)
         {
             MonedaActual = "ARS";
             ActualizarEstilosMoneda();
-            Response.Redirect(Request.RawUrl, false);
+            if (!(Page is Checkout))
+                Response.Redirect(Request.RawUrl, false);
         }
 
         protected void BtnSalir_Click(object sender, EventArgs e)

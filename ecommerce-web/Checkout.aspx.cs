@@ -42,8 +42,23 @@ namespace ecommerce_web
                     CargarFormasPago();
                     CargarDirecciones();
                     ActualizarEstadoDireccion();
-                    CargarResumenCarrito();
                 }
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false);
+            }
+        }
+
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            if (Session["usuario"] == null || !pnlCheckout.Visible)
+                return;
+
+            try
+            {
+                CargarResumenCarrito();
             }
             catch (Exception ex)
             {
@@ -279,17 +294,21 @@ namespace ecommerce_web
                 nuevoPedido.Usuario = usuario;
                 nuevoPedido.Fecha = DateTime.Now;
                 nuevoPedido.Total = carrito.Sum(x => x.PrecioUnitario * x.Cantidad);
+                nuevoPedido.Moneda = MonedaActual;
+                if (MonedaActual == "ARS")
+                    nuevoPedido.Cotizacion = CotizacionActual;
                 nuevoPedido.FormaPago = new FormaPago { Id = idFormaPago };
                 nuevoPedido.FormaEntrega = formaEntrega;
                 nuevoPedido.Direccion = direccion;
                 nuevoPedido.Estado = new EstadoPedido { Id = 1 };
                 nuevoPedido.Detalles = carrito;
 
+                string totalMostrado = FormatearMonto(carrito.Sum(x => ObtenerPrecioUnitarioEnMoneda(x) * x.Cantidad));
                 int idPedido = pedidoNegocio.ConfirmarPedido(nuevoPedido);
 
                 Session["carrito"] = null;
                 pnlCheckout.Visible = false;
-                MostrarMensaje("¡Compra confirmada con éxito! Tu número de pedido es #" + idPedido + ". Queda en estado Pendiente hasta que se registre el pago.", "alert-success");
+                MostrarMensaje("¡Compra confirmada con éxito! Tu número de pedido es #" + idPedido + " por un total de " + totalMostrado + ". Queda en estado Pendiente hasta que se registre el pago.", "alert-success");
             }
             catch (Exception ex)
             {
