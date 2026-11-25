@@ -200,6 +200,13 @@ namespace ecommerce_web
 
             if (Request.QueryString["max"] != null && txtPrecioMax != null)
                 txtPrecioMax.Text = Request.QueryString["max"];
+
+            if (Request.QueryString["sort"] != null && ddlOrden != null)
+            {
+                string sortQuery = Request.QueryString["sort"];
+                if (ddlOrden.Items.FindByValue(sortQuery) != null)
+                    ddlOrden.SelectedValue = sortQuery;
+            }
         }
 
         private decimal? ParsearDecimalOpcional(string texto)
@@ -222,6 +229,7 @@ namespace ecommerce_web
             string nombre = txtBuscarNombre != null ? txtBuscarNombre.Text.Trim() : "";
             decimal? pMin = txtPrecioMin != null ? ParsearDecimalOpcional(txtPrecioMin.Text) : null;
             decimal? pMax = txtPrecioMax != null ? ParsearDecimalOpcional(txtPrecioMax.Text) : null;
+            string orden = ddlOrden != null ? ddlOrden.SelectedValue : "";
 
             if (!string.IsNullOrEmpty(setId))
                 sb.AppendFormat("&set={0}", HttpUtility.UrlEncode(setId));
@@ -234,6 +242,9 @@ namespace ecommerce_web
 
             if (pMax.HasValue)
                 sb.AppendFormat("&max={0}", pMax.Value.ToString(CultureInfo.InvariantCulture));
+
+            if (!string.IsNullOrEmpty(orden))
+                sb.AppendFormat("&sort={0}", HttpUtility.UrlEncode(orden));
 
             return sb.ToString();
         }
@@ -263,11 +274,31 @@ namespace ecommerce_web
                            || precioMin.HasValue
                            || precioMax.HasValue;
 
+            string ordenSeleccionado = ddlOrden != null ? ddlOrden.SelectedValue : "";
+            bool hayOrden = !string.IsNullOrEmpty(ordenSeleccionado);
+
             int totalRegistros;
 
-            if (hayFiltros)
+            if (hayFiltros || hayOrden)
             {
                 var listaFiltrada = negocio.Filtrar(nombreBuscado, setIdSeleccionado, precioMin, precioMax);
+
+                switch (ordenSeleccionado)
+                {
+                    case "precio_asc":
+                        listaFiltrada = listaFiltrada.OrderBy(x => x.Precio).ToList();
+                        break;
+                    case "precio_desc":
+                        listaFiltrada = listaFiltrada.OrderByDescending(x => x.Precio).ToList();
+                        break;
+                    case "nombre_asc":
+                        listaFiltrada = listaFiltrada.OrderBy(x => x.Nombre).ToList();
+                        break;
+                    case "nombre_desc":
+                        listaFiltrada = listaFiltrada.OrderByDescending(x => x.Nombre).ToList();
+                        break;
+                }
+
                 totalRegistros = listaFiltrada.Count;
 
                 TotalPaginas = (int)Math.Ceiling((double)totalRegistros / registrosPorPagina);
@@ -277,7 +308,9 @@ namespace ecommerce_web
                 int skip = (PaginaActual - 1) * registrosPorPagina;
                 ListaProductos = listaFiltrada.Skip(skip).Take(registrosPorPagina).ToList();
 
-                lblResultados.Text = $"Se encontraron {totalRegistros} carta(s) con los filtros aplicados.";
+                lblResultados.Text = hayFiltros
+                    ? $"Se encontraron {totalRegistros} carta(s) con los filtros aplicados."
+                    : $"Mostrando {totalRegistros} carta(s) disponibles en el catálogo.";
             }
             else
             {
@@ -317,6 +350,11 @@ namespace ecommerce_web
         // EVENTOS DE BUSQUEDA Y FILTRO
         // =========================================================
         protected void DdlSets_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            AplicarFiltros();
+        }
+
+        protected void ddlOrden_SelectedIndexChanged(object sender, EventArgs e)
         {
             AplicarFiltros();
         }
