@@ -120,6 +120,19 @@
 
         </div>
 
+        <h4 class="mb-4">🛒 Ventas</h4>
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <a href="AdminPedidos.aspx" class="card h-100 shadow-sm border-primary dark-mode-card admin-card p-3">
+                    <div class="card-body text-center">
+                        <h1 class="display-4 mb-3">🧾</h1>
+                        <h5 class="card-title text-primary">Pedidos</h5>
+                        <p class="card-text text-muted small">Filtrar pedidos, cambiar su estado y dejar observaciones internas.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
         <!-- Seccion 3: Moderacion y usuarios -->
         <h4 class="mb-4">🛡️ Moderacion y Comunidad</h4>
         <div class="row g-4">
