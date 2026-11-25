@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Web;
 using System.Web.UI.WebControls;
 using dominio;
 using negocio;
@@ -8,6 +11,8 @@ namespace ecommerce_web
 {
     public partial class Publicar : System.Web.UI.Page
     {
+        private const int TamanioMaximoFoto = 2 * 1024 * 1024;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["usuario"] == null)
@@ -17,21 +22,48 @@ namespace ecommerce_web
             }
 
             if (!IsPostBack)
-            {
-                CargarCartasCatalogo();
-            }
+                ddlCartas.Items.Add(new ListItem("Buscá una carta primero...", "0"));
         }
 
-        private void CargarCartasCatalogo()
+        protected void btnBuscarCarta_Click(object sender, EventArgs e)
         {
             try
             {
+                lblBusqueda.Visible = false;
+                LimpiarCartaSeleccionada();
+                ddlCartas.Items.Clear();
+
+                string filtro = txtBuscarCarta.Text.Trim();
+                if (filtro.Length < 3)
+                {
+                    ddlCartas.Items.Add(new ListItem("Buscá una carta primero...", "0"));
+                    MostrarAvisoBusqueda("Escribí al menos 3 letras del nombre o el código de la carta.");
+                    return;
+                }
+
                 ProductoNegocio negocio = new ProductoNegocio();
-                ddlCartas.DataSource = negocio.Listar();
-                ddlCartas.DataTextField = "Nombre";
-                ddlCartas.DataValueField = "Id";
-                ddlCartas.DataBind();
-                ddlCartas.Items.Insert(0, new ListItem("Seleccioná una carta...", "0"));
+                List<Producto> cartas = negocio.BuscarCartasParaPublicar(filtro);
+
+                if (cartas.Count == 0)
+                {
+                    ddlCartas.Items.Add(new ListItem("Buscá una carta primero...", "0"));
+                    MostrarAvisoBusqueda("No encontramos cartas con \"" + HttpUtility.HtmlEncode(filtro) + "\".");
+                    return;
+                }
+
+                ddlCartas.Items.Add(new ListItem("Seleccioná una carta (" + cartas.Count + " resultados)...", "0"));
+                foreach (Producto carta in cartas)
+                {
+                    string texto = carta.Nombre;
+                    if (carta.Expansion != null)
+                        texto += " - " + carta.Expansion.Nombre;
+                    if (!string.IsNullOrEmpty(carta.CardId))
+                        texto += " (" + carta.CardId + ")";
+                    ddlCartas.Items.Add(new ListItem(texto, carta.Id.ToString()));
+                }
+
+                if (cartas.Count == 50)
+                    MostrarAvisoBusqueda("Se muestran las primeras 50. Si no ves tu carta, buscá con más detalle.");
             }
             catch (Exception ex)
             {
@@ -45,18 +77,25 @@ namespace ecommerce_web
             try
             {
                 int idCarta = int.Parse(ddlCartas.SelectedValue);
-                if (idCarta != 0)
+                if (idCarta == 0)
                 {
-                    ProductoNegocio negocio = new ProductoNegocio();
-                    Producto carta = negocio.ObtenerPorId(idCarta);
-                    if (carta != null)
-                    {
-                        txtPrecioSugerido.Text = carta.Precio.ToString("0.00");
-                    }
+                    LimpiarCartaSeleccionada();
+                    return;
                 }
-                else
+
+                ProductoNegocio negocio = new ProductoNegocio();
+                Producto carta = negocio.ObtenerPorId(idCarta);
+                if (carta == null)
                 {
-                    txtPrecioSugerido.Text = string.Empty;
+                    LimpiarCartaSeleccionada();
+                    return;
+                }
+
+                txtPrecioSugerido.Text = carta.Precio.ToString("0.00", CultureInfo.InvariantCulture);
+                if (!string.IsNullOrEmpty(carta.UrlImagen))
+                {
+                    imgCarta.ImageUrl = carta.UrlImagen;
+                    imgCarta.Visible = true;
                 }
             }
             catch (Exception ex)
@@ -68,12 +107,21 @@ namespace ecommerce_web
 
         protected void btnPublicar_Click(object sender, EventArgs e)
         {
+            lblErrorPrecio.Visible = false;
+            lblErrorImagen.Visible = false;
+
+            if (!Page.IsValid)
+                return;
+
             try
             {
-                if (ddlCartas.SelectedValue == "0") return;
-
-                if (!Page.IsValid)
+                if (!decimal.TryParse(txtPrecioDeseado.Text, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal precio)
+                    || precio <= 0 || precio > 99999)
+                {
+                    lblErrorPrecio.Text = "Ingresá un precio mayor a 0 y menor a 99999.";
+                    lblErrorPrecio.Visible = true;
                     return;
+                }
 
                 string extension = "";
                 if (fileImagen.HasFile)
@@ -85,40 +133,47 @@ namespace ecommerce_web
                         lblErrorImagen.Visible = true;
                         return;
                     }
+                    if (fileImagen.PostedFile.ContentLength > TamanioMaximoFoto)
+                    {
+                        lblErrorImagen.Text = "La foto no puede pesar más de 2 MB.";
+                        lblErrorImagen.Visible = true;
+                        return;
+                    }
+                }
+
+                ProductoNegocio negocio = new ProductoNegocio();
+                Producto cartaBase = negocio.ObtenerPorId(int.Parse(ddlCartas.SelectedValue));
+                if (cartaBase == null)
+                {
+                    MostrarAvisoBusqueda("La carta elegida ya no está disponible. Buscala de nuevo.");
+                    return;
                 }
 
                 Usuario user = (Usuario)Session["usuario"];
-                int idCartaBase = int.Parse(ddlCartas.SelectedValue);
-
-                ProductoNegocio negocio = new ProductoNegocio();
-                Producto cartaBase = negocio.ObtenerPorId(idCartaBase);
-
                 Producto nuevoProducto = new Producto();
-                nuevoProducto.Nombre = cartaBase != null ? cartaBase.Nombre : "Carta de Cliente";
-                nuevoProducto.Descripcion = txtEstado.Text;
-                nuevoProducto.Precio = decimal.Parse(txtPrecioDeseado.Text);
+                nuevoProducto.Nombre = cartaBase.Nombre;
+                nuevoProducto.Descripcion = txtEstado.Text.Trim();
+                nuevoProducto.Precio = Math.Round(precio, 2);
                 nuevoProducto.Stock = 1;
-                nuevoProducto.CardId = cartaBase != null ? cartaBase.CardId : null;
+                nuevoProducto.CardId = cartaBase.CardId;
 
-                if (cartaBase != null && cartaBase.Expansion != null)
+                if (cartaBase.Expansion != null)
                 {
                     nuevoProducto.Expansion = new Expansion();
                     nuevoProducto.Expansion.Id = cartaBase.Expansion.Id;
                 }
 
-                // Guardar la foto real subida
                 if (fileImagen.HasFile)
                 {
                     string carpeta = Server.MapPath("~/Images/");
-                    if (!Directory.Exists(carpeta)) Directory.CreateDirectory(carpeta);
+                    if (!Directory.Exists(carpeta))
+                        Directory.CreateDirectory(carpeta);
 
                     string nombreUnico = "pub_" + Guid.NewGuid().ToString().Substring(0, 8) + extension;
-                    string rutaFisica = Path.Combine(carpeta, nombreUnico);
-
-                    fileImagen.SaveAs(rutaFisica);
+                    fileImagen.SaveAs(Path.Combine(carpeta, nombreUnico));
                     nuevoProducto.UrlImagen = "~/Images/" + nombreUnico;
                 }
-                else if (cartaBase != null)
+                else
                 {
                     nuevoProducto.UrlImagen = cartaBase.UrlImagen;
                 }
@@ -132,6 +187,18 @@ namespace ecommerce_web
                 Session.Add("error", ex.ToString());
                 Response.Redirect("Error.aspx", false);
             }
+        }
+
+        private void LimpiarCartaSeleccionada()
+        {
+            txtPrecioSugerido.Text = "";
+            imgCarta.Visible = false;
+        }
+
+        private void MostrarAvisoBusqueda(string texto)
+        {
+            lblBusqueda.Text = texto;
+            lblBusqueda.Visible = true;
         }
     }
 }
