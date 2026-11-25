@@ -38,7 +38,7 @@
                                         <td><%# ((DateTime)Eval("Fecha")).ToString("dd/MM/yyyy HH:mm") %></td>
                                         <td><%# Eval("FormaEntrega.Descripcion") %></td>
                                         <td><%# Eval("FormaPago.Descripcion") %></td>
-                                        <td class="fw-bold text-success"><%# ((decimal)Eval("Total")).ToString("C") %></td>
+                                        <td class="fw-bold text-success"><%# FormatearTotal(Container.DataItem) %></td>
                                         <td>
                                             <span class='badge <%# ObtenerClaseEstado((int)Eval("Estado.Id")) %>'>
                                                 <%# Eval("Estado.Descripcion") %>
@@ -85,9 +85,9 @@
                                 <ItemTemplate>
                                     <tr>
                                         <td><%# Eval("Producto.Nombre") %></td>
-                                        <td><%# ((decimal)Eval("PrecioUnitario")).ToString("C") %></td>
+                                        <td><%# FormatearUsd((decimal)Eval("PrecioUnitario")) %></td>
                                         <td><%# Eval("Cantidad") %></td>
-                                        <td class="text-end fw-bold"><%# ((decimal)Eval("PrecioUnitario") * (int)Eval("Cantidad")).ToString("C") %></td>
+                                        <td class="text-end fw-bold"><%# FormatearUsd((decimal)Eval("PrecioUnitario") * (int)Eval("Cantidad")) %></td>
                                     </tr>
                                 </ItemTemplate>
                             </asp:Repeater>

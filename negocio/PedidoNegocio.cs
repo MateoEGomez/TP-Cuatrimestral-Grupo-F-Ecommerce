@@ -60,6 +60,9 @@ namespace negocio
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Fecha = (DateTime)datos.Lector["Fecha"];
                     aux.Total = (decimal)datos.Lector["Total"];
+                    aux.Moneda = (string)datos.Lector["Moneda"];
+                    if (!(datos.Lector["Cotizacion"] is DBNull))
+                        aux.Cotizacion = (decimal)datos.Lector["Cotizacion"];
 
                     aux.FormaPago = new FormaPago
                     {
@@ -211,6 +214,8 @@ namespace negocio
                 datosPedido.setearParametro("@IdFormaEntrega", pedido.FormaEntrega.Id);
                 datosPedido.setearParametro("@IdDireccion", idDireccionGenerada.HasValue ? (object)idDireccionGenerada.Value : DBNull.Value);
                 datosPedido.setearParametro("@IdEstado", 1); // 1 = Pendiente
+                datosPedido.setearParametro("@Moneda", string.IsNullOrEmpty(pedido.Moneda) ? "USD" : pedido.Moneda);
+                datosPedido.setearParametro("@Cotizacion", pedido.Cotizacion.HasValue ? (object)pedido.Cotizacion.Value : DBNull.Value);
 
                 idPedidoGenerado = datosPedido.ejecutarAccionScalar();
             }

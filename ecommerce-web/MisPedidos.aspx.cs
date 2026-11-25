@@ -2,6 +2,7 @@
 using dominio;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -89,6 +90,25 @@ namespace ecommerce_web
         protected void btnCerrarDetalle_Click(object sender, EventArgs e)
         {
             pnlDetallePedido.Visible = false;
+        }
+
+        public string FormatearUsd(decimal monto)
+        {
+            return "USD " + monto.ToString("N2", CultureInfo.InvariantCulture);
+        }
+
+        public string FormatearTotal(object dataItem)
+        {
+            Pedido pedido = (Pedido)dataItem;
+            string texto = FormatearUsd(pedido.Total);
+
+            if (pedido.Moneda == "ARS" && pedido.Cotizacion.HasValue)
+            {
+                decimal totalArs = pedido.Total * pedido.Cotizacion.Value;
+                texto += "<div class='small text-muted fw-normal'>Pagado en ARS " + totalArs.ToString("N2", new CultureInfo("es-AR")) + "</div>";
+            }
+
+            return texto;
         }
 
         public string ObtenerClaseEstado(int idEstado)
