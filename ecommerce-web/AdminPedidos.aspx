@@ -74,7 +74,7 @@
                                         <td><%# Eval("FormaPago.Descripcion") %></td>
                                         <td class="fw-bold"><%# FormatearTotal(Container.DataItem) %></td>
                                         <td>
-                                            <span class='badge <%# ObtenerClaseEstado((int)Eval("Estado.Id")) %>'><%# Eval("Estado.Descripcion") %></span>
+                                            <span class='badge <%# ecommerce_web.EstiloPedido.ObtenerClaseEstado((int)Eval("Estado.Id")) %>'><%# Eval("Estado.Descripcion") %></span>
                                         </td>
                                         <td class="text-center pe-4">
                                             <a href="AdminPedidosForm.aspx?id=<%# Eval("Id") %>" class="btn btn-sm btn-outline-warning">✏️ Gestionar</a>

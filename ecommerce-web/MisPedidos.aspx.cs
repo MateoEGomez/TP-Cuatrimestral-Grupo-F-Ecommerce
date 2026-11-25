@@ -110,19 +110,5 @@ namespace ecommerce_web
 
             return texto;
         }
-
-        public string ObtenerClaseEstado(int idEstado)
-        {
-            switch (idEstado)
-            {
-                case 1: return "bg-warning text-dark";  // Pendiente
-                case 2: return "bg-primary";            // Pagado
-                case 3: return "bg-info text-dark";     // En preparación
-                case 4: return "bg-info text-dark";     // Enviado
-                case 5: return "bg-success";            // Entregado
-                case 6: return "bg-danger";             // Cancelado
-                default: return "bg-secondary";
-            }
-        }
     }
 }

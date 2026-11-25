@@ -56,7 +56,7 @@ namespace ecommerce_web
 
             lblNumero.Text = "#ORD-" + pedido.Id.ToString("D6");
             lblEstadoActual.Text = pedido.Estado.Descripcion;
-            lblEstadoActual.CssClass = "badge fs-6 align-middle " + ObtenerClaseEstado(pedido.Estado.Id);
+            lblEstadoActual.CssClass = "badge fs-6 align-middle " + EstiloPedido.ObtenerClaseEstado(pedido.Estado.Id);
 
             lblFecha.Text = pedido.Fecha.ToString("dd/MM/yyyy HH:mm");
             lblCliente.Text = Server.HtmlEncode((pedido.Usuario.Nombre + " " + pedido.Usuario.Apellido).Trim() + " (" + pedido.Usuario.Email + ")");
@@ -171,20 +171,6 @@ namespace ecommerce_web
         public string FormatearUsd(decimal monto)
         {
             return "USD " + monto.ToString("N2", CultureInfo.InvariantCulture);
-        }
-
-        public string ObtenerClaseEstado(int idEstado)
-        {
-            switch (idEstado)
-            {
-                case 1: return "bg-warning text-dark";
-                case 2: return "bg-primary";
-                case 3: return "bg-info text-dark";
-                case 4: return "bg-info text-dark";
-                case 5: return "bg-success";
-                case 6: return "bg-danger";
-                default: return "bg-secondary";
-            }
         }
     }
 }

@@ -40,7 +40,7 @@
                                         <td><%# Eval("FormaPago.Descripcion") %></td>
                                         <td class="fw-bold text-success"><%# FormatearTotal(Container.DataItem) %></td>
                                         <td>
-                                            <span class='badge <%# ObtenerClaseEstado((int)Eval("Estado.Id")) %>'>
+                                            <span class='badge <%# ecommerce_web.EstiloPedido.ObtenerClaseEstado((int)Eval("Estado.Id")) %>'>
                                                 <%# Eval("Estado.Descripcion") %>
                                             </span>
                                         </td>
