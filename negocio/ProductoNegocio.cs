@@ -746,6 +746,46 @@ namespace negocio
             }
         }
 
+        public List<Producto> BuscarCartasParaPublicar(string filtro)
+        {
+            List<Producto> lista = new List<Producto>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedBuscarCartasParaPublicar");
+                datos.setearParametro("@Filtro", filtro.Trim());
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    Producto aux = new Producto();
+                    aux.Id = (int)datos.Lector["Id"];
+                    aux.Nombre = (string)datos.Lector["Nombre"];
+                    aux.Precio = (decimal)datos.Lector["Precio"];
+                    if (!(datos.Lector["CardId"] is DBNull))
+                        aux.CardId = (string)datos.Lector["CardId"];
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        aux.UrlImagen = (string)datos.Lector["UrlImagen"];
+                    if (!(datos.Lector["ExpansionNombre"] is DBNull))
+                    {
+                        aux.Expansion = new Expansion();
+                        aux.Expansion.Nombre = (string)datos.Lector["ExpansionNombre"];
+                    }
+
+                    lista.Add(aux);
+                }
+                return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
         public int ContarPublicacionesPendientes()
         {
             AccesoDatos datos = new AccesoDatos();

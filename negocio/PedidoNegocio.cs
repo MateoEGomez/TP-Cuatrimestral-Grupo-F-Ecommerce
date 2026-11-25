@@ -343,7 +343,7 @@ namespace negocio
             foreach (DetallePedido item in detalles)
             {
                 Producto actual = productoNegocio.ObtenerPorId(item.Producto.Id);
-                if (actual == null || !actual.Activo)
+                if (actual == null || !actual.Activo || actual.EstadoPublicacion.Id != 2)
                     return "El producto \"" + item.Producto.Nombre + "\" ya no está disponible.";
                 if (actual.Stock < item.Cantidad)
                     return "No hay stock suficiente de \"" + actual.Nombre + "\": quedan " + actual.Stock + " unidad(es).";
