@@ -30,16 +30,21 @@ namespace ecommerce_web
             {
                 phNoLogueado.Visible = false;
                 phLogueado.Visible = true;
-
-                Usuario user = (Usuario)Session["usuario"];
-                lblUser.InnerText = "Hola, " + (!string.IsNullOrEmpty(user.Nombre) ? user.Nombre : user.Email);
-
                 lnkAdmin.Visible = Seguridad.esAdmin(Session["usuario"]);
             }
             else
             {
                 phNoLogueado.Visible = true;
                 phLogueado.Visible = false;
+            }
+        }
+
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            if (Session["usuario"] != null)
+            {
+                Usuario user = (Usuario)Session["usuario"];
+                lblUser.InnerText = "Hola, " + (!string.IsNullOrEmpty(user.Nombre) ? user.Nombre : user.Email);
             }
         }
 

@@ -101,10 +101,10 @@ namespace ecommerce_web
         private void CargarDirecciones()
         {
             Usuario usuario = (Usuario)Session["usuario"];
-            PedidoNegocio negocio = new PedidoNegocio();
+            DireccionNegocio negocio = new DireccionNegocio();
 
             ddlDirecciones.Items.Clear();
-            foreach (Direccion direccion in negocio.ListarDirecciones(usuario.Id))
+            foreach (Direccion direccion in negocio.Listar(usuario.Id))
                 ddlDirecciones.Items.Add(new ListItem(direccion.ToString(), direccion.Id.ToString()));
             ddlDirecciones.Items.Add(new ListItem("➕ Nueva dirección", "0"));
 
