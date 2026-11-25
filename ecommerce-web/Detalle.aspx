@@ -24,7 +24,7 @@
             <div class="col-md-7 d-flex flex-column justify-content-center">
                 <h2 class="display-5 fw-bold mb-2"><%= ProductoSeleccionado != null ? ProductoSeleccionado.Nombre : "" %></h2>
 
-                <h3 class="text-success fw-bold mb-4">$ <%= ProductoSeleccionado != null ? ProductoSeleccionado.Precio.ToString("N2") : "0.00" %></h3>
+                <h3 class="text-success fw-bold mb-4"><%= PrecioFormateado() %></h3>
 
                 <p class="lead mb-4">
                     <%= ProductoSeleccionado != null ? ProductoSeleccionado.Descripcion : "" %>

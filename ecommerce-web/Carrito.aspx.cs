@@ -24,6 +24,24 @@ namespace ecommerce_web
             return new List<DetallePedido>();
         }
 
+        public string FormatearSubtotalItem(object dataItem)
+        {
+            if (!(dataItem is DetallePedido item))
+                return string.Empty;
+
+            decimal unitario = MonedaHelper.ObtenerPrecioUnitario(item.Producto, item.PrecioUnitario);
+            return MonedaHelper.Formatear(unitario * item.Cantidad);
+        }
+
+        public string FormatearPrecioUnitarioItem(object dataItem)
+        {
+            if (!(dataItem is DetallePedido item))
+                return string.Empty;
+
+            decimal unitario = MonedaHelper.ObtenerPrecioUnitario(item.Producto, item.PrecioUnitario);
+            return MonedaHelper.Formatear(unitario);
+        }
+
         private void CargarCarrito()
         {
             List<DetallePedido> carrito = ObtenerCarrito();
@@ -33,8 +51,9 @@ namespace ecommerce_web
 
             pnlVacio.Visible = carrito.Count == 0;
 
-            decimal total = carrito.Sum(x => x.PrecioUnitario * x.Cantidad);
-            lblTotalCarrito.Text = total.ToString("C");
+            decimal total = carrito.Sum(x =>
+                MonedaHelper.ObtenerPrecioUnitario(x.Producto, x.PrecioUnitario) * x.Cantidad);
+            lblTotalCarrito.Text = MonedaHelper.Formatear(total);
         }
 
         protected void dgvCarrito_RowCommand(object sender, GridViewCommandEventArgs e)

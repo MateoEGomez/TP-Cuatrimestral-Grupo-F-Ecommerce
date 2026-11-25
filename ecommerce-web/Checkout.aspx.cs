@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Web;
 using System.Web.UI.WebControls;
 using dominio;
 using negocio;
@@ -11,21 +9,6 @@ namespace ecommerce_web
 {
     public partial class Checkout : System.Web.UI.Page
     {
-        private string MonedaActual
-        {
-            get { return Session["moneda"] as string ?? "USD"; }
-        }
-
-        private decimal CotizacionActual
-        {
-            get
-            {
-                return HttpContext.Current?.Application?["CotizacionDolar"] is decimal d && d > 0
-                    ? d
-                    : 1200.00m;
-            }
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["usuario"] == null)
@@ -75,37 +58,13 @@ namespace ecommerce_web
             return new List<DetallePedido>();
         }
 
-        private decimal ObtenerPrecioUnitarioEnMoneda(DetallePedido item)
-        {
-            if (item == null)
-                return 0m;
-
-            if (MonedaActual == "ARS")
-            {
-                if (item.Producto != null && item.Producto.PrecioARS.HasValue && item.Producto.PrecioARS.Value > 0)
-                    return item.Producto.PrecioARS.Value;
-
-                return item.PrecioUnitario * CotizacionActual;
-            }
-
-            return item.PrecioUnitario;
-        }
-
-        private string FormatearMonto(decimal monto)
-        {
-            if (MonedaActual == "ARS")
-                return "ARS " + monto.ToString("N2", new CultureInfo("es-AR"));
-
-            return "USD " + monto.ToString("N2", CultureInfo.InvariantCulture);
-        }
-
         public string FormatearSubtotalItem(object dataItem)
         {
             if (!(dataItem is DetallePedido item))
-                return "";
+                return string.Empty;
 
-            decimal subtotalItem = ObtenerPrecioUnitarioEnMoneda(item) * item.Cantidad;
-            return FormatearMonto(subtotalItem);
+            decimal unitario = MonedaHelper.ObtenerPrecioUnitario(item.Producto, item.PrecioUnitario);
+            return MonedaHelper.Formatear(unitario * item.Cantidad);
         }
 
         private void CargarFormasEntrega()
@@ -199,13 +158,14 @@ namespace ecommerce_web
             repResumen.DataSource = carrito;
             repResumen.DataBind();
 
-            decimal subtotal = carrito.Sum(x => ObtenerPrecioUnitarioEnMoneda(x) * x.Cantidad);
+            decimal subtotal = carrito.Sum(x =>
+                MonedaHelper.ObtenerPrecioUnitario(x.Producto, x.PrecioUnitario) * x.Cantidad);
             decimal envio = 0m;
             decimal total = subtotal + envio;
 
-            lblSubtotal.Text = FormatearMonto(subtotal);
-            lblEnvio.Text = FormatearMonto(envio);
-            lblTotal.Text = FormatearMonto(total);
+            lblSubtotal.Text = MonedaHelper.Formatear(subtotal);
+            lblEnvio.Text = MonedaHelper.Formatear(envio);
+            lblTotal.Text = MonedaHelper.Formatear(total);
 
             if (carrito.Count == 0)
             {
@@ -290,20 +250,25 @@ namespace ecommerce_web
                     return;
                 }
 
+                string monedaActual = MonedaHelper.ObtenerMonedaActual();
+
                 Pedido nuevoPedido = new Pedido();
                 nuevoPedido.Usuario = usuario;
                 nuevoPedido.Fecha = DateTime.Now;
                 nuevoPedido.Total = carrito.Sum(x => x.PrecioUnitario * x.Cantidad);
-                nuevoPedido.Moneda = MonedaActual;
-                if (MonedaActual == "ARS")
-                    nuevoPedido.Cotizacion = CotizacionActual;
+                nuevoPedido.Moneda = monedaActual;
+                if (monedaActual == MonedaHelper.MonedaArs)
+                    nuevoPedido.Cotizacion = MonedaHelper.ObtenerCotizacion();
                 nuevoPedido.FormaPago = new FormaPago { Id = idFormaPago };
                 nuevoPedido.FormaEntrega = formaEntrega;
                 nuevoPedido.Direccion = direccion;
                 nuevoPedido.Estado = new EstadoPedido { Id = 1 };
                 nuevoPedido.Detalles = carrito;
 
-                string totalMostrado = FormatearMonto(carrito.Sum(x => ObtenerPrecioUnitarioEnMoneda(x) * x.Cantidad));
+                decimal totalMostradoDecimal = carrito.Sum(x =>
+                    MonedaHelper.ObtenerPrecioUnitario(x.Producto, x.PrecioUnitario, monedaActual) * x.Cantidad);
+                string totalMostrado = MonedaHelper.Formatear(totalMostradoDecimal, monedaActual);
+
                 int idPedido = pedidoNegocio.ConfirmarPedido(nuevoPedido);
 
                 Session["carrito"] = null;

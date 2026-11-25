@@ -12,6 +12,14 @@ namespace ecommerce_web
         public Producto ProductoSeleccionado { get; set; }
         public bool EsPublicacionPropia { get; set; }
 
+        public string PrecioFormateado()
+        {
+            if (ProductoSeleccionado == null)
+                return MonedaHelper.Formatear(0m);
+
+            return MonedaHelper.FormatearProducto(ProductoSeleccionado);
+        }
+
         protected void btnAgregarCarrito_Click(object sender, EventArgs e)
         {
             try

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Web;
 using dominio;
 using negocio;
@@ -13,13 +12,13 @@ namespace ecommerce_web
 
         public string MonedaActual
         {
-            get { return Session["moneda"] as string ?? "USD"; }
-            set { Session["moneda"] = value; }
+            get { return MonedaHelper.ObtenerMonedaActual(); }
+            set { MonedaHelper.EstablecerMoneda(value); }
         }
 
         public bool EsPesos
         {
-            get { return MonedaActual == "ARS"; }
+            get { return MonedaActual == MonedaHelper.MonedaArs; }
         }
 
         protected void Page_Load(object sender, EventArgs e)
@@ -78,23 +77,12 @@ namespace ecommerce_web
 
         public string FormatearPrecio(decimal precioUsd, decimal? precioArs = null)
         {
-            if (EsPesos)
+            Producto temp = new Producto
             {
-                decimal ars;
-                if (precioArs.HasValue && precioArs.Value > 0)
-                {
-                    ars = precioArs.Value;
-                }
-                else
-                {
-                    decimal cotizacion = HttpContext.Current?.Application?["CotizacionDolar"] is decimal d && d > 0 ? d : 1200.00m;
-                    ars = precioUsd * cotizacion;
-                }
-
-                return "ARS " + ars.ToString("N2", new CultureInfo("es-AR"));
-            }
-
-            return "USD " + precioUsd.ToString("N2", CultureInfo.InvariantCulture);
+                Precio = precioUsd,
+                PrecioARS = precioArs
+            };
+            return MonedaHelper.FormatearProducto(temp, precioUsd);
         }
 
         private void ActualizarEstilosMoneda()
@@ -113,7 +101,7 @@ namespace ecommerce_web
 
         protected void BtnMonedaUsd_Click(object sender, EventArgs e)
         {
-            MonedaActual = "USD";
+            MonedaActual = MonedaHelper.MonedaUsd;
             ActualizarEstilosMoneda();
             if (!(Page is Checkout))
                 Response.Redirect(Request.RawUrl, false);
@@ -121,7 +109,7 @@ namespace ecommerce_web
 
         protected void BtnMonedaArs_Click(object sender, EventArgs e)
         {
-            MonedaActual = "ARS";
+            MonedaActual = MonedaHelper.MonedaArs;
             ActualizarEstilosMoneda();
             if (!(Page is Checkout))
                 Response.Redirect(Request.RawUrl, false);

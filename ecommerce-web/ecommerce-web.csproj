@@ -93,6 +93,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MonedaHelper.cs" />
     <Compile Include="RecuperarClave.aspx.cs">
       <DependentUpon>RecuperarClave.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
