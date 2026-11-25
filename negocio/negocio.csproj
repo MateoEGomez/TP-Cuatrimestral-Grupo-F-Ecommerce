@@ -52,6 +52,7 @@
     <Compile Include="CondicionNegocio.cs" />
     <Compile Include="DireccionNegocio.cs" />
     <Compile Include="EstadoPedidoNegocio.cs" />
+    <Compile Include="EstadoPublicacionNegocio.cs" />
     <Compile Include="ExpansionNegocio.cs" />
     <Compile Include="FormaPagoNegocio.cs" />
     <Compile Include="FormaEntregaNegocio.cs" />

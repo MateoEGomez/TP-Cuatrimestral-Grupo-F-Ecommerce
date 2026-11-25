@@ -28,6 +28,7 @@ namespace dominio
         public Usuario Vendedor { get; set; }
         [DisplayName("Publicación")]
         public EstadoPublicacion EstadoPublicacion { get; set; }
+        public string MotivoRechazo { get; set; }
         public bool Activo { get; set; }
         public string CardId { get; set; }
     }

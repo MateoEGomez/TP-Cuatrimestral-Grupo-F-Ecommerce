@@ -70,7 +70,7 @@ namespace negocio
 
             try
             {
-                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0");
+                datosContador.setearConsulta("SELECT COUNT(*) FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0 AND IdEstadoPublicacion = 2");
                 totalRegistros = datosContador.ejecutarAccionScalar();
             }
             catch (Exception)
@@ -87,7 +87,7 @@ namespace negocio
             try
             {
                 string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion " +
-                                  "FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0 " +
+                                  "FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0 AND IdEstadoPublicacion = 2 " +
                                   "ORDER BY Id " +
                                   "OFFSET @Offset ROWS " +
                                   "FETCH NEXT @PageSize ROWS ONLY";
@@ -143,7 +143,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion, IdVendedor, Activo FROM PRODUCTOS WHERE Id = @id");
+                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion, IdVendedor, Activo, IdEstadoPublicacion FROM PRODUCTOS WHERE Id = @id");
                 datos.setearParametro("@id", id);
                 datos.ejecutarLectura();
 
@@ -176,6 +176,9 @@ namespace negocio
                         aux.Vendedor = new Usuario();
                         aux.Vendedor.Id = (int)datos.Lector["IdVendedor"];
                     }
+
+                    aux.EstadoPublicacion = new EstadoPublicacion();
+                    aux.EstadoPublicacion.Id = (int)datos.Lector["IdEstadoPublicacion"];
 
                     return aux;
                 }
@@ -234,7 +237,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0";
+                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0 AND IdEstadoPublicacion = 2";
 
                 if (!string.IsNullOrEmpty(nombre))
                 {
@@ -372,8 +375,8 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId, IdVendedor) " +
-                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId, @idVendedor)";
+                string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId, IdVendedor, IdEstadoPublicacion) " +
+                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId, @idVendedor, 1)";
 
                 datos.setearConsulta(consulta);
                 datos.setearParametro("@nombre", nuevo.Nombre);
@@ -406,7 +409,7 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE IdVendedor = @idVendedor");
+                datos.setearConsulta("SELECT P.Id, P.Nombre, P.Descripcion, P.Precio, P.Stock, P.UrlImagen, P.IdCategoria, P.Activo, P.CardId, P.IdExpansion, P.MotivoRechazo, EP.Id AS IdEstadoPublicacion, EP.Descripcion AS EstadoPublicacion FROM PRODUCTOS P INNER JOIN ESTADOS_PUBLICACION EP ON EP.Id = P.IdEstadoPublicacion WHERE P.IdVendedor = @idVendedor ORDER BY P.Id DESC");
                 datos.setearParametro("@idVendedor", idVendedor);
                 datos.ejecutarLectura();
 
@@ -435,6 +438,12 @@ namespace negocio
                         aux.Expansion = new Expansion();
                         aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
                     }
+
+                    aux.EstadoPublicacion = new EstadoPublicacion();
+                    aux.EstadoPublicacion.Id = (int)datos.Lector["IdEstadoPublicacion"];
+                    aux.EstadoPublicacion.Descripcion = (string)datos.Lector["EstadoPublicacion"];
+                    if (!(datos.Lector["MotivoRechazo"] is DBNull))
+                        aux.MotivoRechazo = (string)datos.Lector["MotivoRechazo"];
 
                     lista.Add(aux);
                 }
@@ -653,37 +662,15 @@ namespace negocio
             datos.setearParametro("@CardId", producto.CardId != null ? (object)producto.CardId : DBNull.Value);
         }
 
-        public List<Producto> ListarParaModeracion(string filtro = "", string estado = "todos")
+        public List<Producto> ListarParaModeracion(string filtro, int? idEstadoPublicacion)
         {
             List<Producto> lista = new List<Producto>();
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = @"SELECT TOP 100 P.Id, P.Nombre, P.Descripcion, P.Precio, P.Stock, P.UrlImagen, P.Activo,
-                                           E.Nombre AS ExpansionNombre,
-                                           U.Id AS IdVendedor, U.Nombre AS VendedorNombre, U.Apellido AS VendedorApellido, U.Email AS VendedorEmail
-                                    FROM PRODUCTOS P
-                                    LEFT JOIN EXPANSIONES E ON P.IdExpansion = E.Id
-                                    LEFT JOIN USUARIOS U ON P.IdVendedor = U.Id
-                                    WHERE 1 = 1";
-
-                if (!string.IsNullOrWhiteSpace(filtro))
-                    consulta += " AND (P.Nombre LIKE @filtro OR U.Email LIKE @filtro OR U.Nombre LIKE @filtro OR U.Apellido LIKE @filtro)";
-
-                if (estado == "activas")
-                    consulta += " AND P.Activo = 1";
-                else if (estado == "inactivas")
-                    consulta += " AND P.Activo = 0";
-                else if (estado == "usuarios")
-                    consulta += " AND P.IdVendedor IS NOT NULL";
-
-                consulta += " ORDER BY P.Id DESC";
-
-                datos.setearConsulta(consulta);
-
-                if (!string.IsNullOrWhiteSpace(filtro))
-                    datos.setearParametro("@filtro", "%" + filtro.Trim() + "%");
-
+                datos.setearProcedimiento("storedListarPublicacionesModeracion");
+                datos.setearParametro("@Filtro", string.IsNullOrWhiteSpace(filtro) ? (object)DBNull.Value : filtro.Trim());
+                datos.setearParametro("@IdEstadoPublicacion", idEstadoPublicacion.HasValue ? (object)idEstadoPublicacion.Value : DBNull.Value);
                 datos.ejecutarLectura();
 
                 while (datos.Lector.Read())
@@ -718,9 +705,54 @@ namespace negocio
                         };
                     }
 
+                    aux.EstadoPublicacion = new EstadoPublicacion();
+                    aux.EstadoPublicacion.Id = (int)datos.Lector["IdEstadoPublicacion"];
+                    aux.EstadoPublicacion.Descripcion = (string)datos.Lector["EstadoPublicacion"];
+                    if (!(datos.Lector["MotivoRechazo"] is DBNull))
+                        aux.MotivoRechazo = (string)datos.Lector["MotivoRechazo"];
+
                     lista.Add(aux);
                 }
                 return lista;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public void ModerarPublicacion(int idProducto, int idEstadoPublicacion, string motivoRechazo)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedModerarPublicacion");
+                datos.setearParametro("@Id", idProducto);
+                datos.setearParametro("@IdEstadoPublicacion", idEstadoPublicacion);
+                datos.setearParametro("@MotivoRechazo", string.IsNullOrWhiteSpace(motivoRechazo) ? (object)DBNull.Value : motivoRechazo.Trim());
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public int ContarPublicacionesPendientes()
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedContarPublicacionesPendientes");
+                return datos.ejecutarAccionScalar();
             }
             catch (Exception ex)
             {
