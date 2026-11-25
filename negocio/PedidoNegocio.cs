@@ -6,43 +6,6 @@ namespace negocio
 {
     public class PedidoNegocio
     {
-        public List<Direccion> ListarDirecciones(int idUsuario)
-        {
-            List<Direccion> lista = new List<Direccion>();
-            AccesoDatos datos = new AccesoDatos();
-            try
-            {
-                datos.setearProcedimiento("storedListarDireccionesUsuario");
-                datos.setearParametro("@IdUsuario", idUsuario);
-                datos.ejecutarLectura();
-
-                while (datos.Lector.Read())
-                {
-                    Direccion aux = new Direccion();
-                    aux.Id = (int)datos.Lector["Id"];
-                    aux.IdUsuario = (int)datos.Lector["IdUsuario"];
-                    aux.Calle = (string)datos.Lector["Calle"];
-                    aux.Numero = (string)datos.Lector["Numero"];
-                    aux.Localidad = (string)datos.Lector["Localidad"];
-                    aux.CodigoPostal = (string)datos.Lector["CodigoPostal"];
-                    if (!(datos.Lector["Observaciones"] is DBNull))
-                        aux.Observaciones = (string)datos.Lector["Observaciones"];
-                    aux.Activo = (bool)datos.Lector["Activo"];
-
-                    lista.Add(aux);
-                }
-                return lista;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                datos.cerrarConexion();
-            }
-        }
-
         public List<Pedido> ListarPorUsuario(int idUsuario)
         {
             List<Pedido> lista = new List<Pedido>();
@@ -388,31 +351,6 @@ namespace negocio
             return null;
         }
 
-        public int AgregarDireccion(Direccion dir)
-        {
-            AccesoDatos datos = new AccesoDatos();
-            try
-            {
-                datos.setearProcedimiento("storedAltaDireccion");
-                datos.setearParametro("@IdUsuario", dir.IdUsuario);
-                datos.setearParametro("@Calle", dir.Calle);
-                datos.setearParametro("@Numero", dir.Numero);
-                datos.setearParametro("@Localidad", dir.Localidad);
-                datos.setearParametro("@CodigoPostal", dir.CodigoPostal);
-                datos.setearParametro("@Observaciones", string.IsNullOrWhiteSpace(dir.Observaciones) ? (object)DBNull.Value : dir.Observaciones);
-
-                return datos.ejecutarAccionScalar();
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                datos.cerrarConexion();
-            }
-        }
-
         public int ConfirmarPedido(Pedido pedido)
         {
             int? idDireccionGenerada = null;
@@ -427,7 +365,8 @@ namespace negocio
                 else
                 {
                     pedido.Direccion.IdUsuario = pedido.Usuario.Id;
-                    idDireccionGenerada = AgregarDireccion(pedido.Direccion);
+                    DireccionNegocio direccionNegocio = new DireccionNegocio();
+                    idDireccionGenerada = direccionNegocio.Agregar(pedido.Direccion);
                 }
             }
 

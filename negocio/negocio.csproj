@@ -50,6 +50,7 @@
     <Compile Include="AccesoDatos.cs" />
     <Compile Include="CategoriaNegocio.cs" />
     <Compile Include="CondicionNegocio.cs" />
+    <Compile Include="DireccionNegocio.cs" />
     <Compile Include="EstadoPedidoNegocio.cs" />
     <Compile Include="ExpansionNegocio.cs" />
     <Compile Include="FormaPagoNegocio.cs" />

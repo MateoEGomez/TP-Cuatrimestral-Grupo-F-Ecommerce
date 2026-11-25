@@ -84,6 +84,7 @@
     <Content Include="Detalle.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="Publicar.aspx" />
+    <Content Include="MiPerfil.aspx" />
     <Content Include="MisPedidos.aspx" />
     <Content Include="MisVentas.aspx" />
     <Content Include="Registro.aspx" />
@@ -255,6 +256,13 @@
     </Compile>
     <Compile Include="Publicar.aspx.designer.cs">
       <DependentUpon>Publicar.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="MiPerfil.aspx.cs">
+      <DependentUpon>MiPerfil.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MiPerfil.aspx.designer.cs">
+      <DependentUpon>MiPerfil.aspx</DependentUpon>
     </Compile>
     <Compile Include="MisPedidos.aspx.cs">
       <DependentUpon>MisPedidos.aspx</DependentUpon>
