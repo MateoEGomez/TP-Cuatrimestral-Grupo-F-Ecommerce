@@ -173,6 +173,49 @@ namespace negocio
             }
         }
 
+        public void ModificarPerfil(Usuario usuario)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedModificarDatosPerfil");
+                datos.setearParametro("@Id", usuario.Id);
+                datos.setearParametro("@Nombre", string.IsNullOrWhiteSpace(usuario.Nombre) ? (object)DBNull.Value : usuario.Nombre);
+                datos.setearParametro("@Apellido", string.IsNullOrWhiteSpace(usuario.Apellido) ? (object)DBNull.Value : usuario.Apellido);
+                datos.setearParametro("@Telefono", string.IsNullOrWhiteSpace(usuario.Telefono) ? (object)DBNull.Value : usuario.Telefono);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public bool CambiarPassword(int idUsuario, string passActual, string passNueva)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearProcedimiento("storedCambiarPasswordUsuario");
+                datos.setearParametro("@Id", idUsuario);
+                datos.setearParametro("@PassActual", passActual);
+                datos.setearParametro("@PassNueva", passNueva);
+                return datos.ejecutarAccionScalar() == 1;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
         private string HashPassword(string password)
         {
             using (var sha256 = System.Security.Cryptography.SHA256.Create())
