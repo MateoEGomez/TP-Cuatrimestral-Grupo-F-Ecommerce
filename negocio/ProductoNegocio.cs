@@ -86,9 +86,11 @@ namespace negocio
 
             try
             {
-                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion " +
-                                  "FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0 AND IdEstadoPublicacion = 2 " +
-                                  "ORDER BY Id " +
+                string consulta = "SELECT P.Id, P.Nombre, P.Descripcion, P.Precio, P.Stock, P.UrlImagen, P.IdCategoria, P.Activo, P.CardId, P.IdExpansion, " +
+                                  "P.IdVendedor, U.IdPerfil AS PerfilVendedor " +
+                                  "FROM PRODUCTOS P LEFT JOIN USUARIOS U ON U.Id = P.IdVendedor " +
+                                  "WHERE P.Activo = 1 AND P.Stock > 0 AND P.IdEstadoPublicacion = 2 " +
+                                  "ORDER BY P.Nombre, P.CardId, P.Id " +
                                   "OFFSET @Offset ROWS " +
                                   "FETCH NEXT @PageSize ROWS ONLY";
 
@@ -100,6 +102,7 @@ namespace negocio
                 while (datos.Lector.Read())
                 {
                     Producto aux = new Producto();
+                    CargarVendedor(aux, datos);
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
                     if (!(datos.Lector["Descripcion"] is DBNull))
@@ -143,7 +146,9 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("SELECT Id, Nombre, Descripcion, UrlImagen, Precio, Stock, CardId, IdExpansion, IdVendedor, Activo, IdEstadoPublicacion FROM PRODUCTOS WHERE Id = @id");
+                datos.setearConsulta("SELECT P.Id, P.Nombre, P.Descripcion, P.UrlImagen, P.Precio, P.Stock, P.CardId, P.IdExpansion, P.IdVendedor, P.Activo, P.IdEstadoPublicacion, " +
+                                     "U.Nombre AS VendedorNombre, U.Apellido AS VendedorApellido, U.IdPerfil AS PerfilVendedor " +
+                                     "FROM PRODUCTOS P LEFT JOIN USUARIOS U ON U.Id = P.IdVendedor WHERE P.Id = @id");
                 datos.setearParametro("@id", id);
                 datos.ejecutarLectura();
 
@@ -171,10 +176,13 @@ namespace negocio
                         aux.Expansion.Id = (string)datos.Lector["IdExpansion"];
                     }
 
-                    if (!(datos.Lector["IdVendedor"] is DBNull))
+                    CargarVendedor(aux, datos);
+                    if (aux.Vendedor != null)
                     {
-                        aux.Vendedor = new Usuario();
-                        aux.Vendedor.Id = (int)datos.Lector["IdVendedor"];
+                        if (!(datos.Lector["VendedorNombre"] is DBNull))
+                            aux.Vendedor.Nombre = (string)datos.Lector["VendedorNombre"];
+                        if (!(datos.Lector["VendedorApellido"] is DBNull))
+                            aux.Vendedor.Apellido = (string)datos.Lector["VendedorApellido"];
                     }
 
                     aux.EstadoPublicacion = new EstadoPublicacion();
@@ -237,27 +245,32 @@ namespace negocio
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                string consulta = "SELECT Id, Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, CardId, IdExpansion FROM PRODUCTOS WHERE Activo = 1 AND Stock > 0 AND IdEstadoPublicacion = 2";
+                string consulta = "SELECT P.Id, P.Nombre, P.Descripcion, P.Precio, P.Stock, P.UrlImagen, P.IdCategoria, P.Activo, P.CardId, P.IdExpansion, " +
+                                  "P.IdVendedor, U.IdPerfil AS PerfilVendedor " +
+                                  "FROM PRODUCTOS P LEFT JOIN USUARIOS U ON U.Id = P.IdVendedor " +
+                                  "WHERE P.Activo = 1 AND P.Stock > 0 AND P.IdEstadoPublicacion = 2";
 
                 if (!string.IsNullOrEmpty(nombre))
                 {
-                    consulta += " AND Nombre LIKE @nombre";
+                    consulta += " AND P.Nombre LIKE @nombre";
                 }
 
                 if (!string.IsNullOrEmpty(idExpansion) && idExpansion != "0")
                 {
-                    consulta += " AND IdExpansion = @idExpansion";
+                    consulta += " AND P.IdExpansion = @idExpansion";
                 }
 
                 if (precioMin.HasValue)
                 {
-                    consulta += " AND Precio >= @precioMin";
+                    consulta += " AND P.Precio >= @precioMin";
                 }
 
                 if (precioMax.HasValue)
                 {
-                    consulta += " AND Precio <= @precioMax";
+                    consulta += " AND P.Precio <= @precioMax";
                 }
+
+                consulta += " ORDER BY P.Nombre, P.CardId, P.Id";
 
                 datos.setearConsulta(consulta);
 
@@ -278,6 +291,7 @@ namespace negocio
                 while (datos.Lector.Read())
                 {
                     Producto aux = new Producto();
+                    CargarVendedor(aux, datos);
                     aux.Id = (int)datos.Lector["Id"];
                     aux.Nombre = (string)datos.Lector["Nombre"];
                     if (!(datos.Lector["Descripcion"] is DBNull))
@@ -744,6 +758,18 @@ namespace negocio
             {
                 datos.cerrarConexion();
             }
+        }
+
+        private void CargarVendedor(Producto aux, AccesoDatos datos)
+        {
+            if (datos.Lector["IdVendedor"] is DBNull)
+                return;
+
+            aux.Vendedor = new Usuario();
+            aux.Vendedor.Id = (int)datos.Lector["IdVendedor"];
+            aux.Vendedor.Perfil = new Perfil();
+            if (!(datos.Lector["PerfilVendedor"] is DBNull))
+                aux.Vendedor.Perfil.Id = (int)datos.Lector["PerfilVendedor"];
         }
 
         public List<Producto> BuscarCartasParaPublicar(string filtro)
