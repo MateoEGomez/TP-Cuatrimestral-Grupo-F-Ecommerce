@@ -119,6 +119,14 @@
                                 <asp:ListItem Text="ARS (Pesos)" Value="ARS" />
                             </asp:DropDownList>
                         </div>
+                        <label for="<%= ddlOrden.ClientID %>" class="me-1 mb-0 small fw-bold">Ordenar:</label>
+                        <asp:DropDownList ID="ddlOrden" runat="server" CssClass="form-select form-select-sm d-inline-block w-auto me-2" AutoPostBack="true" OnSelectedIndexChanged="ddlOrden_SelectedIndexChanged">
+                        <asp:ListItem Text="Relevancia" Value="" />
+                        <asp:ListItem Text="Precio: menor a mayor" Value="precio_asc" />
+                        <asp:ListItem Text="Precio: mayor a menor" Value="precio_desc" />
+                        <asp:ListItem Text="Nombre: A - Z" Value="nombre_asc" />
+                        <asp:ListItem Text="Nombre: Z - A" Value="nombre_desc" />
+                        </asp:DropDownList>
                         <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar filtros" CssClass="btn btn-outline-secondary btn-sm" CausesValidation="false" OnClick="BtnLimpiar_Click" />
                         <asp:Button ID="btnFiltrar" runat="server" Text="🔍 Buscar" CssClass="btn btn-primary btn-sm px-4" OnClick="BtnFiltrar_Click" />
                     </div>
