@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web;
 using negocio;
 
 namespace ecommerce_web
@@ -8,6 +9,8 @@ namespace ecommerce_web
         private const string SessionCodigoKey = "Recup_Codigo";
         private const string SessionEmailKey = "Recup_Email";
         private const string SessionExpiraKey = "Recup_Expira";
+        private const string SessionIntentosKey = "Recup_Intentos";
+        private const int MaximoIntentos = 5;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -15,14 +18,12 @@ namespace ecommerce_web
 
         protected void btnEnviarCodigo_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             try
             {
                 string email = txtEmailRecuperacion.Text.Trim();
-                if (string.IsNullOrWhiteSpace(email))
-                {
-                    MostrarMensaje("Ingresá un correo electrónico válido.", "alert-warning");
-                    return;
-                }
 
                 UsuarioNegocio negocio = new UsuarioNegocio();
                 if (!negocio.ExisteEmail(email))
@@ -37,9 +38,10 @@ namespace ecommerce_web
                 Session[SessionCodigoKey] = codigo;
                 Session[SessionEmailKey] = email;
                 Session[SessionExpiraKey] = DateTime.Now.AddMinutes(10);
+                Session[SessionIntentosKey] = 0;
 
                 pnlPaso2.Visible = true;
-                MostrarMensaje($"[Simulación de correo] Se envió el código <strong>{codigo}</strong> a <strong>{email}</strong> (vence en 10 minutos).", "alert-info");
+                MostrarMensaje($"[Simulación de correo] Se envió el código <strong>{codigo}</strong> a <strong>{HttpUtility.HtmlEncode(email)}</strong> (vence en 10 minutos).", "alert-info");
             }
             catch (Exception ex)
             {
@@ -50,6 +52,9 @@ namespace ecommerce_web
 
         protected void btnCambiarPass_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+                return;
+
             try
             {
                 if (Session[SessionCodigoKey] == null || Session[SessionEmailKey] == null || Session[SessionExpiraKey] == null)
@@ -72,16 +77,25 @@ namespace ecommerce_web
 
                 if (txtCodigo.Text.Trim() != codigoGuardado)
                 {
-                    MostrarMensaje("El código ingresado no coincide.", "alert-danger");
+                    int intentos = (int)Session[SessionIntentosKey] + 1;
+                    Session[SessionIntentosKey] = intentos;
+                    if (intentos >= MaximoIntentos)
+                    {
+                        LimpiarSesionRecuperacion();
+                        pnlPaso2.Visible = false;
+                        MostrarMensaje("Ingresaste mal el código " + MaximoIntentos + " veces. Generá uno nuevo.", "alert-danger");
+                        return;
+                    }
+                    MostrarMensaje("El código ingresado no coincide. Te quedan " + (MaximoIntentos - intentos) + " intento(s).", "alert-danger");
                     return;
                 }
 
                 string nuevaPass = txtNuevaPass.Text;
                 string confirmarPass = txtConfirmarPass.Text;
 
-                if (string.IsNullOrWhiteSpace(nuevaPass) || nuevaPass.Length < 4)
+                if (nuevaPass.Length < 6)
                 {
-                    MostrarMensaje("La nueva contraseña debe tener al menos 4 caracteres.", "alert-warning");
+                    MostrarMensaje("La nueva contraseña debe tener al menos 6 caracteres.", "alert-warning");
                     return;
                 }
 
@@ -114,6 +128,7 @@ namespace ecommerce_web
             Session.Remove(SessionCodigoKey);
             Session.Remove(SessionEmailKey);
             Session.Remove(SessionExpiraKey);
+            Session.Remove(SessionIntentosKey);
         }
 
         private void MostrarMensaje(string html, string cssClase)
