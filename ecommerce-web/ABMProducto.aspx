@@ -77,6 +77,8 @@
                     <div class="mb-3">
                         <label for="txtDescripcion" class="form-label fw-bold">Descripción</label>
                         <asp:TextBox ID="txtDescripcion" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" MaxLength="500" />
+                        <asp:RegularExpressionValidator ID="revDescripcion" runat="server" ControlToValidate="txtDescripcion" ValidationExpression="^[\s\S]{0,500}$"
+                            ErrorMessage="La descripción no puede tener más de 500 caracteres." CssClass="text-danger small" Display="Dynamic" />
                     </div>
                 </div>
 
