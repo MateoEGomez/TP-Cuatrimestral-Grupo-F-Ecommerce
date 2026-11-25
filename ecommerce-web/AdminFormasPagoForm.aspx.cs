@@ -67,10 +67,18 @@ namespace ecommerce_web
                 FormaPagoNegocio negocio = new FormaPagoNegocio();
                 FormaPago formaPago = new FormaPago();
                 formaPago.Descripcion = txtDescripcion.Text.Trim();
+                if (Request.QueryString["id"] != null)
+                    formaPago.Id = int.Parse(Request.QueryString["id"]);
+
+                if (negocio.Listar().Exists(x => x.Id != formaPago.Id && string.Equals(x.Descripcion, formaPago.Descripcion, StringComparison.OrdinalIgnoreCase)))
+                {
+                    lblError.Text = "Ya existe una forma de pago llamada \"" + HttpUtility.HtmlEncode(formaPago.Descripcion) + "\" (puede estar inactiva).";
+                    lblError.Visible = true;
+                    return;
+                }
 
                 if (Request.QueryString["id"] != null)
                 {
-                    formaPago.Id = int.Parse(Request.QueryString["id"]);
                     negocio.Modificar(formaPago);
                 }
                 else

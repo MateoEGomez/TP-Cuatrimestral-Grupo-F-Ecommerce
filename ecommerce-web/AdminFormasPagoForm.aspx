@@ -29,6 +29,8 @@
                     <asp:Label ID="lblEstado" runat="server" />
                 </asp:Panel>
 
+                <asp:Label ID="lblError" runat="server" CssClass="text-danger d-block mb-3" Visible="false" />
+
                 <div class="d-flex gap-2">
                     <asp:Button ID="btnGuardar" runat="server" Text="💾 Guardar" CssClass="btn btn-primary" OnClick="btnGuardar_Click" />
                     <asp:Button ID="btnBaja" runat="server" Text="Inactivar" CssClass="btn btn-outline-danger" CausesValidation="false" Visible="false" OnClick="btnBaja_Click" />

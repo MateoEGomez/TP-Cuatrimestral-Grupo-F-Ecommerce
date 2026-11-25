@@ -67,10 +67,18 @@ namespace ecommerce_web
                 CategoriaNegocio negocio = new CategoriaNegocio();
                 Categoria categoria = new Categoria();
                 categoria.Descripcion = txtDescripcion.Text.Trim();
+                if (Request.QueryString["id"] != null)
+                    categoria.Id = int.Parse(Request.QueryString["id"]);
+
+                if (negocio.Listar().Exists(x => x.Id != categoria.Id && string.Equals(x.Descripcion, categoria.Descripcion, StringComparison.OrdinalIgnoreCase)))
+                {
+                    lblError.Text = "Ya existe una categoría llamada \"" + HttpUtility.HtmlEncode(categoria.Descripcion) + "\" (puede estar inactiva).";
+                    lblError.Visible = true;
+                    return;
+                }
 
                 if (Request.QueryString["id"] != null)
                 {
-                    categoria.Id = int.Parse(Request.QueryString["id"]);
                     negocio.Modificar(categoria);
                 }
                 else

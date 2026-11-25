@@ -69,10 +69,18 @@ namespace ecommerce_web
                 FormaEntrega formaEntrega = new FormaEntrega();
                 formaEntrega.Descripcion = txtDescripcion.Text.Trim();
                 formaEntrega.RequiereDireccion = chkRequiereDireccion.Checked;
+                if (Request.QueryString["id"] != null)
+                    formaEntrega.Id = int.Parse(Request.QueryString["id"]);
+
+                if (negocio.Listar().Exists(x => x.Id != formaEntrega.Id && string.Equals(x.Descripcion, formaEntrega.Descripcion, StringComparison.OrdinalIgnoreCase)))
+                {
+                    lblError.Text = "Ya existe una forma de entrega llamada \"" + HttpUtility.HtmlEncode(formaEntrega.Descripcion) + "\" (puede estar inactiva).";
+                    lblError.Visible = true;
+                    return;
+                }
 
                 if (Request.QueryString["id"] != null)
                 {
-                    formaEntrega.Id = int.Parse(Request.QueryString["id"]);
                     negocio.Modificar(formaEntrega);
                 }
                 else

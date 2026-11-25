@@ -117,6 +117,11 @@ namespace ecommerce_web
                 if (tipo == "rareza")
                 {
                     RarezaNegocio negocio = new RarezaNegocio();
+                    if (negocio.Listar().Exists(x => x.Id != id && string.Equals(x.Descripcion, descripcion, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        MostrarDuplicado(descripcion);
+                        return;
+                    }
                     Rareza item = new Rareza { Id = id, Descripcion = descripcion };
                     if (esEdicion) negocio.Modificar(item);
                     else negocio.Agregar(item);
@@ -124,6 +129,11 @@ namespace ecommerce_web
                 else if (tipo == "condicion")
                 {
                     CondicionNegocio negocio = new CondicionNegocio();
+                    if (negocio.Listar().Exists(x => x.Id != id && string.Equals(x.Descripcion, descripcion, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        MostrarDuplicado(descripcion);
+                        return;
+                    }
                     Condicion item = new Condicion { Id = id, Descripcion = descripcion };
                     if (esEdicion) negocio.Modificar(item);
                     else negocio.Agregar(item);
@@ -131,6 +141,11 @@ namespace ecommerce_web
                 else if (tipo == "idioma")
                 {
                     IdiomaNegocio negocio = new IdiomaNegocio();
+                    if (negocio.Listar().Exists(x => x.Id != id && string.Equals(x.Descripcion, descripcion, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        MostrarDuplicado(descripcion);
+                        return;
+                    }
                     Idioma item = new Idioma { Id = id, Descripcion = descripcion };
                     if (esEdicion) negocio.Modificar(item);
                     else negocio.Agregar(item);
@@ -143,6 +158,12 @@ namespace ecommerce_web
                 Session.Add("error", ex.ToString());
                 Response.Redirect("Error.aspx", false);
             }
+        }
+
+        private void MostrarDuplicado(string descripcion)
+        {
+            lblError.Text = "Ya existe \"" + HttpUtility.HtmlEncode(descripcion) + "\" en esta lista (puede estar inactivo).";
+            lblError.Visible = true;
         }
 
         protected void btnBaja_Click(object sender, EventArgs e)
