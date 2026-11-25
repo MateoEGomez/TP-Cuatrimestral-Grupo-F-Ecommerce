@@ -11,12 +11,6 @@ namespace ecommerce_web
 {
     public partial class MisPedidos : System.Web.UI.Page
     {
-        private List<Pedido> PedidosUsuario
-        {
-            get { return ViewState["PedidosUsuario"] as List<Pedido>; }
-            set { ViewState["PedidosUsuario"] = value; }
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["usuario"] == null)
@@ -38,7 +32,6 @@ namespace ecommerce_web
                 Usuario usuario = (Usuario)Session["usuario"];
                 PedidoNegocio negocio = new PedidoNegocio();
                 List<Pedido> lista = negocio.ListarPorUsuario(usuario.Id);
-                PedidosUsuario = lista;
 
                 if (lista != null && lista.Count > 0)
                 {
@@ -73,8 +66,7 @@ namespace ecommerce_web
                 Usuario usuario = (Usuario)Session["usuario"];
                 PedidoNegocio negocio = new PedidoNegocio();
 
-                List<Pedido> lista = PedidosUsuario ?? negocio.ListarPorUsuario(usuario.Id);
-                Pedido seleccionado = lista.FirstOrDefault(x => x.Id == idPedido);
+                Pedido seleccionado = negocio.ListarPorUsuario(usuario.Id).FirstOrDefault(x => x.Id == idPedido);
                 if (seleccionado == null)
                     return;
 
