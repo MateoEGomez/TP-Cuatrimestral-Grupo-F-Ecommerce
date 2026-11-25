@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using dominio;
 using negocio;
 
@@ -17,38 +19,68 @@ namespace ecommerce_web
 
             if (!IsPostBack)
             {
-                CargarVentasUsuario();
+                try
+                {
+                    Usuario user = (Usuario)Session["usuario"];
+                    CargarVentas(user.Id);
+                    CargarPublicaciones(user.Id);
+                }
+                catch (Exception ex)
+                {
+                    Session.Add("error", ex.ToString());
+                    Response.Redirect("Error.aspx", false);
+                }
             }
         }
 
-        private void CargarVentasUsuario()
+        private void CargarVentas(int idVendedor)
         {
-            try
-            {
-                Usuario user = (Usuario)Session["usuario"];
-                ProductoNegocio negocio = new ProductoNegocio();
+            PedidoNegocio negocio = new PedidoNegocio();
+            List<Pedido> ventas = negocio.ListarVentasVendedor(idVendedor);
 
-                // Traemos SOLOS los productos publicados por este usuario
-                List<Producto> lista = negocio.ListarPorVendedor(user.Id);
+            repVentas.DataSource = ventas;
+            repVentas.DataBind();
+            pnlVentas.Visible = ventas.Count > 0;
+            pnlSinVentas.Visible = ventas.Count == 0;
 
-                if (lista != null && lista.Count > 0)
-                {
-                    rptMisVentas.DataSource = lista;
-                    rptMisVentas.DataBind();
-                    rptMisVentas.Visible = true;
-                    lblMensaje.Visible = false;
-                }
-                else
-                {
-                    rptMisVentas.Visible = false;
-                    lblMensaje.Visible = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Session.Add("error", ex.ToString());
-                Response.Redirect("Error.aspx", false);
-            }
+            List<Pedido> concretadas = ventas.Where(x => x.Estado.Id != 6).ToList();
+            lblUnidadesVendidas.Text = concretadas.Sum(x => x.Detalles.Sum(d => d.Cantidad)).ToString();
+            lblTotalVendido.Text = FormatearUsd(concretadas.Sum(x => x.Total));
+        }
+
+        private void CargarPublicaciones(int idVendedor)
+        {
+            ProductoNegocio negocio = new ProductoNegocio();
+            List<Producto> publicaciones = negocio.ListarPorVendedor(idVendedor);
+
+            repPublicaciones.DataSource = publicaciones;
+            repPublicaciones.DataBind();
+            pnlPublicaciones.Visible = publicaciones.Count > 0;
+            pnlSinPublicaciones.Visible = publicaciones.Count == 0;
+
+            lblPublicacionesActivas.Text = publicaciones.Count(x => x.Activo && x.Stock > 0).ToString();
+        }
+
+        public string FormatearUsd(decimal monto)
+        {
+            return "USD " + monto.ToString("N2", CultureInfo.InvariantCulture);
+        }
+
+        public bool EstaALaVenta(object dataItem)
+        {
+            Producto producto = (Producto)dataItem;
+            return producto.Activo && producto.Stock > 0;
+        }
+
+        public string ObtenerEstadoPublicacion(object dataItem)
+        {
+            Producto producto = (Producto)dataItem;
+
+            if (!producto.Activo)
+                return "<span class='badge bg-secondary'>Oculta</span>";
+            if (producto.Stock == 0)
+                return "<span class='badge bg-dark'>Sin stock</span>";
+            return "<span class='badge bg-success'>A la venta</span>";
         }
     }
 }
