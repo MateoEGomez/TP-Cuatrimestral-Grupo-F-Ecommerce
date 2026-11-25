@@ -24,10 +24,11 @@
             <div class="col-md-7 d-flex flex-column justify-content-center">
                 <h2 class="display-5 fw-bold mb-2"><%= ProductoSeleccionado != null ? ProductoSeleccionado.Nombre : "" %></h2>
 
-                <h3 class="text-success fw-bold mb-4"><%= PrecioFormateado() %></h3>
+                <h3 class="text-success fw-bold mb-2"><%= PrecioFormateado() %></h3>
+                <p class="text-muted mb-4"><%= TextoVendedor() %></p>
 
                 <p class="lead mb-4">
-                    <%= ProductoSeleccionado != null ? ProductoSeleccionado.Descripcion : "" %>
+                    <%: ProductoSeleccionado != null ? ProductoSeleccionado.Descripcion : "" %>
                 </p>
 
                 <hr class="mb-4" />

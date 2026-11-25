@@ -21,6 +21,17 @@ namespace ecommerce_web
             return MonedaHelper.FormatearProducto(ProductoSeleccionado);
         }
 
+        public string TextoVendedor()
+        {
+            if (ProductoSeleccionado == null || ProductoSeleccionado.Vendedor == null || ProductoSeleccionado.Vendedor.Perfil.Id == 2)
+                return "🏪 Vendido por la <strong>tienda oficial</strong>";
+
+            string nombre = ((ProductoSeleccionado.Vendedor.Nombre ?? "") + " " + (ProductoSeleccionado.Vendedor.Apellido ?? "")).Trim();
+            if (nombre == "")
+                nombre = "un usuario de la comunidad";
+            return "👤 Vendido por <strong>" + System.Web.HttpUtility.HtmlEncode(nombre) + "</strong>";
+        }
+
         private void MostrarMensajeDetalle(string texto, string claseAlerta)
         {
             pnlMensajeDetalle.Visible = true;

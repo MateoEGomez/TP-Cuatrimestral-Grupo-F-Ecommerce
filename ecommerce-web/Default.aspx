@@ -121,10 +121,9 @@
                         </div>
                         <label for="<%= ddlOrden.ClientID %>" class="me-1 mb-0 small fw-bold">Ordenar:</label>
                         <asp:DropDownList ID="ddlOrden" runat="server" CssClass="form-select form-select-sm d-inline-block w-auto me-2" AutoPostBack="true" OnSelectedIndexChanged="ddlOrden_SelectedIndexChanged">
-                        <asp:ListItem Text="Relevancia" Value="" />
+                        <asp:ListItem Text="Nombre: A - Z" Value="" />
                         <asp:ListItem Text="Precio: menor a mayor" Value="precio_asc" />
                         <asp:ListItem Text="Precio: mayor a menor" Value="precio_desc" />
-                        <asp:ListItem Text="Nombre: A - Z" Value="nombre_asc" />
                         <asp:ListItem Text="Nombre: Z - A" Value="nombre_desc" />
                         </asp:DropDownList>
                         <asp:Button ID="btnLimpiar" runat="server" Text="Limpiar filtros" CssClass="btn btn-outline-secondary btn-sm" CausesValidation="false" OnClick="BtnLimpiar_Click" />
@@ -155,8 +154,9 @@
 
                             <!-- CUERPO DE LA TARJETA -->
                             <div class="card-body d-flex flex-column">
-                                <h5 class="card-title"><%# Eval("Nombre") %></h5>
-                                <p class="card-text text-muted small"><%# Eval("Descripcion") %></p>
+                                <%# EsPublicacionDeUsuario(Container.DataItem) ? "<span class='badge bg-info text-dark align-self-start mb-2'>👤 Publicada por un usuario</span>" : "" %>
+                                <h5 class="card-title"><%#: Eval("Nombre") %></h5>
+                                <p class="card-text text-muted small"><%#: Eval("Descripcion") %></p>
 
                                 <p class="card-text text-success mt-auto"><strong><%# FormatearPrecioProducto(Container.DataItem) %></strong></p>
                                 <a href='Detalle.aspx?id=<%# Eval("Id") %>' class="btn btn-outline-primary">Ver detalle</a>

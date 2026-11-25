@@ -145,6 +145,12 @@ namespace ecommerce_web
             }
         }
 
+        public bool EsPublicacionDeUsuario(object dataItem)
+        {
+            Producto prod = dataItem as Producto;
+            return prod != null && prod.Vendedor != null && prod.Vendedor.Perfil.Id != 2;
+        }
+
         public string FormatearPrecioProducto(object dataItem)
         {
             if (!(dataItem is Producto prod))
