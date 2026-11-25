@@ -57,11 +57,17 @@
                     <div class="col-auto text-muted small">
                         (Disponibles: <%= ProductoSeleccionado.Stock %>)
                     </div>
+                    <div class="col-12">
+                        <asp:RequiredFieldValidator ID="rfvCantidad" runat="server" ControlToValidate="txtCantidad" ValidationGroup="carrito"
+                            ErrorMessage="Ingresá una cantidad." CssClass="text-danger small" Display="Dynamic" />
+                        <asp:RangeValidator ID="rvCantidad" runat="server" ControlToValidate="txtCantidad" ValidationGroup="carrito" Type="Integer" MinimumValue="1" MaximumValue="1"
+                            CssClass="text-danger small" Display="Dynamic" />
+                    </div>
                 </div>
 
                 <!-- Botón de Compra -->
                 <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                    <asp:Button ID="btnAgregarCarrito" runat="server" Text="🛒 Agregar al Carrito" CssClass="btn btn-primary btn-lg px-4 me-md-2 shadow-sm" OnClick="btnAgregarCarrito_Click" />
+                    <asp:Button ID="btnAgregarCarrito" runat="server" Text="🛒 Agregar al Carrito" CssClass="btn btn-primary btn-lg px-4 me-md-2 shadow-sm" ValidationGroup="carrito" OnClick="btnAgregarCarrito_Click" />
                     <a href="Carrito.aspx" class="btn btn-outline-secondary btn-lg px-4">Ver Carrito</a>
                 </div>
 
