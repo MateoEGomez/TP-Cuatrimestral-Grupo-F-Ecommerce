@@ -208,6 +208,7 @@
       <DependentUpon>AdminPedidosForm.aspx</DependentUpon>
     </Compile>
     <Compile Include="EstiloPedido.cs" />
+    <Compile Include="EstiloPublicacion.cs" />
     <Compile Include="AdminUsuarios.aspx.cs">
       <DependentUpon>AdminUsuarios.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

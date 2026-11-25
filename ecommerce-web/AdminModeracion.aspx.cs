@@ -1,11 +1,9 @@
-﻿using negocio;
-using dominio;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
+using dominio;
+using negocio;
 
 namespace ecommerce_web
 {
@@ -27,28 +25,104 @@ namespace ecommerce_web
 
             if (!IsPostBack)
             {
-                CargarPublicaciones();
+                try
+                {
+                    CargarEstados();
+                    CargarPublicaciones();
+                }
+                catch (Exception ex)
+                {
+                    Session.Add("error", ex.ToString());
+                    Response.Redirect("Error.aspx", false);
+                }
             }
+        }
+
+        private void CargarEstados()
+        {
+            EstadoPublicacionNegocio negocio = new EstadoPublicacionNegocio();
+            ddlEstado.DataSource = negocio.Listar();
+            ddlEstado.DataValueField = "Id";
+            ddlEstado.DataTextField = "Descripcion";
+            ddlEstado.DataBind();
+            ddlEstado.Items.Insert(0, new ListItem("Todas", "0"));
+            ddlEstado.SelectedValue = "1";
         }
 
         private void CargarPublicaciones()
         {
+            int? idEstado = null;
+            if (ddlEstado.SelectedValue != "0")
+                idEstado = int.Parse(ddlEstado.SelectedValue);
+
+            ProductoNegocio negocio = new ProductoNegocio();
+            List<Producto> lista = negocio.ListarParaModeracion(txtFiltro.Text, idEstado);
+
+            repPublicaciones.DataSource = lista;
+            repPublicaciones.DataBind();
+            pnlTabla.Visible = lista.Count > 0;
+            pnlSinResultados.Visible = lista.Count == 0;
+        }
+
+        protected void btnBuscar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                pnlMensaje.Visible = false;
+                pnlRechazo.Visible = false;
+                CargarPublicaciones();
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false);
+            }
+        }
+
+        protected void btnLimpiar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                txtFiltro.Text = "";
+                ddlEstado.SelectedValue = "1";
+                pnlMensaje.Visible = false;
+                pnlRechazo.Visible = false;
+                CargarPublicaciones();
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false);
+            }
+        }
+
+        protected void repPublicaciones_ItemCommand(object source, RepeaterCommandEventArgs e)
+        {
+            if (!int.TryParse(e.CommandArgument.ToString(), out int idProducto))
+                return;
+
             try
             {
                 ProductoNegocio negocio = new ProductoNegocio();
-                List<Producto> lista = negocio.ListarParaModeracion(txtFiltro.Text, ddlEstado.SelectedValue);
 
-                if (lista != null && lista.Count > 0)
+                if (e.CommandName == "Aprobar")
                 {
-                    repPublicaciones.DataSource = lista;
-                    repPublicaciones.DataBind();
-                    pnlTabla.Visible = true;
-                    pnlSinResultados.Visible = false;
+                    negocio.ModerarPublicacion(idProducto, 2, null);
+                    pnlRechazo.Visible = false;
+                    MostrarMensaje("La publicación #" + idProducto + " fue aprobada y ya se ve en la tienda.", "alert-success");
+                    CargarPublicaciones();
                 }
-                else
+                else if (e.CommandName == "Rechazar")
                 {
-                    pnlTabla.Visible = false;
-                    pnlSinResultados.Visible = true;
+                    Producto producto = negocio.ObtenerPorId(idProducto);
+                    if (producto == null)
+                        return;
+
+                    hfIdRechazo.Value = idProducto.ToString();
+                    lblRechazoPublicacion.Text = "#" + idProducto + " - " + HttpUtility.HtmlEncode(producto.Nombre);
+                    txtMotivo.Text = "";
+                    pnlMensaje.Visible = false;
+                    pnlRechazo.Visible = true;
                 }
             }
             catch (Exception ex)
@@ -58,62 +132,51 @@ namespace ecommerce_web
             }
         }
 
-        protected void btnBuscar_Click(object sender, EventArgs e)
+        protected void btnConfirmarRechazo_Click(object sender, EventArgs e)
         {
-            pnlMensaje.Visible = false;
-            CargarPublicaciones();
-        }
-
-        protected void btnLimpiar_Click(object sender, EventArgs e)
-        {
-            txtFiltro.Text = string.Empty;
-            ddlEstado.SelectedValue = "todos";
-            pnlMensaje.Visible = false;
-            CargarPublicaciones();
-        }
-
-        protected void repPublicaciones_ItemCommand(object source, RepeaterCommandEventArgs e)
-        {
-            if (!int.TryParse(e.CommandArgument.ToString(), out int idProducto))
+            if (!Page.IsValid)
                 return;
+
             try
             {
+                int idProducto = int.Parse(hfIdRechazo.Value);
                 ProductoNegocio negocio = new ProductoNegocio();
+                negocio.ModerarPublicacion(idProducto, 3, txtMotivo.Text);
 
-                if (e.CommandName == "Activar")
-                {
-                    negocio.CambiarEstadoPublicacion(idProducto, true);
-                    pnlMensaje.Visible = true;
-                    pnlMensaje.CssClass = "alert alert-success mb-4";
-                    lblMensaje.Text = $"La publicacion #{idProducto} fue aprobada y ya esta visible en la tienda.";
-                }
-                else if (e.CommandName == "Ocultar")
-                {
-                    negocio.CambiarEstadoPublicacion(idProducto, false);
-                    pnlMensaje.Visible = true;
-                    pnlMensaje.CssClass = "alert alert-warning mb-4";
-                    lblMensaje.Text = $"La publicacion #{idProducto} fue ocultada de la tienda";
-                }
-
+                pnlRechazo.Visible = false;
+                MostrarMensaje("La publicación #" + idProducto + " fue rechazada. El vendedor va a ver el motivo en Mis ventas.", "alert-warning");
                 CargarPublicaciones();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Session.Add("Error", ex.ToString());
+                Session.Add("error", ex.ToString());
                 Response.Redirect("Error.aspx", false);
             }
         }
 
-        public string FormatearVendedor(Object vendedorObj)
+        protected void btnCancelarRechazo_Click(object sender, EventArgs e)
         {
-            if(vendedorObj is Usuario vendedor)
-            {
-                string nombreCompleto = (vendedor.Nombre + " " + vendedor.Apellido).Trim();
-                if (!string.IsNullOrEmpty(nombreCompleto))
-                    return $"{nombreCompleto} <br/><small class='text-muted'>{vendedor.Email}</small>";
-                return vendedor.Email;
-            }
-            return "<span class='badge bg-secondary'>Tienda Oficial</span>";
+            pnlRechazo.Visible = false;
+        }
+
+        private void MostrarMensaje(string texto, string claseAlerta)
+        {
+            pnlMensaje.Visible = true;
+            pnlMensaje.CssClass = "alert " + claseAlerta + " mb-4";
+            lblMensaje.Text = texto;
+        }
+
+        public string FormatearVendedor(object vendedorObj)
+        {
+            Usuario vendedor = vendedorObj as Usuario;
+            if (vendedor == null)
+                return "";
+
+            string nombreCompleto = HttpUtility.HtmlEncode((vendedor.Nombre + " " + vendedor.Apellido).Trim());
+            string email = HttpUtility.HtmlEncode(vendedor.Email);
+            if (nombreCompleto != "")
+                return nombreCompleto + "<br/><small class='text-muted'>" + email + "</small>";
+            return email;
         }
     }
 }

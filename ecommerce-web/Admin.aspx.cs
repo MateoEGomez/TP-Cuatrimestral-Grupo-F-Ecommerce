@@ -17,6 +17,22 @@ namespace ecommerce_web
 
             if (!Seguridad.esAdmin(Session["usuario"]))
                 Response.Redirect("Default.aspx");
+
+            if (!IsPostBack)
+            {
+                try
+                {
+                    ProductoNegocio negocio = new ProductoNegocio();
+                    int pendientes = negocio.ContarPublicacionesPendientes();
+                    lblPendientes.Text = pendientes == 1 ? "1 pendiente" : pendientes + " pendientes";
+                    lblPendientes.Visible = pendientes > 0;
+                }
+                catch (Exception ex)
+                {
+                    Session.Add("error", ex.ToString());
+                    Response.Redirect("Error.aspx", false);
+                }
+            }
         }
 
         protected void btnActualizarPrecios_Click(object sender, EventArgs e)

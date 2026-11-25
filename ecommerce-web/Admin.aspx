@@ -143,7 +143,8 @@
                     <div class="card-body text-center">
                         <h1 class="display-4 mb-3">⚖️</h1>
                         <h5 class="card-title text-warning">Moderacion de publicaciones</h5>
-                        <p class="card-text text-muted small">Gestion de denuncias.</p>
+                        <p class="card-text text-muted small">Aprobar o rechazar las cartas que publican los usuarios.</p>
+                        <asp:Label ID="lblPendientes" runat="server" CssClass="badge bg-warning text-dark" />
                     </div>
                 </a>
             </div>
