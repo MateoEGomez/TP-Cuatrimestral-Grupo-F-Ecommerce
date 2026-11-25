@@ -38,6 +38,12 @@
                     Esta carta fue publicada por vos. Podés administrarla desde <a href="MisVentas.aspx" class="alert-link">Mis Ventas</a>.
                 </div>
                 <% }
+                    else if (!PublicacionAprobada)
+                    { %>
+                <div class="alert alert-warning fw-bold" role="alert">
+                    Esta publicación todavía no está aprobada. Revisala desde <a href="AdminModeracion.aspx" class="alert-link">Moderación</a>.
+                </div>
+                <% }
                     else if (ProductoSeleccionado != null && ProductoSeleccionado.Stock > 0)
                     { %>
                 <!-- Selector de Cantidad -->

@@ -11,6 +11,7 @@ namespace ecommerce_web
     {
         public Producto ProductoSeleccionado { get; set; }
         public bool EsPublicacionPropia { get; set; }
+        public bool PublicacionAprobada { get; set; }
 
         public string PrecioFormateado()
         {
@@ -30,7 +31,7 @@ namespace ecommerce_web
                 ProductoNegocio negocio = new ProductoNegocio();
                 Producto prod = negocio.ObtenerPorId(idProducto);
 
-                if (prod == null || !prod.Activo)
+                if (prod == null || !prod.Activo || prod.EstadoPublicacion.Id != 2)
                 {
                     pnlMensajeDetalle.Visible = true;
                     pnlMensajeDetalle.CssClass = "alert alert-warning mt-3";
@@ -113,7 +114,10 @@ namespace ecommerce_web
                         EsPublicacionPropia = (ProductoSeleccionado.Vendedor.Id == user.Id);
                     }
 
-                    if (!ProductoSeleccionado.Activo && !EsPublicacionPropia)
+                    PublicacionAprobada = ProductoSeleccionado.EstadoPublicacion.Id == 2;
+                    bool puedeVerla = EsPublicacionPropia || Seguridad.esAdmin(Session["usuario"]);
+
+                    if ((!ProductoSeleccionado.Activo || !PublicacionAprobada) && !puedeVerla)
                     {
                         Response.Redirect("Default.aspx", false);
                         return;

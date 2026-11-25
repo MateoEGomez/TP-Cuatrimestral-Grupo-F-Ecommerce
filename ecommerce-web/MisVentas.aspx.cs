@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Web;
 using dominio;
 using negocio;
 
@@ -22,6 +23,7 @@ namespace ecommerce_web
                 try
                 {
                     Usuario user = (Usuario)Session["usuario"];
+                    pnlPublicada.Visible = Request.QueryString["publicada"] == "1";
                     CargarVentas(user.Id);
                     CargarPublicaciones(user.Id);
                 }
@@ -58,7 +60,7 @@ namespace ecommerce_web
             pnlPublicaciones.Visible = publicaciones.Count > 0;
             pnlSinPublicaciones.Visible = publicaciones.Count == 0;
 
-            lblPublicacionesActivas.Text = publicaciones.Count(x => x.Activo && x.Stock > 0).ToString();
+            lblPublicacionesActivas.Text = publicaciones.Count(x => EstaALaVenta(x)).ToString();
         }
 
         public string FormatearUsd(decimal monto)
@@ -69,13 +71,17 @@ namespace ecommerce_web
         public bool EstaALaVenta(object dataItem)
         {
             Producto producto = (Producto)dataItem;
-            return producto.Activo && producto.Stock > 0;
+            return producto.Activo && producto.Stock > 0 && producto.EstadoPublicacion.Id == 2;
         }
 
         public string ObtenerEstadoPublicacion(object dataItem)
         {
             Producto producto = (Producto)dataItem;
 
+            if (producto.EstadoPublicacion.Id == 1)
+                return "<span class='badge bg-warning text-dark'>Pendiente de aprobación</span>";
+            if (producto.EstadoPublicacion.Id == 3)
+                return "<span class='badge bg-danger'>Rechazada</span><div class='small text-danger'>" + HttpUtility.HtmlEncode(producto.MotivoRechazo) + "</div>";
             if (!producto.Activo)
                 return "<span class='badge bg-secondary'>Oculta</span>";
             if (producto.Stock == 0)

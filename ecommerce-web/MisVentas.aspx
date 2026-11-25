@@ -7,6 +7,10 @@
             <a href="Publicar.aspx" class="btn btn-success">🏷️ Publicar otra carta</a>
         </div>
 
+        <asp:Panel ID="pnlPublicada" runat="server" Visible="false" CssClass="alert alert-success">
+            ¡Tu carta se publicó! Queda <strong>pendiente de aprobación</strong>: va a aparecer en la tienda cuando un administrador la revise.
+        </asp:Panel>
+
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <div class="card shadow-sm dark-mode-card h-100">

@@ -125,7 +125,7 @@ namespace ecommerce_web
 
                 negocio.InsertarPublicacionCliente(nuevoProducto, user.Id);
 
-                Response.Redirect("MisVentas.aspx", false);
+                Response.Redirect("MisVentas.aspx?publicada=1", false);
             }
             catch (Exception ex)
             {
