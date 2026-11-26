@@ -112,9 +112,27 @@
                                         <td><%# Eval("Stock") %></td>
                                         <td><%# ObtenerEstadoPublicacion(Container.DataItem) %></td>
                                         <td class="text-center pe-4">
-                                            <asp:HyperLink ID="lnkVer" runat="server" Text="Ver en la tienda" CssClass="btn btn-sm btn-outline-primary"
-                                                NavigateUrl='<%# "Detalle.aspx?id=" + Eval("Id") %>'
-                                                Visible='<%# EstaALaVenta(Container.DataItem) %>' />
+                                            <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                                <asp:HyperLink ID="lnkVer" runat="server" Text="Ver en la tienda" CssClass="btn btn-sm btn-outline-primary"
+                                                    NavigateUrl='<%# "Detalle.aspx?id=" + Eval("Id") %>'
+                                                    Visible='<%# EstaALaVenta(Container.DataItem) %>' />
+
+                                                <asp:LinkButton ID="btnPausar" runat="server" CssClass="btn btn-sm btn-outline-warning"
+                                                    CommandName="Pausar" CommandArgument='<%# Eval("Id") %>'
+                                                    Visible='<%# PuedePausar(Container.DataItem) %>'
+                                                    OnCommand="repPublicaciones_ItemCommand">Pausar</asp:LinkButton>
+
+                                                <asp:LinkButton ID="btnReactivar" runat="server" CssClass="btn btn-sm btn-outline-success"
+                                                    CommandName="Reactivar" CommandArgument='<%# Eval("Id") %>'
+                                                    Visible='<%# PuedeReactivar(Container.DataItem) %>'
+                                                    OnCommand="repPublicaciones_ItemCommand">Reactivar</asp:LinkButton>
+
+                                                <asp:LinkButton ID="btnBaja" runat="server" CssClass="btn btn-sm btn-outline-danger"
+                                                    CommandName="Baja" CommandArgument='<%# Eval("Id") %>'
+                                                    Visible='<%# PuedeDarDeBaja(Container.DataItem) %>'
+                                                    OnClientClick="return confirm('¿Seguro que querés dar de baja esta publicación?');"
+                                                    OnCommand="repPublicaciones_ItemCommand">Dar de baja</asp:LinkButton>
+                                            </div>
                                         </td>
                                     </tr>
                                 </ItemTemplate>

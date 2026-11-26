@@ -473,15 +473,37 @@ namespace negocio
             }
         }
 
-        // 10. Pausar o reactivar publicación desde Mis Ventas
-        public void CambiarEstadoPublicacion(int idProducto, bool nuevoEstado)
+        // 10. Pausar o reactivar publicación desde Mis Ventas (validando dueño)
+        public void CambiarEstadoPublicacion(int idProducto, int idVendedor, bool nuevoEstado)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
-                datos.setearConsulta("UPDATE PRODUCTOS SET Activo = @activo WHERE Id = @id");
+                datos.setearConsulta("UPDATE PRODUCTOS SET Activo = @activo WHERE Id = @id AND IdVendedor = @idVendedor");
                 datos.setearParametro("@activo", nuevoEstado);
                 datos.setearParametro("@id", idProducto);
+                datos.setearParametro("@idVendedor", idVendedor);
+                datos.ejecutarAccion();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        // 11. Dar de baja publicación propia desde Mis Ventas
+        public void DarDeBajaPublicacion(int idProducto, int idVendedor)
+        {
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearConsulta("UPDATE PRODUCTOS SET Activo = 0, Stock = 0 WHERE Id = @id AND IdVendedor = @idVendedor");
+                datos.setearParametro("@id", idProducto);
+                datos.setearParametro("@idVendedor", idVendedor);
                 datos.ejecutarAccion();
             }
             catch (Exception ex)

@@ -88,5 +88,53 @@ namespace ecommerce_web
                 return "<span class='badge bg-dark'>Sin stock</span>";
             return "<span class='badge bg-success'>A la venta</span>";
         }
+
+        public bool PuedePausar(object dataItem)
+        {
+            Producto producto = (Producto)dataItem;
+            return producto.Activo && producto.EstadoPublicacion.Id == 2;
+        }
+
+        public bool PuedeReactivar(object dataItem)
+        {
+            Producto producto = (Producto)dataItem;
+            return !producto.Activo && producto.Stock > 0 && producto.EstadoPublicacion.Id == 2;
+        }
+
+        public bool PuedeDarDeBaja(object dataItem)
+        {
+            Producto producto = (Producto)dataItem;
+            return producto.EstadoPublicacion.Id != 3 && (producto.Activo || producto.Stock > 0);
+        }
+
+        protected void repPublicaciones_ItemCommand(object sender, System.Web.UI.WebControls.CommandEventArgs e)
+        {
+            if (Session["usuario"] == null)
+            {
+                Response.Redirect("Login.aspx", false);
+                return;
+            }
+
+            try
+            {
+                Usuario user = (Usuario)Session["usuario"];
+                int idProducto = int.Parse(e.CommandArgument.ToString());
+                ProductoNegocio negocio = new ProductoNegocio();
+
+                if (e.CommandName == "Pausar")
+                    negocio.CambiarEstadoPublicacion(idProducto, user.Id, false);
+                else if (e.CommandName == "Reactivar")
+                    negocio.CambiarEstadoPublicacion(idProducto, user.Id, true);
+                else if (e.CommandName == "Baja")
+                    negocio.DarDeBajaPublicacion(idProducto, user.Id);
+
+                CargarPublicaciones(user.Id);
+            }
+            catch (Exception ex)
+            {
+                Session.Add("error", ex.ToString());
+                Response.Redirect("Error.aspx", false);
+            }
+        }
     }
 }
