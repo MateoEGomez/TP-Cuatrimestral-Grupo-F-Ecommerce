@@ -56,12 +56,27 @@
                         ValidationExpression="^[\s\S]{10,500}$" ErrorMessage="La descripción tiene que tener entre 10 y 500 caracteres." CssClass="text-danger small" Display="Dynamic" />
                 </div>
 
-                <div class="mb-3">
-                    <label for="<%= fileImagen.ClientID %>" class="form-label fw-bold">5. Foto real de la carta (opcional)</label>
-                    <asp:FileUpload ID="fileImagen" runat="server" CssClass="form-control" accept=".jpg,.jpeg,.png" />
-                    <asp:Label ID="lblErrorImagen" runat="server" CssClass="text-danger small d-block" Visible="false" />
-                    <div class="form-text">JPG o PNG de hasta 2 MB. Si no subís una, se usa la imagen del catálogo.</div>
-                </div>
+<div class="mb-3">
+    <label class="form-label fw-bold">5. Fotos reales de la carta (mínimo 2, máximo 3)</label>
+
+    <div class="mb-2">
+        <label for="<%= fileImagen1.ClientID %>" class="form-label small mb-1">Foto 1 (portada)</label>
+        <asp:FileUpload ID="fileImagen1" runat="server" CssClass="form-control" accept=".jpg,.jpeg,.png" />
+    </div>
+
+    <div class="mb-2">
+        <label for="<%= fileImagen2.ClientID %>" class="form-label small mb-1">Foto 2</label>
+        <asp:FileUpload ID="fileImagen2" runat="server" CssClass="form-control" accept=".jpg,.jpeg,.png" />
+    </div>
+
+    <div class="mb-1">
+        <label for="<%= fileImagen3.ClientID %>" class="form-label small mb-1">Foto 3 (opcional)</label>
+        <asp:FileUpload ID="fileImagen3" runat="server" CssClass="form-control" accept=".jpg,.jpeg,.png" />
+    </div>
+
+    <asp:Label ID="lblErrorImagen" runat="server" CssClass="text-danger small d-block mt-1" Visible="false" />
+    <div class="form-text">JPG o PNG de hasta 2 MB por foto. Subí al menos 2 fotos (hasta 3 como máximo).</div>
+</div>
 
                 <div class="alert alert-info small mb-0">
                     Tu publicación va a quedar <strong>pendiente de aprobación</strong> hasta que un administrador la revise.

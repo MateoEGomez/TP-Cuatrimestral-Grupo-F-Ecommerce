@@ -13,6 +13,7 @@ namespace ecommerce_web
 
     public partial class Publicar
     {
+
         /// <summary>
         /// Control pnlBuscar.
         /// </summary>
@@ -149,13 +150,31 @@ namespace ecommerce_web
         protected global::System.Web.UI.WebControls.RegularExpressionValidator revEstado;
 
         /// <summary>
-        /// Control fileImagen.
+        /// Control fileImagen1.
         /// </summary>
         /// <remarks>
         /// Campo generado automáticamente.
         /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fileImagen;
+        protected global::System.Web.UI.WebControls.FileUpload fileImagen1;
+
+        /// <summary>
+        /// Control fileImagen2.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fileImagen2;
+
+        /// <summary>
+        /// Control fileImagen3.
+        /// </summary>
+        /// <remarks>
+        /// Campo generado automáticamente.
+        /// Para modificarlo, mueva la declaración del campo del archivo del diseñador al archivo de código subyacente.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fileImagen3;
 
         /// <summary>
         /// Control lblErrorImagen.

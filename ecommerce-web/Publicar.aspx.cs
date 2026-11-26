@@ -123,22 +123,35 @@ namespace ecommerce_web
                     return;
                 }
 
-                string extension = "";
-                if (fileImagen.HasFile)
+                FileUpload[] controlesFoto = new FileUpload[] { fileImagen1, fileImagen2, fileImagen3 };
+                List<string> extensionesValidas = new List<string>();
+
+                foreach (FileUpload fu in controlesFoto)
                 {
-                    extension = Path.GetExtension(fileImagen.FileName).ToLower();
-                    if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
+                    if (fu.HasFile)
                     {
-                        lblErrorImagen.Text = "La foto tiene que ser una imagen JPG o PNG.";
-                        lblErrorImagen.Visible = true;
-                        return;
+                        string ext = Path.GetExtension(fu.FileName).ToLower();
+                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png")
+                        {
+                            lblErrorImagen.Text = "Todas las fotos tienen que ser imágenes JPG o PNG.";
+                            lblErrorImagen.Visible = true;
+                            return;
+                        }
+                        if (fu.PostedFile.ContentLength > TamanioMaximoFoto)
+                        {
+                            lblErrorImagen.Text = "Cada foto no puede pesar más de 2 MB.";
+                            lblErrorImagen.Visible = true;
+                            return;
+                        }
+                        extensionesValidas.Add(ext);
                     }
-                    if (fileImagen.PostedFile.ContentLength > TamanioMaximoFoto)
-                    {
-                        lblErrorImagen.Text = "La foto no puede pesar más de 2 MB.";
-                        lblErrorImagen.Visible = true;
-                        return;
-                    }
+                }
+
+                if (extensionesValidas.Count < 2)
+                {
+                    lblErrorImagen.Text = "Tenés que subir al menos 2 fotos de la carta (hasta 3 como máximo).";
+                    lblErrorImagen.Visible = true;
+                    return;
                 }
 
                 ProductoNegocio negocio = new ProductoNegocio();
@@ -149,6 +162,24 @@ namespace ecommerce_web
                     return;
                 }
 
+                string carpeta = Server.MapPath("~/Images/");
+                if (!Directory.Exists(carpeta))
+                    Directory.CreateDirectory(carpeta);
+
+                List<string> rutasGuardadas = new List<string>();
+                int idxValida = 0;
+
+                foreach (FileUpload fu in controlesFoto)
+                {
+                    if (fu.HasFile)
+                    {
+                        string ext = extensionesValidas[idxValida++];
+                        string nombreUnico = "pub_" + Guid.NewGuid().ToString("N").Substring(0, 8) + ext;
+                        fu.SaveAs(Path.Combine(carpeta, nombreUnico));
+                        rutasGuardadas.Add("~/Images/" + nombreUnico);
+                    }
+                }
+
                 Usuario user = (Usuario)Session["usuario"];
                 Producto nuevoProducto = new Producto();
                 nuevoProducto.Nombre = cartaBase.Nombre;
@@ -156,26 +187,12 @@ namespace ecommerce_web
                 nuevoProducto.Precio = Math.Round(precio, 2);
                 nuevoProducto.Stock = 1;
                 nuevoProducto.CardId = cartaBase.CardId;
+                nuevoProducto.UrlImagen = rutasGuardadas[0];
 
                 if (cartaBase.Expansion != null)
                 {
                     nuevoProducto.Expansion = new Expansion();
                     nuevoProducto.Expansion.Id = cartaBase.Expansion.Id;
-                }
-
-                if (fileImagen.HasFile)
-                {
-                    string carpeta = Server.MapPath("~/Images/");
-                    if (!Directory.Exists(carpeta))
-                        Directory.CreateDirectory(carpeta);
-
-                    string nombreUnico = "pub_" + Guid.NewGuid().ToString().Substring(0, 8) + extension;
-                    fileImagen.SaveAs(Path.Combine(carpeta, nombreUnico));
-                    nuevoProducto.UrlImagen = "~/Images/" + nombreUnico;
-                }
-                else
-                {
-                    nuevoProducto.UrlImagen = cartaBase.UrlImagen;
                 }
 
                 negocio.InsertarPublicacionCliente(nuevoProducto, user.Id);
