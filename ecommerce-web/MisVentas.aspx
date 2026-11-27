@@ -53,11 +53,12 @@
                                 <th>Fecha</th>
                                 <th>Cartas vendidas</th>
                                 <th>Total</th>
-                                <th class="pe-4">Estado del pedido</th>
+                                <th>Estado del pedido</th>
+                                <th class="text-center pe-4">Acción</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <asp:Repeater ID="repVentas" runat="server">
+                            <asp:Repeater ID="repVentas" runat="server" OnItemCommand="repVentas_ItemCommand">
                                 <ItemTemplate>
                                     <tr>
                                         <td class="ps-4 fw-bold">#ORD-<%# ((int)Eval("Id")).ToString("D6") %></td>
@@ -70,8 +71,35 @@
                                             </asp:Repeater>
                                         </td>
                                         <td class="fw-bold"><%# FormatearUsd((decimal)Eval("Total")) %></td>
-                                        <td class="pe-4">
+                                        <td>
                                             <span class='badge <%# ecommerce_web.EstiloPedido.ObtenerClaseEstado((int)Eval("Estado.Id")) %>'><%# Eval("Estado.Descripcion") %></span>
+                                        </td>
+                                        <td class="text-center pe-4">
+                                            <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                                <asp:LinkButton ID="btnMarcarPagado" runat="server"
+                                                    CommandName="AvanzarEstado"
+                                                    CommandArgument='<%# Eval("Id") + "|2" %>'
+                                                    Visible='<%# (int)Eval("Estado.Id") == 1 %>'
+                                                    CssClass="btn btn-sm btn-outline-success">
+                                                    Marcar Pagado
+                                                </asp:LinkButton>
+
+                                                <asp:LinkButton ID="btnMarcarEnviado" runat="server"
+                                                    CommandName="AvanzarEstado"
+                                                    CommandArgument='<%# Eval("Id") + "|4" %>'
+                                                    Visible='<%# (int)Eval("Estado.Id") == 2 || (int)Eval("Estado.Id") == 3 %>'
+                                                    CssClass="btn btn-sm btn-outline-primary">
+                                                    En camino / Enviado
+                                                </asp:LinkButton>
+
+                                                <asp:LinkButton ID="btnMarcarEntregado" runat="server"
+                                                    CommandName="AvanzarEstado"
+                                                    CommandArgument='<%# Eval("Id") + "|5" %>'
+                                                    Visible='<%# (int)Eval("Estado.Id") == 4 %>'
+                                                    CssClass="btn btn-sm btn-outline-secondary">
+                                                    Entregado
+                                                </asp:LinkButton>
+                                            </div>
                                         </td>
                                     </tr>
                                 </ItemTemplate>

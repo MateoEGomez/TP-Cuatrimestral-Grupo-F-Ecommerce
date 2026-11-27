@@ -56,9 +56,6 @@ namespace ecommerce_web
 
         protected void repPedidos_ItemCommand(object sender, RepeaterCommandEventArgs e)
         {
-            if (e.CommandName != "VerDetalle")
-                return;
-
             try
             {
                 if (!int.TryParse(e.CommandArgument.ToString(), out int idPedido))
@@ -71,14 +68,26 @@ namespace ecommerce_web
                 if (seleccionado == null)
                     return;
 
-                lblNumeroOrdenDetalle.Text = "#ORD-" + seleccionado.Id.ToString("D6");
-                lblInfoEntrega.Text = seleccionado.Direccion != null
-                    ? seleccionado.FormaEntrega.Descripcion + " - " + seleccionado.Direccion.ToString()
-                    : seleccionado.FormaEntrega.Descripcion;
+                if (e.CommandName == "VerDetalle")
+                {
+                    lblNumeroOrdenDetalle.Text = "#ORD-" + seleccionado.Id.ToString("D6");
+                    lblInfoEntrega.Text = seleccionado.Direccion != null
+                        ? seleccionado.FormaEntrega.Descripcion + " - " + seleccionado.Direccion.ToString()
+                        : seleccionado.FormaEntrega.Descripcion;
 
-                repDetallePedido.DataSource = negocio.ListarDetallePedido(idPedido);
-                repDetallePedido.DataBind();
-                pnlDetallePedido.Visible = true;
+                    repDetallePedido.DataSource = negocio.ListarDetallePedido(idPedido);
+                    repDetallePedido.DataBind();
+                    pnlDetallePedido.Visible = true;
+                }
+                else if (e.CommandName == "CancelarCompra")
+                {
+                    if (seleccionado.Estado.Id != 1)
+                        return;
+
+                    negocio.CambiarEstado(idPedido, 6);
+                    pnlDetallePedido.Visible = false;
+                    CargarPedidosUsuario();
+                }
             }
             catch (Exception ex)
             {

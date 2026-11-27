@@ -45,13 +45,24 @@
                                             </span>
                                         </td>
                                         <td class="text-center pe-4">
-                                            <asp:LinkButton ID="btnVerDetalle" runat="server"
-                                                CommandName="VerDetalle"
-                                                CommandArgument='<%# Eval("Id") %>'
-                                                CssClass="btn btn-sm btn-outline-primary">
-                                            Ver Detalle
-                                            </asp:LinkButton>
-                                        </td>
+                                    <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                    <asp:LinkButton ID="btnVerDetalle" runat="server"
+                                    CommandName="VerDetalle"
+                                    CommandArgument='<%# Eval("Id") %>'
+                                    CssClass="btn btn-sm btn-outline-primary">
+                                    Ver Detalle
+                                    </asp:LinkButton>
+
+                                    <asp:LinkButton ID="btnCancelarCompra" runat="server"
+                                    CommandName="CancelarCompra"
+                                    CommandArgument='<%# Eval("Id") %>'
+                                    Visible='<%# (int)Eval("Estado.Id") == 1 %>'
+                                    OnClientClick="return confirm('¿Seguro que querés cancelar esta compra pendiente?');"
+                                    CssClass="btn btn-sm btn-outline-danger">
+                                    Cancelar
+        </asp:LinkButton>
+    </div>
+</td>
                                     </tr>
                                 </ItemTemplate>
                             </asp:Repeater>
