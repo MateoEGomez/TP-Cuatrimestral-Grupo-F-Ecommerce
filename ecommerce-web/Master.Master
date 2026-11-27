@@ -132,6 +132,7 @@
                                 <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Mi cuenta</button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="MiPerfil.aspx">Mi perfil</a></li>
+                                    <li><a class="dropdown-item" href="Carrito.aspx">🛒Carrito</a></li>
                                     <li><a class="dropdown-item" href="MisPedidos.aspx">Mis pedidos</a></li>
                                     <li><a class="dropdown-item" href="MisVentas.aspx">Mis ventas</a></li>
                                 </ul>

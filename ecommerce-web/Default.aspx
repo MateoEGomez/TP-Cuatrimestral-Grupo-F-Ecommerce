@@ -65,9 +65,6 @@
                 <h1>¡Bienvenido a la Tienda TCG!</h1>
                 <p class="lead mb-0">Encontrá las mejores cartas y expansiones coleccionables en un solo lugar.</p>
             </div>
-            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnToggleTheme" onclick="toggleDarkMode()">
-                🌙 Modo Oscuro
-            </button>
         </div>
 
         <!-- SECCION COMPRA VENTA -->
