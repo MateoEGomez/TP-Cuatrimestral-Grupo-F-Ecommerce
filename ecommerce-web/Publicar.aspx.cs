@@ -195,7 +195,8 @@ namespace ecommerce_web
                     nuevoProducto.Expansion.Id = cartaBase.Expansion.Id;
                 }
 
-                negocio.InsertarPublicacionCliente(nuevoProducto, user.Id);
+                int idGenerado = negocio.InsertarPublicacionCliente(nuevoProducto, user.Id);
+                negocio.GuardarImagenesProducto(idGenerado, rutasGuardadas);
 
                 Response.Redirect("MisVentas.aspx?publicada=1", false);
             }

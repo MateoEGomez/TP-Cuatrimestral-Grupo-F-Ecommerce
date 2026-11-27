@@ -16,6 +16,7 @@ namespace dominio
         public decimal Precio { get; set; }
         public decimal? PrecioARS { get; set; }
         public int Stock { get; set; }
+        public List<string> Imagenes { get; set; } = new List<string>();
         public string UrlImagen { get; set; }
         [DisplayName("Categoría")]
         public Categoria Categoria { get; set; }

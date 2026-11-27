@@ -16,8 +16,24 @@
             <!-- Columna Imagen Dinámica -->
             <div class="col-md-5 text-center mb-4 mb-md-0">
                 <div class="p-3 glow-ultra d-inline-block">
-                    <img src="<%= ProductoSeleccionado != null && !string.IsNullOrEmpty(ProductoSeleccionado.UrlImagen) ? ResolveUrl(ProductoSeleccionado.UrlImagen) : "" %>" alt="Carta TCG" class="img-fluid rounded" style="max-height: 500px; object-fit: contain;" />
+                    <img id="imgPrincipalDetalle"
+                         src="<%= ImagenPrincipalUrl() %>"
+                         alt="Carta TCG"
+                         class="img-fluid rounded"
+                         style="max-height: 500px; object-fit: contain;" />
                 </div>
+
+                <% if (ImagenesProducto != null && ImagenesProducto.Count > 1) { %>
+                    <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                        <% foreach (var imgUrl in ImagenesProducto) { %>
+                            <img src="<%= ResolveUrl(imgUrl) %>"
+                                 alt="Vista de la carta"
+                                 class="img-thumbnail"
+                                 style="width: 72px; height: 96px; object-fit: contain; cursor: pointer;"
+                                 onclick="document.getElementById('imgPrincipalDetalle').src = this.src;" />
+                        <% } %>
+                    </div>
+                <% } %>
             </div>
 
             <!-- Columna Información Dinámica -->
@@ -84,4 +100,5 @@
                 <% } %>
             </div>
         </div>
+    </div>
 </asp:Content>

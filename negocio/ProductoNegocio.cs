@@ -383,14 +383,15 @@ namespace negocio
             }
         }
 
-        // 8. Registrar publicación de un cliente
-        public void InsertarPublicacionCliente(Producto nuevo, int idVendedor)
+        // 8. Registrar publicación de un cliente y devolver el Id generado
+        public int InsertarPublicacionCliente(Producto nuevo, int idVendedor)
         {
             AccesoDatos datos = new AccesoDatos();
             try
             {
                 string consulta = "INSERT INTO PRODUCTOS (Nombre, Descripcion, Precio, Stock, UrlImagen, IdCategoria, Activo, IdExpansion, CardId, IdVendedor, IdEstadoPublicacion) " +
-                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId, @idVendedor, 1)";
+                                  "VALUES (@nombre, @descripcion, @precio, @stock, @urlImagen, @idCategoria, @activo, @idExpansion, @cardId, @idVendedor, 1); " +
+                                  "SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
                 datos.setearConsulta(consulta);
                 datos.setearParametro("@nombre", nuevo.Nombre);
@@ -404,7 +405,61 @@ namespace negocio
                 datos.setearParametro("@cardId", (object)nuevo.CardId ?? DBNull.Value);
                 datos.setearParametro("@idVendedor", idVendedor);
 
-                datos.ejecutarAccion();
+                return datos.ejecutarAccionScalar();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                datos.cerrarConexion();
+            }
+        }
+
+        public void GuardarImagenesProducto(int idProducto, List<string> rutas)
+        {
+            if (rutas == null || rutas.Count == 0)
+                return;
+
+            for (int i = 0; i < rutas.Count; i++)
+            {
+                AccesoDatos datos = new AccesoDatos();
+                try
+                {
+                    datos.setearConsulta("INSERT INTO IMAGENES_PRODUCTO (IdProducto, UrlImagen, Orden) VALUES (@idProducto, @urlImagen, @orden)");
+                    datos.setearParametro("@idProducto", idProducto);
+                    datos.setearParametro("@urlImagen", rutas[i]);
+                    datos.setearParametro("@orden", i + 1);
+                    datos.ejecutarAccion();
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    datos.cerrarConexion();
+                }
+            }
+        }
+
+        public List<string> ListarImagenesProducto(int idProducto)
+        {
+            List<string> urls = new List<string>();
+            AccesoDatos datos = new AccesoDatos();
+            try
+            {
+                datos.setearConsulta("SELECT UrlImagen FROM IMAGENES_PRODUCTO WHERE IdProducto = @idProducto ORDER BY Orden ASC");
+                datos.setearParametro("@idProducto", idProducto);
+                datos.ejecutarLectura();
+
+                while (datos.Lector.Read())
+                {
+                    if (!(datos.Lector["UrlImagen"] is DBNull))
+                        urls.Add((string)datos.Lector["UrlImagen"]);
+                }
+                return urls;
             }
             catch (Exception ex)
             {

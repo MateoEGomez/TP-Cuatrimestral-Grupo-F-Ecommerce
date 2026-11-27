@@ -138,6 +138,12 @@ namespace ecommerce_web
                     ProductoNegocio negocio = new ProductoNegocio();
                     ProductoSeleccionado = negocio.ObtenerPorId(id);
 
+                    ImagenesProducto = negocio.ListarImagenesProducto(ProductoSeleccionado.Id);
+                    if (ImagenesProducto.Count == 0 && !string.IsNullOrEmpty(ProductoSeleccionado.UrlImagen))
+                    {
+                        ImagenesProducto.Add(ProductoSeleccionado.UrlImagen);
+                    }
+
                     if (ProductoSeleccionado == null)
                     {
                         Response.Redirect("Default.aspx", false);
@@ -175,5 +181,19 @@ namespace ecommerce_web
                 Response.Redirect("Error.aspx", false);
             }
         }
+
+        public List<string> ImagenesProducto { get; set; } = new List<string>();
+
+        public string ImagenPrincipalUrl()
+        {
+            if (ImagenesProducto != null && ImagenesProducto.Count > 0)
+                return ResolveUrl(ImagenesProducto[0]);
+
+            return ProductoSeleccionado != null && !string.IsNullOrEmpty(ProductoSeleccionado.UrlImagen)
+                ? ResolveUrl(ProductoSeleccionado.UrlImagen)
+                : "";
+        }
+
+
     }
 }

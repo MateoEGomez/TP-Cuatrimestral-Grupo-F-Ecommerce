@@ -60,12 +60,12 @@
     <label class="form-label fw-bold">5. Fotos reales de la carta (mínimo 2, máximo 3)</label>
 
     <div class="mb-2">
-        <label for="<%= fileImagen1.ClientID %>" class="form-label small mb-1">Foto 1 (portada)</label>
+        <label for="<%= fileImagen1.ClientID %>" class="form-label small mb-1">Foto 1 (frente)</label>
         <asp:FileUpload ID="fileImagen1" runat="server" CssClass="form-control" accept=".jpg,.jpeg,.png" />
     </div>
 
     <div class="mb-2">
-        <label for="<%= fileImagen2.ClientID %>" class="form-label small mb-1">Foto 2</label>
+        <label for="<%= fileImagen2.ClientID %>" class="form-label small mb-1">Foto 2 (dorso)</label>
         <asp:FileUpload ID="fileImagen2" runat="server" CssClass="form-control" accept=".jpg,.jpeg,.png" />
     </div>
 
