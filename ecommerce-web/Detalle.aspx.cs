@@ -138,16 +138,16 @@ namespace ecommerce_web
                     ProductoNegocio negocio = new ProductoNegocio();
                     ProductoSeleccionado = negocio.ObtenerPorId(id);
 
-                    ImagenesProducto = negocio.ListarImagenesProducto(ProductoSeleccionado.Id);
-                    if (ImagenesProducto.Count == 0 && !string.IsNullOrEmpty(ProductoSeleccionado.UrlImagen))
-                    {
-                        ImagenesProducto.Add(ProductoSeleccionado.UrlImagen);
-                    }
-
                     if (ProductoSeleccionado == null)
                     {
                         Response.Redirect("Default.aspx", false);
                         return;
+                    }
+
+                    ImagenesProducto = negocio.ListarImagenesProducto(ProductoSeleccionado.Id);
+                    if (ImagenesProducto.Count == 0 && !string.IsNullOrEmpty(ProductoSeleccionado.UrlImagen))
+                    {
+                        ImagenesProducto.Add(ProductoSeleccionado.UrlImagen);
                     }
 
                     if (Session["usuario"] != null && ProductoSeleccionado.Vendedor != null)
