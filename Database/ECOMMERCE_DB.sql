@@ -21593,3 +21593,15 @@ update Productos set Nombre = N'Umbreon ★' where CardId = 'cel25c-17' and Nomb
 update Productos set Nombre = N'_____''s Pikachu' where CardId = 'cel25c-24' and Nombre <> N'_____''s Pikachu' collate Latin1_General_BIN
 update Productos set Nombre = N'Gardevoir ex δ' where CardId = 'cel25c-93' and Nombre <> N'Gardevoir ex δ' collate Latin1_General_BIN
 go
+
+
+if object_id('IMAGENES_PRODUCTO') is null
+begin
+	create table IMAGENES_PRODUCTO (
+		Id int identity(1,1) not null constraint PK_IMAGENES_PRODUCTO primary key,
+		IdProducto int not null constraint FK_IMAGENES_PRODUCTO_PRODUCTOS foreign key references PRODUCTOS (Id),
+		UrlImagen varchar(500) not null,
+		Orden int not null
+	)
+end
+go
