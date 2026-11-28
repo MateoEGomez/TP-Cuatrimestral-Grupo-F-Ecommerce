@@ -35,10 +35,34 @@ namespace ecommerce_web
             }
         }
 
+        private List<int> pedidosPropios = new List<int>();
+
+        private bool EsPedidoCompleto(PedidoNegocio negocio, Pedido venta)
+        {
+            return negocio.ListarDetallePedido(venta.Id).Count == venta.Detalles.Count;
+        }
+
+        public bool EsPedidoPropio(object dataItem)
+        {
+            return pedidosPropios.Contains(((Pedido)dataItem).Id);
+        }
+
+        public bool PuedeCambiarEstado(object dataItem, int estado)
+        {
+            return EsPedidoPropio(dataItem) && ((Pedido)dataItem).Estado.Id == estado;
+        }
+
         private void CargarVentas(int idVendedor)
         {
             PedidoNegocio negocio = new PedidoNegocio();
             List<Pedido> ventas = negocio.ListarVentasVendedor(idVendedor);
+
+            pedidosPropios = new List<int>();
+            foreach (Pedido venta in ventas)
+            {
+                if (EsPedidoCompleto(negocio, venta))
+                    pedidosPropios.Add(venta.Id);
+            }
 
             repVentas.DataSource = ventas;
             repVentas.DataBind();
@@ -160,7 +184,7 @@ namespace ecommerce_web
                 PedidoNegocio pedidoNegocio = new PedidoNegocio();
 
                 Pedido venta = pedidoNegocio.ListarVentasVendedor(user.Id).FirstOrDefault(x => x.Id == idPedido);
-                if (venta == null)
+                if (venta == null || !EsPedidoCompleto(pedidoNegocio, venta))
                     return;
 
                 int estadoActual = venta.Estado.Id;

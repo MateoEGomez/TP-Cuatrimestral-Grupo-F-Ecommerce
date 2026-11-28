@@ -79,7 +79,7 @@
                                                 <asp:LinkButton ID="btnMarcarPagado" runat="server"
                                                     CommandName="AvanzarEstado"
                                                     CommandArgument='<%# Eval("Id") + "|2" %>'
-                                                    Visible='<%# (int)Eval("Estado.Id") == 1 %>'
+                                                    Visible='<%# PuedeCambiarEstado(Container.DataItem, 1) %>'
                                                     CssClass="btn btn-sm btn-outline-success">
                                                     Marcar Pagado
                                                 </asp:LinkButton>
@@ -87,7 +87,7 @@
                                                 <asp:LinkButton ID="btnMarcarEnviado" runat="server"
                                                     CommandName="AvanzarEstado"
                                                     CommandArgument='<%# Eval("Id") + "|4" %>'
-                                                    Visible='<%# (int)Eval("Estado.Id") == 2 || (int)Eval("Estado.Id") == 3 %>'
+                                                    Visible='<%# PuedeCambiarEstado(Container.DataItem, 2) || PuedeCambiarEstado(Container.DataItem, 3) %>'
                                                     CssClass="btn btn-sm btn-outline-primary">
                                                     En camino / Enviado
                                                 </asp:LinkButton>
@@ -95,10 +95,11 @@
                                                 <asp:LinkButton ID="btnMarcarEntregado" runat="server"
                                                     CommandName="AvanzarEstado"
                                                     CommandArgument='<%# Eval("Id") + "|5" %>'
-                                                    Visible='<%# (int)Eval("Estado.Id") == 4 %>'
+                                                    Visible='<%# PuedeCambiarEstado(Container.DataItem, 4) %>'
                                                     CssClass="btn btn-sm btn-outline-secondary">
                                                     Entregado
                                                 </asp:LinkButton>
+                                                <%# EsPedidoPropio(Container.DataItem) ? "" : "<span class='small text-muted'>Pedido compartido con la tienda: lo gestiona el administrador</span>" %>
                                             </div>
                                         </td>
                                     </tr>
